@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<title>Professor Dashboard - ExamPortal</title>
+	<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+		rel="stylesheet" />
+	<script>
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						"primary": "#135bec",
+						"background-light": "#f6f6f8",
+						"background-dark": "#101622",
+					},
+					fontFamily: {
+						"display": ["Lexend", "sans-serif"]
+					},
+				},
+			},
+		}
+	</script>
+	<style>
+		body {
+			font-family: 'Lexend', sans-serif;
+		}
+
+		.geometric-bg {
+			background-color: #f6f6f8;
+			background-image: radial-gradient(#135bec11 1px, transparent 1px);
+			background-size: 24px 24px;
+		}
+
+		.dark .geometric-bg {
+			background-color: #101622;
+			background-image: radial-gradient(#135bec22 1px, transparent 1px);
+		}
+
+		/* Custom scrollbar */
+		::-webkit-scrollbar {
+			width: 6px;
+			height: 6px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 3px;
+		}
+
+		.dark ::-webkit-scrollbar-thumb {
+			background: #475569;
+		}
+	</style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+	<div class="flex h-screen overflow-hidden">
+		<!-- Sidebar Navigation -->
+		<aside
+			class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6">
+			<div class="flex flex-col gap-8 px-6">
+				<!-- Profile Section -->
+				<div class="flex gap-3 items-center">
+					<div id="sidebarAvatar"
+						class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
+						<span class="material-symbols-outlined text-primary text-2xl">person</span>
+					</div>
+					<div class="flex flex-col">
+						<h1 id="sidebarProfName"
+							class="text-[#111318] dark:text-white text-base font-semibold leading-tight"
+							th:text="${professorName}">Professor</h1>
+						<h5 class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-tight">Faculty</h5>
+					</div>
+				</div>
+				<!-- Nav Links -->
+				<nav class="flex flex-col gap-1 overflow-y-auto max-h-[calc(100vh-250px)] pr-2">
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all"
+						href="#">
+						<span class="material-symbols-outlined fill-1">dashboard</span>
+						<p class="text-sm font-medium">Dashboard</p>
+					</a>
+
+					<!-- Manage Exam Dropdown -->
+					<div class="relative">
+						<button id="manageExamBtn"
+							class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+							<div class="flex items-center gap-3">
+								<span class="material-symbols-outlined">quiz</span>
+								<p class="text-sm font-medium">Manage Exam</p>
+							</div>
+							<span id="manageExamArrow"
+								class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
+						</button>
+						<div id="manageExamSub"
+							class="hidden flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all">
+							<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+								th:href="@{/professor/exams}">
+								<span class="material-symbols-outlined text-xs">list_alt</span>
+								<p class="text-xs">All Exams</p>
+							</a>
+							<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+								th:href="@{/professor/exams/create}">
+								<span class="material-symbols-outlined text-xs">add_circle</span>
+								<p class="text-xs">Create Exam</p>
+							</a>
+							<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+								th:href="@{/professor/exams/set-questions}">
+								<span class="material-symbols-outlined text-xs">format_list_bulleted</span>
+								<p class="text-xs">Set Questions</p>
+							</a>
+						</div>
+					</div>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/monitoring}">
+						<span class="material-symbols-outlined">monitoring</span>
+						<p class="text-sm font-medium">Monitoring</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/students}">
+						<span class="material-symbols-outlined">group</span>
+						<p class="text-sm font-medium">Student Management</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/grading}">
+						<span class="material-symbols-outlined">grade</span>
+						<p class="text-sm font-medium">Grading & Feedback</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/reports}">
+						<span class="material-symbols-outlined">analytics</span>
+						<p class="text-sm font-medium">Report & Analytics</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/trends}">
+						<span class="material-symbols-outlined">trending_up</span>
+						<p class="text-sm font-medium">Trend Analysis</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/contacts}">
+						<span class="material-symbols-outlined">contact_mail</span>
+						<p class="text-sm font-medium">Manage Contacts</p>
+					</a>
+
+					<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+						th:href="@{/professor/exam-review}">
+						<span class="material-symbols-outlined">reviews</span>
+						<p class="text-sm font-medium">Manage Exam Review</p>
+					</a>
+				</nav>
+			</div>
+			<!-- Footer Sidebar -->
+			<div class="flex flex-col gap-1 px-6">
+				<button id="darkModeToggle"
+					class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+					<span class="material-symbols-outlined">dark_mode</span>
+					<p class="text-sm font-medium">Dark Mode</p>
+					<div class="ml-auto">
+						<div
+							class="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-primary transition-colors">
+							<div
+								class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform dark:transform dark:translate-x-5">
+							</div>
+						</div>
+					</div>
+				</button>
+				<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+					th:href="@{/professor/settings}">
+					<span class="material-symbols-outlined">settings</span>
+					<p class="text-sm font-medium">Settings</p>
+				</a>
+				<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+					th:href="@{/logout}">
+					<span class="material-symbols-outlined">logout</span>
+					<p class="text-sm font-medium">Logout</p>
+				</a>
+			</div>
+		</aside>
+
+		<!-- Main Content Area -->
+		<main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+			<!-- Top Navigation Bar -->
+			<header
+				class="flex items-center justify-between sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4">
+				<div class="flex items-center gap-6">
+					<div class="flex items-center gap-2">
+						<div class="text-primary">
+							<svg class="size-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+								<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+							</svg>
+						</div>
+						<h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Professor Portal
+						</h2>
+					</div>
+					<!-- Search Bar -->
+				</div>
+				<div class="flex items-center gap-4">
+					<button
+						class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+						<span class="material-symbols-outlined">notifications</span>
+					</button>
+				</div>
+			</header>
+
+			<!-- Dashboard Content -->
+			<div class="p-8 max-w-[1400px] mx-auto w-full flex flex-col gap-8">
+				<!-- Welcome Section -->
+				<section>
+					<div class="flex items-end justify-between mb-6">
+						<div>
+							<h3 class="text-slate-900 dark:text-white text-2xl font-bold">
+								Welcome back, <span th:text="${professorName}">Professor</span>! 👋
+							</h3>
+							<p class="text-slate-500 dark:text-slate-400 text-sm">Here's what's happening with your
+								exams today.</p>
+						</div>
+						<a th:href="@{/professor/exams/create}"
+							class="hidden sm:flex items-center gap-2 px-6 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/25">
+							<span class="material-symbols-outlined">add</span>
+							<span>Create New Exam</span>
+						</a>
+					</div>
+
+					<!-- Stats Cards -->
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+						<!-- Total Students -->
+						<div
+							class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div>
+									<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total
+										Students</p>
+									<h4 class="text-slate-900 dark:text-white text-3xl font-bold"
+										th:text="${totalStudents}">0</h4>
+								</div>
+								<div
+									class="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary">
+									<span class="material-symbols-outlined">group</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Total Exams -->
+						<div
+							class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div>
+									<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Exams
+									</p>
+									<h4 class="text-slate-900 dark:text-white text-3xl font-bold"
+										th:text="${totalExams}">0</h4>
+								</div>
+								<div
+									class="size-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600">
+									<span class="material-symbols-outlined">quiz</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Live Exams -->
+						<div
+							class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div>
+									<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Live Exams
+									</p>
+									<h4 class="text-slate-900 dark:text-white text-3xl font-bold"
+										th:text="${liveExams}">0</h4>
+									<div class="mt-2 flex items-center gap-1 text-emerald-600 text-sm font-bold">
+										<span class="size-2 bg-emerald-500 rounded-full animate-pulse"></span>
+										<span>Active Now</span>
+									</div>
+								</div>
+								<div
+									class="size-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
+									<span class="material-symbols-outlined">play_circle</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Upcoming Exams -->
+						<div
+							class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div>
+									<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Upcoming</p>
+									<h4 class="text-slate-900 dark:text-white text-3xl font-bold"
+										th:text="${upcomingExams}">0</h4>
+								</div>
+								<div
+									class="size-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600">
+									<span class="material-symbols-outlined">schedule</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Results Published -->
+						<div
+							class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div>
+									<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Results</p>
+									<h4 class="text-slate-900 dark:text-white text-3xl font-bold"
+										th:text="${resultsPublished}">0</h4>
+								</div>
+								<div
+									class="size-12 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-600">
+									<span class="material-symbols-outlined">leaderboard</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Quick Actions -->
+				<section
+					class="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800">
+					<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+						<div>
+							<h2 class="text-[#111318] dark:text-white text-xl font-bold leading-tight">Quick Actions
+							</h2>
+							<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage your exams and students
+								quickly.</p>
+						</div>
+						<div class="flex flex-wrap gap-4">
+							<a th:href="@{/professor/exams/create}">
+								<button
+									class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/25">
+									<span class="material-symbols-outlined">add_circle</span>
+									<span>Create Exam</span>
+								</button>
+							</a>
+							<a th:href="@{/professor/exams}">
+								<button
+									class="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all border border-slate-200 dark:border-slate-700">
+									<span class="material-symbols-outlined">list_alt</span>
+									<span>View All Exams</span>
+								</button>
+							</a>
+							<a th:href="@{/professor/results}">
+								<button
+									class="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all border border-slate-200 dark:border-slate-700">
+									<span class="material-symbols-outlined">analytics</span>
+									<span>View Results</span>
+								</button>
+							</a>
+						</div>
+					</div>
+				</section>
+
+				<!-- Main Grid -->
+				<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+					<!-- Recent Exams -->
+					<div
+						class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+						<div
+							class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-primary">quiz</span>
+								<h3 class="font-bold text-slate-900 dark:text-white">Recent Exams</h3>
+							</div>
+							<a th:href="@{/professor/exams}"
+								class="text-primary text-sm font-semibold hover:underline">View All</a>
+						</div>
+						<div class="overflow-x-auto">
+							<table class="w-full">
+								<thead class="bg-slate-50 dark:bg-slate-800/50">
+									<tr>
+										<th
+											class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Exam</th>
+										<th
+											class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Course</th>
+										<th
+											class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Duration</th>
+										<th
+											class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Marks</th>
+										<th
+											class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Status</th>
+										<th
+											class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+											Action</th>
+									</tr>
+								</thead>
+								<tbody id="examTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+									<!-- Populated by JavaScript -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- Recent Activities -->
+					<div
+						class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+						<div
+							class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<span class="material-symbols-outlined text-amber-500">history</span>
+								<h3 class="font-bold text-slate-900 dark:text-white">Recent Activities</h3>
+							</div>
+						</div>
+						<div class="p-6">
+							<ul id="activityList" class="flex flex-col gap-4">
+								<!-- Populated by JavaScript -->
+							</ul>
+						</div>
+					</div>
+				</section>
+
+				<!-- Students Overview -->
+				<section
+					class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+					<div
+						class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<span class="material-symbols-outlined text-purple-500">group</span>
+							<h3 class="font-bold text-slate-900 dark:text-white">Students Overview</h3>
+						</div>
+						<a th:href="@{/professor/students}"
+							class="text-primary text-sm font-semibold hover:underline">View All</a>
+					</div>
+					<div class="overflow-x-auto">
+						<table class="w-full">
+							<thead class="bg-slate-50 dark:bg-slate-800/50">
+								<tr>
+									<th
+										class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+										Name</th>
+									<th
+										class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+										Email</th>
+									<th
+										class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+										Enrollment Date</th>
+								</tr>
+							</thead>
+							<tbody id="studentTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+								<!-- Populated by JavaScript -->
+							</tbody>
+						</table>
+					</div>
+				</section>
+			</div>
+		</main>
+	</div>
+
+	<script>
+			// Dark Mode Functionality
+			(function initDarkMode() {
+				const darkMode = localStorage.getItem('darkMode');
+				const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+
+		document.addEventListener('DOMContentLoaded', function () {
+			// Dark mode toggle
+			const darkModeToggle = document.getElementById('darkModeToggle');
+			if (darkModeToggle) {
+				darkModeToggle.addEventListener('click', function () {
+					document.documentElement.classList.toggle('dark');
+					localStorage.setItem('darkMode', document.documentElement.classList.contains('dark') ? 'enabled' : 'disabled');
+				});
+			}
+
+			// Manage Exam Sub-menu Toggle
+			const manageExamBtn = document.getElementById('manageExamBtn');
+			const manageExamSub = document.getElementById('manageExamSub');
+			const manageExamArrow = document.getElementById('manageExamArrow');
+
+			if (manageExamBtn && manageExamSub) {
+				manageExamBtn.addEventListener('click', function () {
+					manageExamSub.classList.toggle('hidden');
+					manageExamSub.classList.toggle('flex');
+					manageExamArrow.classList.toggle('rotate-180');
+				});
+			}
+
+			// Load Exams
+			fetch("/professor/exams/list")
+				.then(r => r.json())
+				.then(data => {
+					let limited = data.slice(0, 5);
+					let html = limited.length === 0
+						? `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="material-symbols-outlined text-4xl text-slate-300">quiz</span>
+                                <p>No exams created yet</p>
+                                <a href="/professor/exams/create" class="text-primary font-semibold hover:underline">Create your first exam</a>
+                            </div>
+                           </td></tr>`
+						: limited.map(e => `
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                                            <span class="material-symbols-outlined text-lg">description</span>
+                                        </div>
+                                        <span class="font-semibold text-slate-900 dark:text-white">${e.title}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-sm font-medium">${e.courseName}</span>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${e.duration} min</td>
+                                <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">${e.totalMarks}</td>
+                                <td class="px-6 py-4">${getStatusBadge(e.status)}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="updateExam(${e.id})" class="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all duration-200" title="Edit Exam">
+                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join("");
+					document.getElementById("examTableBody").innerHTML = html;
+				});
+
+			// Load Students
+			fetch("/professor/api/students")
+				.then(r => r.json())
+				.then(data => {
+					let html = data.length === 0
+						? `<tr><td colspan="3" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="material-symbols-outlined text-4xl text-slate-300">group</span>
+                                <p>No students available</p>
+                            </div>
+                           </td></tr>`
+						: data.slice(0, 5).map(s => `
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="size-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center text-primary flex-shrink-0">
+                                            <span class="material-symbols-outlined text-lg">person</span>
+                                        </div>
+                                        <span class="font-semibold text-slate-900 dark:text-white">${s.name}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${s.email}</td>
+                                <td class="px-6 py-4 text-slate-600 dark:text-slate-400">${s.enrolledDate}</td>
+                            </tr>
+                        `).join("");
+					document.getElementById("studentTableBody").innerHTML = html;
+				});
+
+			// Load Activities
+			fetch("/professor/api/activities")
+				.then(r => r.json())
+				.then(data => {
+					let html = data.length === 0
+						? `<li class="flex flex-col items-center gap-3 py-8 text-slate-500 dark:text-slate-400">
+                            <span class="material-symbols-outlined text-4xl text-slate-300">history</span>
+                            <p>No recent activities</p>
+                           </li>`
+						: data.slice(0, 6).map(a => `
+                            <li class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                <div class="size-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 flex-shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-sm">schedule</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-slate-900 dark:text-white">${a.description}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${a.time}</p>
+                                </div>
+                            </li>
+                        `).join("");
+					document.getElementById("activityList").innerHTML = html;
+				});
+		});
+
+		function getStatusBadge(status) {
+			const badges = {
+				'LIVE': `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+                            <span class="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>LIVE
+                         </span>`,
+				'UPCOMING': `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold">
+                                <span class="material-symbols-outlined text-sm">schedule</span>UPCOMING
+                             </span>`,
+				'COMPLETED': `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold">
+                                 <span class="material-symbols-outlined text-sm">check_circle</span>COMPLETED
+                              </span>`,
+				'REVIEW': `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs font-bold">
+                              <span class="material-symbols-outlined text-sm">rate_review</span>REVIEW
+                           </span>`
+			};
+			return badges[status] || `<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold">${status || 'UNKNOWN'}</span>`;
+		}
+
+		function updateExam(id) {
+			window.location.href = `/professor/exams/update/${id}`;
+		}
+
+		function rescheduleExam(id) {
+			let newStart = prompt("Enter new start date & time (YYYY-MM-DDTHH:MM):");
+			let newEnd = prompt("Enter new end date & time (YYYY-MM-DDTHH:MM):");
+
+			if (newStart && newEnd) {
+				fetch(`/professor/exams/reschedule/${id}`, {
+					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ startDate: newStart, endDate: newEnd })
+				})
+					.then(r => r.json())
+					.then(() => location.reload());
+			}
+		}
+
+		function deleteExam(id) {
+			if (confirm("Are you sure you want to delete this exam?")) {
+				fetch(`/professor/exams/delete/${id}`, { method: 'DELETE' })
+					.then(() => location.reload());
+			}
+		}
+	</script>
+</body>
+
+</html>

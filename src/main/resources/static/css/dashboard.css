@@ -1,0 +1,136 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #f4f6fb;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #ffffff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.nav-right a, .profile {
+    margin-left: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+.active {
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.logout {
+    color: red;
+}
+
+/* CONTAINER */
+.container {
+    padding: 30px;
+}
+
+/* CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.card h1 {
+    margin: 0;
+    color: #2563eb;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr;
+    gap: 20px;
+}
+
+.grid.bottom {
+    margin-top: 20px;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* BOX */
+.box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 10px;
+    font-size: 14px;
+}
+
+th {
+    background: #f1f5f9;
+}
+
+/* EMPTY STATE */
+.empty {
+    text-align: center;
+    color: gray;
+    padding: 20px;
+}
+
+/* LIST */
+.list, .activity {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+.empty-list li {
+    text-align: center;
+    color: gray;
+    padding: 15px;
+}
+
+/* BUTTON */
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 5px;
+}
+
+/* VIEW */
+.view {
+    font-size: 13px;
+    color: #2563eb;
+    cursor: pointer;
+}

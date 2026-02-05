@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Set Question Paper - Professor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #f6f6f8;
+            background-image: radial-gradient(#135bec11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#135bec22 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6">
+            <div class="flex flex-col gap-8 px-6">
+                <!-- Profile Section -->
+                <div class="flex gap-3 items-center">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHDav7IDfvT9cSxg4jMV-mSFf7EAges7dHFo-J7bVhWbd2Vnwb6fU7qulhn4mAoXTNHaGRtii7HB08NakQLsiRy1rERs3XB6tFyH6_4gmkI3hs0rF9WhKVuQkq8lJZmciga4IrnqJIF7nH-QGLIH6DxNPVsfDe3oALQgeASqMBu5QzXZrlTsCvl_DC00n3wJ6BZ5ZrnL8FPADJ7VvtAFcZYhwJJ2rXDM0oocbtDvqSjeR10pPfjtGcmJlcKx7XsyrhAlgMwbinmmU");'>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="text-[#111318] dark:text-white text-base font-semibold leading-tight">Professor</h1>
+                        <h5 class="text-[#111318] dark:text-white text-base font-semibold leading-tight">Dashboard</h5>
+                    </div>
+                </div>
+                <!-- Nav Links -->
+                <nav class="flex flex-col gap-1">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                        th:href="@{/professor/dashboard}">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <p class="text-sm font-medium">Dashboard</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                        href="#">
+                        <span class="material-symbols-outlined">quiz</span>
+                        <p class="text-sm font-medium">All Exams</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                        th:href="@{/professor/exams/create}">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <p class="text-sm font-medium">Create Exam</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all"
+                        href="#">
+                        <span class="material-symbols-outlined fill-1">description</span>
+                        <p class="text-sm font-medium">Question Papers</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                        href="#">
+                        <span class="material-symbols-outlined">assessment</span>
+                        <p class="text-sm font-medium">Results</p>
+                    </a>
+                </nav>
+            </div>
+            <!-- Footer Sidebar -->
+            <div class="flex flex-col gap-1 px-6">
+                <button id="darkModeToggle"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    <p class="text-sm font-medium">Dark Mode</p>
+                    <div class="ml-auto">
+                        <div class="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-primary transition-colors">
+                            <div
+                                class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform dark:transform dark:translate-x-5">
+                            </div>
+                        </div>
+                    </div>
+                </button>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined">settings</span>
+                    <p class="text-sm font-medium">Settings</p>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined">logout</span>
+                    <p class="text-sm font-medium">Logout</p>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header
+                class="flex items-center justify-between sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <div class="text-primary">
+                            <svg class="size-8" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Professor Portal</h2>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button type="submit" form="questionPaperForm"
+                        class="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-emerald-600/25">
+                        <span class="material-symbols-outlined">save</span>
+                        <span>Save Question Paper</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-8 max-w-[1400px] mx-auto w-full flex flex-col gap-8">
+                <!-- Page Header -->
+                <section>
+                    <div class="flex items-end justify-between mb-6">
+                        <div>
+                            <h3 class="text-slate-900 dark:text-white text-2xl font-bold">Set Question Paper</h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">Create and configure your exam question paper</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Question Paper Form -->
+                <form id="questionPaperForm" action="/questionpaper/saveQuestionPaper" method="post" enctype="multipart/form-data" class="space-y-8">
+                    <input type="hidden" name="examId" th:value="${selectedExam != null ? selectedExam.id : ''}">
+
+                    <!-- Exam Details Section -->
+                    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">info</span>
+                            <h3 class="font-bold text-slate-900 dark:text-white">Exam Details</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Course Name</label>
+                                    <input type="text" name="coursename"
+                                        th:value="${selectedExam != null ? selectedExam.courseName : ''}"
+                                        readonly
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Subject</label>
+                                    <input type="text" name="subject" required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Chapter / Topic</label>
+                                    <input type="text" name="chapter" required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Exam Duration (Minutes)</label>
+                                    <input type="number" name="duration"
+                                        th:value="${selectedExam != null ? selectedExam.duration : ''}" required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Difficulty</label>
+                                    <select name="difficulty" required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                        <option value="">Select Difficulty</option>
+                                        <option value="Easy">Easy</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Hard">Hard</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Set</label>
+                                    <select name="selectset" required
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                        <option value="">Select Set</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Question Paper Image</label>
+                                    <input type="file" name="questionPaperImage"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-blue-700">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Questions Section -->
+                    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">quiz</span>
+                                <h3 class="font-bold text-slate-900 dark:text-white">Questions</h3>
+                            </div>
+                            <button type="button" onclick="addQuestion()"
+                                class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-primary/25">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Add Question</span>
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div id="questionsContainer" class="space-y-6">
+                                <!-- Questions will be added here dynamically -->
+                            </div>
+                            <div id="emptyState" class="text-center py-12">
+                                <div class="size-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                                    <span class="material-symbols-outlined text-slate-400 text-2xl">quiz</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No questions added yet</h3>
+                                <p class="text-slate-500 dark:text-slate-400 mb-6">Start building your question paper by adding your first question.</p>
+                                <button type="button" onclick="addQuestion()"
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-primary/25">
+                                    <span class="material-symbols-outlined">add</span>
+                                    Add Your First Question
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Additional Details Section -->
+                    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">note_add</span>
+                            <h3 class="font-bold text-slate-900 dark:text-white">Additional Details</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Explanation / Hint</label>
+                                <textarea name="explanation" rows="4"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                                    placeholder="Add any general explanations or hints for the entire question paper..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Attachment</label>
+                                <input type="file" name="attachment"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 dark:file:bg-slate-700 dark:file:text-slate-300 dark:hover:file:bg-slate-600">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end gap-4 pt-6">
+                        <button type="reset"
+                            class="px-6 py-3 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-emerald-600/25">
+                            <span class="material-symbols-outlined">save</span>
+                            Save Question Paper
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Dark Mode Functionality
+        (function initDarkMode() {
+            const darkMode = localStorage.getItem('darkMode');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+
+        // Dark mode toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function () {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+        });
+
+        // Question Management
+        let questionCount = 0;
+
+        function updateEmptyState() {
+            const container = document.getElementById("questionsContainer");
+            const emptyState = document.getElementById("emptyState");
+            
+            if (container.children.length === 0) {
+                emptyState.classList.remove("hidden");
+            } else {
+                emptyState.classList.add("hidden");
+            }
+        }
+
+        function addQuestion() {
+            const index = questionCount++;
+            const div = document.createElement("div");
+            div.className = "question-card bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-6";
+
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h4 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">help</span>
+                        Question ${index + 1}
+                    </h4>
+                    <button type="button" onclick="removeQuestion(this)" 
+                        class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                        Remove
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Question Type</label>
+                        <select name="questions[${index}].questionType" onchange="changeType(this)" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <option value="">Select Question Type</option>
+                            <option value="mcq">Multiple Choice Question (MCQ)</option>
+                            <option value="tf">True / False</option>
+                            <option value="long">Long Answer</option>
+                            <option value="short">Short Answer</option>
+                            <option value="essay">Essay</option>
+                            <option value="fill">Fill in the Blanks</option>
+                            <option value="match">Match the Pair</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Question Text</label>
+                        <textarea name="questions[${index}].questionText" rows="3" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            placeholder="Enter your question here..."></textarea>
+                    </div>
+
+                    <!-- MCQ Options -->
+                    <div class="mcq hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Answer Options</label>
+                        <div class="mcq-options space-y-2 mb-4">
+                            <div class="flex gap-2">
+                                <input name="questions[${index}].options" placeholder="Option 1" oninput="updateMcqSelect(${index})"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <button type="button" onclick="this.parentElement.remove(); updateMcqSelect(${index})"
+                                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addMcqOption(this, ${index})"
+                            class="flex items-center gap-2 px-4 py-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors mb-4">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Add Option
+                        </button>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Correct Answer</label>
+                            <select name="questions[${index}].correctAnswer" id="mcqCorrectSelect${index}"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- True/False -->
+                    <div class="tf hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Correct Answer</label>
+                        <select name="questions[${index}].correctAnswer"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </div>
+
+                    <!-- Long Answer -->
+                    <div class="long hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Answer / Reference</label>
+                        <textarea name="questions[${index}].correctAnswer" rows="4"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            placeholder="Provide the expected answer or reference points..."></textarea>
+                    </div>
+
+                    <!-- Short Answer -->
+                    <div class="short hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Short Answer</label>
+                        <textarea name="questions[${index}].shortAnswer" rows="2"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            placeholder="Expected short answer..."></textarea>
+                    </div>
+
+                    <!-- Essay -->
+                    <div class="essay hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Essay Answer Guidelines</label>
+                        <textarea name="questions[${index}].essay" rows="4"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            placeholder="Provide essay guidelines or key points to cover..."></textarea>
+                    </div>
+
+                    <!-- Fill in the Blanks -->
+                    <div class="fill hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Fill in the Blanks</label>
+                        <div class="fill-options space-y-2 mb-4">
+                            <div class="flex gap-2">
+                                <input name="questions[${index}].fillInTheBlanks" placeholder="Blank answer" oninput="updateFillDropdown(${index})"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <button type="button" onclick="this.parentElement.remove(); updateFillDropdown(${index})"
+                                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addFillOption(this, ${index})"
+                            class="flex items-center gap-2 px-4 py-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors mb-4">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Add Blank
+                        </button>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Correct Answer</label>
+                            <select name="questions[${index}].correctAnswer" id="fillCorrectSelect${index}"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Match the Pair -->
+                    <div class="match hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Match the Pairs</label>
+                        <div class="pairs-container space-y-2 mb-4">
+                            <div class="flex gap-2">
+                                <input name="questions[${index}].leftItems" placeholder="Left Item"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <input name="questions[${index}].rightItems" placeholder="Right Item"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <button type="button" onclick="this.parentElement.remove()"
+                                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addPair(this, ${index})"
+                            class="flex items-center gap-2 px-4 py-2 text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Add Pair
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Marks</label>
+                        <input type="number" name="questions[${index}].marks" value="1" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById("questionsContainer").appendChild(div);
+            updateEmptyState();
+        }
+
+        function addMcqOption(btn, index) {
+            const container = btn.previousElementSibling;
+            const div = document.createElement("div");
+            div.className = "flex gap-2";
+            div.innerHTML = `
+                <input name="questions[${index}].options" placeholder="Option" oninput="updateMcqSelect(${index})"
+                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <button type="button" onclick="this.parentElement.remove(); updateMcqSelect(${index})"
+                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            `;
+            container.appendChild(div);
+            updateMcqSelect(index);
+        }
+
+        function updateMcqSelect(index) {
+            const card = document.querySelectorAll(".question-card")[index];
+            const select = card.querySelector(`#mcqCorrectSelect${index}`);
+            if (!select) return;
+            select.innerHTML = "";
+            card.querySelectorAll(`input[name='questions[${index}].options']`).forEach(opt => {
+                if (opt.value.trim()) {
+                    select.innerHTML += `<option value="${opt.value}">${opt.value}</option>`;
+                }
+            });
+        }
+
+        function addFillOption(btn, index) {
+            const container = btn.previousElementSibling;
+            const div = document.createElement("div");
+            div.className = "flex gap-2";
+            div.innerHTML = `
+                <input name="questions[${index}].fillInTheBlanks" placeholder="Blank answer" oninput="updateFillDropdown(${index})"
+                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <button type="button" onclick="this.parentElement.remove(); updateFillDropdown(${index})"
+                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function updateFillDropdown(index) {
+            const card = document.querySelectorAll(".question-card")[index];
+            const select = card.querySelector(`#fillCorrectSelect${index}`);
+            if (!select) return;
+            select.innerHTML = "";
+            card.querySelectorAll(`input[name='questions[${index}].fillInTheBlanks']`).forEach(i => {
+                if (i.value.trim()) {
+                    select.innerHTML += `<option value="${i.value}">${i.value}</option>`;
+                }
+            });
+        }
+
+        function removeQuestion(btn) {
+            btn.closest(".question-card").remove();
+            updateEmptyState();
+        }
+
+        function changeType(select) {
+            const card = select.closest(".question-card");
+            const sections = card.querySelectorAll(".mcq, .tf, .long, .short, .fill, .essay, .match");
+
+            sections.forEach(sec => {
+                sec.classList.add("hidden");
+                sec.querySelectorAll("input, textarea, select").forEach(el => el.disabled = true);
+            });
+
+            if (select.value) {
+                const active = card.querySelector("." + select.value);
+                active.classList.remove("hidden");
+                active.querySelectorAll("input, textarea, select").forEach(el => el.disabled = false);
+            }
+        }
+
+        function addPair(btn, index) {
+            const container = btn.previousElementSibling;
+            const div = document.createElement("div");
+            div.className = "flex gap-2";
+            div.innerHTML = `
+                <input name="questions[${index}].leftItems" placeholder="Left Item"
+                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <input name="questions[${index}].rightItems" placeholder="Right Item"
+                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <button type="button" onclick="this.parentElement.remove()"
+                    class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Initialize empty state
+        document.addEventListener('DOMContentLoaded', function() {
+            updateEmptyState();
+        });
+    </script>
+
+</body>
+
+</html>

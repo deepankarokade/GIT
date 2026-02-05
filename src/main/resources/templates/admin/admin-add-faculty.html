@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Add New Professor | Exam Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;200;300;400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0f172a",
+                        "slate": {
+                            50: "#f8fafc",
+                            100: "#f1f5f9",
+                            200: "#e2e8f0",
+                            300: "#cbd5e1",
+                            400: "#94a3b8",
+                            500: "#64748b",
+                            600: "#475569",
+                            700: "#334155",
+                            800: "#1e293b",
+                            900: "#0f172a",
+                        }
+                    },
+                    fontFamily: {
+                        "sans": ["Lexend", "sans-serif"],
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-sans text-slate-900 bg-background-light;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .geometric-bg {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .dark .geometric-bg {
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+        }
+    </style>
+    <script src="/js/config.js"></script>
+</head>
+
+<body class="min-h-screen flex bg-background-light dark:bg-slate-900 text-slate-900 dark:text-white">
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        <div class="absolute inset-0 pointer-events-none -z-10 opacity-40 geometric-bg"></div>
+        <header
+            class="h-20 border-b border-slate-200 dark:border-slate-700 px-8 flex items-center justify-between bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-10">
+            <div class="flex items-center gap-2">
+                <nav class="flex items-center gap-2 text-sm font-medium">
+                    <a class="text-slate-500 hover:text-primary transition-colors" href="/admin/dashboard">Admin</a>
+                    <span class="text-slate-400 material-symbols-outlined text-sm">chevron_right</span>
+                    <a class="text-slate-500 hover:text-primary transition-colors"
+                        href="/admin/dashboard/professor">Professors</a>
+                    <span class="text-slate-400 material-symbols-outlined text-sm">chevron_right</span>
+                    <span class="text-slate-900 font-semibold">Add New</span>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative hidden md:block">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                    <input
+                        class="bg-slate-100 border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+                        placeholder="Search resources..." type="text" />
+                </div>
+                <button id="darkModeToggle"
+                    class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    title="Toggle dark mode">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <button
+                    class="size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span
+                        class="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border-2 border-white"></span>
+                </button>
+            </div>
+        </header>
+        <div class="px-8 py-8">
+            <div class="max-w-4xl">
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Add New Professor</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 text-base">Onboard a new faculty member to the
+                    university's digital
+                    examination ecosystem.</p>
+            </div>
+        </div>
+        <div class="px-8 pb-12">
+            <div class="max-w-4xl space-y-6">
+                <section class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">person</span>
+                        <h3 class="text-base font-bold text-slate-900">Personal Information</h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Full
+                                Name <span class="text-red-500">*</span></label>
+                            <input id="fullName" required
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="Dr. Jane Smith" type="text" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Email
+                                Address <span class="text-red-500">*</span></label>
+                            <input id="email" required
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="jane.smith@university.edu" type="email" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Mobile
+                                Number <span class="text-red-500">*</span></label>
+                            <input id="mobileNo" required maxlength="10"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="9876543210" type="tel" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Alternate
+                                Mobile</label>
+                            <input id="altMobileNo" maxlength="10"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="9876543211" type="tel" />
+                        </div>
+                        <div class="flex flex-col gap-2 md:col-span-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Office
+                                Address</label>
+                            <input id="officeAddress"
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="Room 301, CS Block" type="text" />
+                        </div>
+                    </div>
+                </section>
+                <section class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">school</span>
+                        <h3 class="text-base font-bold text-slate-900">Academic Details</h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Course
+                                <span class="text-red-500">*</span></label>
+                            <select id="department" required
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none">
+                                <option value="">Loading courses...</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label
+                                class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Qualification</label>
+                            <input id="qualification"
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none"
+                                placeholder="Ph.D. in Computer Science" type="text" />
+                        </div>
+                        <div class="flex flex-col gap-2 md:col-span-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Subject
+                                <span class="text-red-500">*</span></label>
+                            <select id="subject" required
+                                class="bg-white border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 outline-none">
+                                <option value="">Select Course First</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                <section class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">image</span>
+                        <h3 class="text-base font-bold text-slate-900">Profile Photo</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col gap-4">
+                            <label class="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Upload Photo
+                                <span class="text-red-500">*</span></label>
+                            <div class="flex items-center gap-4">
+                                <div id="photoPreview"
+                                    class="size-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden">
+                                    <span class="material-symbols-outlined text-3xl">person</span>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="photoInput" accept="image/*" required class="hidden" />
+                                    <label for="photoInput"
+                                        class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium text-slate-700 transition-all">
+                                        <span class="material-symbols-outlined text-lg">upload</span>
+                                        Choose Photo
+                                    </label>
+                                    <p class="text-xs text-slate-400 mt-2">JPG, PNG or GIF (MAX. 2MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            </section>
+            </section>
+            <div
+                class="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input id="termsAccepted" checked class="sr-only peer" type="checkbox" value="" />
+                    </label>
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <button type="button" onclick="window.location.href='/admin/dashboard/professor'"
+                        class="flex-1 md:flex-none px-6 py-3 rounded-lg text-slate-600 font-bold hover:bg-slate-100 transition-all">
+                        Cancel
+                    </button>
+                    <button type="button" id="submitBtn"
+                        class="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">person_add</span>
+                        <span id="submitText">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <script>
+            // Dark Mode Functionality
+            (function initDarkMode() {
+                const darkMode = localStorage.getItem('darkMode');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+
+        // Dark mode toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function () {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+        });
+
+        // API URLs - BASE_URL comes from /js/config.js
+        const API_BASE_URL = BASE_URL + '/admin/faculty';
+        const COURSE_API_URL = BASE_URL + '/admin/course';
+
+        let allCourses = [];
+
+        // Load courses for department dropdown
+        async function loadCoursesForDropdown() {
+            const departmentSelect = document.getElementById('department');
+            if (!departmentSelect) return;
+
+            try {
+                const response = await fetch(COURSE_API_URL);
+                if (!response.ok) throw new Error('Failed to fetch courses');
+
+                allCourses = await response.json();
+
+                // Clear existing options
+                departmentSelect.innerHTML = '<option value="">Select Course</option>';
+
+                // Add courses as options
+                allCourses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.courseName;
+                    option.textContent = course.courseName;
+                    departmentSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                departmentSelect.innerHTML = '<option value="">Failed to load courses</option>';
+            }
+        }
+
+        // Handle department change to filter subjects
+        document.getElementById('department').addEventListener('change', function () {
+            const selectedDept = this.value;
+            const subjectSelect = document.getElementById('subject');
+
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+            if (!selectedDept) {
+                subjectSelect.innerHTML = '<option value="">Select Department First</option>';
+                return;
+            }
+
+            const course = allCourses.find(c => c.courseName === selectedDept);
+            if (course && course.subjects && course.subjects.length > 0) {
+                course.subjects.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.subjectName;
+                    option.textContent = `${sub.subjectName} (${sub.subjectCode})`;
+                    subjectSelect.appendChild(option);
+                });
+            } else {
+                subjectSelect.innerHTML = '<option value="">No subjects found for this course</option>';
+            }
+        });
+
+        // Load courses when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadCoursesForDropdown);
+
+        // Photo preview handling
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photoPreview');
+
+        photoInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    showNotification('Only JPG, PNG or GIF images are allowed', 'error');
+                    photoInput.value = '';
+                    photoPreview.innerHTML = '<span class="material-symbols-outlined text-3xl">person</span>';
+                    return;
+                }
+
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    showNotification('Photo size must be less than 2MB', 'error');
+                    photoInput.value = '';
+                    photoPreview.innerHTML = '<span class="material-symbols-outlined text-3xl">person</span>';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    photoPreview.innerHTML = `<img src="${event.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('submitBtn').addEventListener('click', async function () {
+            if (!validateForm()) {
+                return;
+            }
+
+            const formData = new FormData();
+
+            // Collect form data
+            formData.append('fullName', document.getElementById('fullName').value.trim());
+            formData.append('email', document.getElementById('email').value.trim());
+            formData.append('mobileNo', document.getElementById('mobileNo').value.trim());
+            formData.append('altMobileNo', document.getElementById('altMobileNo').value.trim());
+            formData.append('officeAddress', document.getElementById('officeAddress').value.trim());
+            formData.append('department', document.getElementById('department').value);
+            formData.append('qualification', document.getElementById('qualification').value.trim());
+            formData.append('subject', document.getElementById('subject').value.trim());
+            formData.append('termsAccepted', document.getElementById('termsAccepted').checked);
+
+            // Add photo
+            const photoFile = photoInput.files[0];
+            if (photoFile) {
+                formData.append('document', photoFile);
+            }
+
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const originalText = submitText.textContent;
+            submitBtn.disabled = true;
+            submitText.textContent = 'Creating...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    showNotification('Faculty registered successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard/professor';
+                    }, 1500);
+                } else {
+                    showNotification(result || 'Registration failed. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitText.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Network error. Please check your connection.', 'error');
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
+        });
+
+        // Form validation
+        function validateForm() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobileNo = document.getElementById('mobileNo').value.trim();
+            const altMobileNo = document.getElementById('altMobileNo').value.trim();
+            const officeAddress = document.getElementById('officeAddress').value.trim();
+            const department = document.getElementById('department').value;
+            const qualification = document.getElementById('qualification').value.trim();
+            const subject = document.getElementById('subject').value;
+            const photoFile = photoInput.files[0];
+
+            // 1. Full Name: Alphabets and spaces only
+            if (!fullName) {
+                showNotification('Alert: Please enter Full Name', 'error');
+                document.getElementById('fullName').focus();
+                return false;
+            }
+            if (!/^[a-zA-Z\s.]+$/.test(fullName)) {
+                showNotification('Full Name should only contain alphabets and spaces', 'error');
+                document.getElementById('fullName').focus();
+                return false;
+            }
+
+            // 2. Email: Valid format
+            if (!email) {
+                showNotification('Alert: Please enter Email Address', 'error');
+                document.getElementById('email').focus();
+                return false;
+            }
+            if (!isValidEmail(email)) {
+                showNotification('Please enter a valid email address (e.g. example@domain.com)', 'error');
+                document.getElementById('email').focus();
+                return false;
+            }
+
+            // 3. Mobile Number: Exactly 10 digits
+            if (!mobileNo) {
+                showNotification('Alert: Please enter Mobile Number', 'error');
+                document.getElementById('mobileNo').focus();
+                return false;
+            }
+            if (!/^\d{10}$/.test(mobileNo)) {
+                showNotification('Mobile Number must be exactly 10 digits', 'error');
+                document.getElementById('mobileNo').focus();
+                return false;
+            }
+
+            // 4. Alternate Mobile: Exactly 10 digits if provided
+            if (altMobileNo && !/^\d{10}$/.test(altMobileNo)) {
+                showNotification('Alternate Mobile Number must be exactly 10 digits', 'error');
+                document.getElementById('altMobileNo').focus();
+                return false;
+            }
+
+            // 5. Office Address
+            if (!officeAddress) {
+                showNotification('Alert: Please enter Office Address', 'error');
+                document.getElementById('officeAddress').focus();
+                return false;
+            }
+
+            // 6. Department (Course)
+            if (!department) {
+                showNotification('Alert: Please select Department/Course', 'error');
+                document.getElementById('department').focus();
+                return false;
+            }
+
+            // 7. Qualification
+            if (!qualification) {
+                showNotification('Alert: Please enter Qualification', 'error');
+                document.getElementById('qualification').focus();
+                return false;
+            }
+
+            // 8. Subject
+            if (!subject) {
+                showNotification('Alert: Please select Subject/Specialization', 'error');
+                document.getElementById('subject').focus();
+                return false;
+            }
+
+            // 9. Profile Photo
+            if (!photoFile) {
+                showNotification('Please upload a Profile Photo', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Email validation
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in ${type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                    'bg-blue-500 text-white'
+                }`;
+
+            notification.innerHTML = `
+                <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' :
+                    type === 'error' ? 'error' :
+                        'info'
+                }</span>
+                <span class="font-medium">${message}</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slide-in {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            .animate-slide-in {
+                animation: slide-in 0.3s ease-out;
+            }
+            .notification {
+                transition: all 0.3s ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

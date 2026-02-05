@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Set Wise Question Papers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(to right, #eef2f3, #f9fbfd);
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            padding: 15px 30px;
+            color: white;
+        }
+
+        .navbar a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+            color: white;
+        }
+
+        .badge-set {
+            background-color: #343a40;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar d-flex justify-content-between align-items-center">
+    <div class="fw-bold">Online Examination Portal</div>
+    <div>
+        <a th:href="@{/professor/dashboard}">Dashboard</a>
+        <a th:href="@{/professor/exams}">All Exams</a>
+    </div>
+</div>
+
+<div class="container mt-4">
+
+    <!-- EXAM INFO -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-3">Exam Details</h5>
+            <div class="row">
+                <div class="col-md-4"><b>Title:</b> <span th:text="${exam.title}"></span></div>
+                <div class="col-md-4"><b>Course:</b> <span th:text="${exam.courseName}"></span></div>
+                <div class="col-md-4"><b>Duration:</b> <span th:text="${exam.duration}"></span> min</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUESTION PAPERS -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h6 class="mb-0">Set-wise Question Papers</h6>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Set</th>
+                        <th>Subject</th>
+                        <th>Chapter</th>
+                        <th>Difficulty</th>
+                        <th>Duration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="paper : ${papers}">
+                        <td>
+                            <span class="badge badge-set"
+                                  th:text="${paper.selectset}"></span>
+                        </td>
+                        <td th:text="${paper.subject}"></td>
+                        <td th:text="${paper.chapter}"></td>
+                        <td th:text="${paper.difficulty}"></td>
+                        <td th:text="${paper.duration} + ' min'"></td>
+                        <td>
+                            <a th:href="@{'/questionpaper/view/' + ${paper.qid}}"
+                               class="btn btn-info btn-sm">
+                                View
+                            </a>
+                            <a th:href="@{'/questionpaper/edit/' + ${paper.qid}}"
+                               class="btn btn-primary btn-sm">
+                                Edit
+                            </a>
+                            <a th:href="@{'/questionpaper/delete/' + ${paper.qid}}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this paper?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${papers.size()} == 0">
+                        <td colspan="6" class="text-center text-muted">
+                            No Question Papers found for this Exam.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADD NEW PAPER -->
+    <div class="mt-4 text-end">
+        <a th:href="@{/questionpaper/create(examId=${exam.id})}"
+           class="btn btn-success">
+            + Add New Question Paper
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

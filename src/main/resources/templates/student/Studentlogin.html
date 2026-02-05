@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login - ExamPortal</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#135bec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+          },
+          fontFamily: {
+            display: ["Lexend", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-display bg-background-light min-h-screen flex flex-col">
+
+  <header class="border-b px-6 py-4 bg-white font-bold">
+    ExamPortal Student
+  </header>
+
+  <main class="flex-1 flex items-center justify-center">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow">
+
+      <h1 class="text-2xl font-bold mb-6 text-center">Student Login</h1>
+      <p th:if="${error}" class="text-red-600 text-sm text-center mb-4" th:text="${error}">
+      </p>
+      <p th:if="${success}" class="text-green-600 text-sm text-center mb-4" th:text="${success}">
+      </p>
+      <p th:if="${info}" class="text-blue-600 text-sm text-center mb-4" th:text="${info}">
+      </p>
+
+
+
+      <!-- ✅ STUDENT LOGIN FORM -->
+      <form id="loginForm" class="space-y-5">
+
+        <input type="hidden" id="resetFlag" th:value="${param.reset}">
+
+        <!-- UID (Registration ID) -->
+        <div>
+          <label class="text-sm font-medium">Registration ID</label>
+          <input type="text" id="uid" name="uid" required placeholder="Enter Registration ID"
+            class="w-full h-12 px-4 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" />
+        </div>
+
+        <!-- PASSWORD -->
+        <div>
+          <label class="text-sm font-medium">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter Password"
+            class="w-full h-12 px-4 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" />
+        </div>
+
+        <!-- Loading spinner (hidden by default) -->
+        <div id="loadingSpinner" class="hidden text-center">
+          <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          <span class="ml-2 text-sm text-gray-600">Signing in...</span>
+        </div>
+
+        <!-- Error message container -->
+        <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        </div>
+
+        <!-- Success message container -->
+        <div id="successMessage"
+          class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm"></div>
+
+        <button type="submit" id="loginButton"
+          class="w-full h-12 bg-primary hover:bg-blue-700 text-white rounded-lg font-bold transition-colors duration-200">
+          Sign In
+        </button>
+
+
+        <div class="text-center mt-4">
+          <a th:href="@{/student/registration}" class="text-primary hover:underline text-sm">
+            Register
+          </a>
+        </div>
+        <!-- FORGOT PASSWORD LINK -->
+        <div class="text-center mt-4">
+          <a th:href="@{/student/forgot-password}" class="text-primary hover:underline text-sm">
+            Forgot Password?
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+  </main>
+  <!-- CHANGE PASSWORD POPUP (shown after successful login) -->
+  <div id="changePasswordPopup"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+
+    <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg text-center">
+      <div class="mb-4">
+        <span class="material-symbols-outlined text-5xl text-primary">key</span>
+      </div>
+      <h2 class="text-lg font-bold mb-3">Change Password?</h2>
+
+      <p class="text-gray-600 mb-6">
+        Would you like to change your password for security purposes?
+      </p>
+
+      <div class="flex gap-4 justify-center">
+        <button onclick="skipPasswordChange()"
+          class="px-5 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+          Skip
+        </button>
+
+        <button onclick="continuePasswordChange()"
+          class="px-5 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Student Login Form Handler
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const uid = document.getElementById('uid').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const loginButton = document.getElementById('loginButton');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+
+      // Validation
+      if (!uid || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      // Show loading state
+      loginButton.disabled = true;
+      loginButton.textContent = 'Signing In...';
+      loadingSpinner.classList.remove('hidden');
+      hideMessages();
+
+      try {
+        const response = await fetch('/admin/student/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            uid: uid,
+            password: password
+          })
+        });
+
+        if (response.ok) {
+          const student = await response.json();
+
+          // Store student info in localStorage
+          localStorage.setItem('studentData', JSON.stringify(student));
+          localStorage.setItem('studentUid', student.uid);
+          localStorage.setItem('studentName', student.fullName);
+
+          // Show success message
+          showSuccess('Login successful! Welcome ' + student.fullName);
+
+          // Show the change password popup after successful login
+          setTimeout(() => {
+            document.getElementById('changePasswordPopup').classList.remove('hidden');
+            document.getElementById('changePasswordPopup').classList.add('flex');
+          }, 1000);
+
+        } else {
+          // Handle error response
+          let errorText = 'Login failed. Please check your credentials.';
+          try {
+            const errorData = await response.text();
+            if (errorData) {
+              errorText = errorData;
+            }
+          } catch (e) {
+            // Use default error message
+          }
+          showError(errorText);
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('Network error. Please check your connection and try again.');
+      } finally {
+        // Reset loading state
+        loginButton.disabled = false;
+        loginButton.textContent = 'Sign In';
+        loadingSpinner.classList.add('hidden');
+      }
+    });
+
+    // Helper functions
+    function showError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+    }
+
+    function showSuccess(message) {
+      const successMessage = document.getElementById('successMessage');
+      successMessage.textContent = message;
+      successMessage.classList.remove('hidden');
+      document.getElementById('errorMessage').classList.add('hidden');
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMessage').classList.add('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+    }
+
+    // Clear messages when user starts typing
+    document.getElementById('uid').addEventListener('input', hideMessages);
+    document.getElementById('password').addEventListener('input', hideMessages);
+
+    // Password change popup functions
+    function skipPasswordChange() {
+      document.getElementById('changePasswordPopup').classList.add('hidden');
+      document.getElementById('changePasswordPopup').classList.remove('flex');
+      // Redirect to dashboard
+      window.location.href = '/student/dashboard';
+    }
+
+    function continuePasswordChange() {
+      // Redirect to reset password page
+      window.location.href = '/student/reset-password';
+    }
+
+    // Legacy popup functions (keeping for compatibility)
+    function openResetPopup() {
+      const resetFlag = document.getElementById("resetFlag").value;
+      if (resetFlag === 'true') {
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        return;
+      }
+      document.getElementById('changePasswordPopup').classList.remove('hidden');
+      document.getElementById('changePasswordPopup').classList.add('flex');
+    }
+
+    function skipReset() {
+      skipPasswordChange();
+    }
+
+    function continueReset() {
+      continuePasswordChange();
+    }
+  </script>
+
+</body>
+
+</html>

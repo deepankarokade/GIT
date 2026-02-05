@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Manage Payments - ExamPortal Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    <script src="/js/config.js"></script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white transition-colors duration-200">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 transition-colors duration-300">
+            <div class="flex flex-col gap-8 px-6">
+                <!-- Profile Section -->
+                <div class="flex gap-3 items-center">
+                    <div id="sidebarAvatar"
+                        class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary"
+                        data-alt="Professional portrait of the portal administrator"
+                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHDav7IDfvT9cSxg4jMV-mSFf7EAges7dHFo-J7bVhWbd2Vnwb6fU7qulhn4mAoXTNHaGRtii7HB08NakQLsiRy1rERs3XB6tFyH6_4gmkI3hs0rF9WhKVuQkq8lJZmciga4IrnqJIF7nH-QGLIH6DxNPVsfDe3oALQgeASqMBu5QzXZrlTsCvl_DC00n3wJ6BZ5ZrnL8FPADJ7VvtAFcZYhwJJ2rXDM0oocbtDvqSjeR10pPfjtGcmJlcKx7XsyrhAlgMwbinmmU");'>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 id="sidebarAdminName"
+                            class="text-[#111318] dark:text-white text-base font-semibold leading-tight"
+                            aria-busy="true">Loading…</h1>
+                        <p class="text-[#616f89] dark:text-slate-400 text-sm">Admin</p>
+                    </div>
+                </div>
+                <!-- Nav Links -->
+                <nav class="flex flex-col gap-1">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
+                        href="/admin/dashboard">
+                        <span class="material-symbols-outlined shrink-0">dashboard</span>
+                        <p class="text-sm font-medium">Dashboard Overview</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
+                        href="/admin/profile">
+                        <span class="material-symbols-outlined shrink-0">account_circle</span>
+                        <p class="text-sm font-medium">Profile Management</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
+                        href="/admin/dashboard/student">
+                        <span class="material-symbols-outlined shrink-0">group</span>
+                        <p class="text-sm font-medium">Students Directory</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
+                        href="/admin/dashboard/professor">
+                        <span class="material-symbols-outlined shrink-0">school</span>
+                        <p class="text-sm font-medium">Faculty Members</p>
+                    </a>
+                    <!-- Curriculum Management Dropdown -->
+                    <div class="relative">
+                        <button id="curriculumBtn"
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12h3.75M9 15h3.75M9 18h3.75m.75-12h4.5M12 3v1.5M12 21v-1.5M7.5 6.75h9a2.25 2.25 0 0 1 2.25 2.25v10.5A2.25 2.25 0 0 1 16.5 21h-9a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
+                                </svg>
+                                <p class="text-sm font-medium">Manage Curriculum</p>
+                            </div>
+                            <span id="curriculumArrow"
+                                class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
+                        </button>
+                        <div id="curriculumSub"
+                            class="hidden flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all">
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/course">
+                                <span class="material-symbols-outlined text-xs">auto_stories</span>
+                                <p class="text-xs">Manage Course</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/class">
+                                <span class="material-symbols-outlined text-xs">class</span>
+                                <p class="text-xs">Manage Class</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/section">
+                                <span class="material-symbols-outlined text-xs">segment</span>
+                                <p class="text-xs">Manage Section</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/course/subject">
+                                <span class="material-symbols-outlined text-xs">auto_stories</span>
+                                <p class="text-xs">Manage Subjects</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/question-types">
+                                <span class="material-symbols-outlined text-xs">quiz</span>
+                                <p class="text-xs">Manage Question Types</p>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Examination Portal Dropdown -->
+                    <div class="relative">
+                        <button id="examPortalBtn"
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined shrink-0">quiz</span>
+                                <p class="text-sm font-medium">Examination Portal</p>
+                            </div>
+                            <span id="examPortalArrow"
+                                class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
+                        </button>
+                        <div id="examPortalSub"
+                            class="hidden flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all">
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/exam">
+                                <span class="material-symbols-outlined text-xs">edit_note</span>
+                                <p class="text-xs">Exam Management</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
+                                href="/admin/dashboard/curriculum/exam-type">
+                                <span class="material-symbols-outlined text-xs">category</span>
+                                <p class="text-xs">Manage Exam Types</p>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all font-display"
+                        href="/admin/dashboard/payment">
+                        <span class="material-symbols-outlined shrink-0">payments</span>
+                        <p class="text-sm font-medium">Payment Tracking</p>
+                    </a>
+                </nav>
+            </div>
+            <!-- Footer Sidebar -->
+            <div class="flex flex-col gap-1 px-6">
+                <button id="darkModeToggle"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    <p class="text-sm font-medium">Appearance</p>
+                    <div class="ml-auto">
+                        <div
+                            class="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-primary transition-colors">
+                            <div
+                                class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform dark:transform dark:translate-x-5">
+                            </div>
+                        </div>
+                    </div>
+                </button>
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    href="/admin/login">
+                    <span class="material-symbols-outlined">logout</span>
+                    <p class="text-sm font-medium">Sign Out</p>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+            <div class="max-w-6xl mx-auto py-8 px-6">
+                <!-- Page Heading -->
+                <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+                    <div class="flex flex-col gap-2">
+                        <h2 class="text-[#111318] dark:text-white text-3xl font-bold tracking-tight">Manage Payments
+                        </h2>
+                        <p class="text-[#616f89] dark:text-gray-400 text-base font-normal">View and manage all payment
+                            transactions.</p>
+                    </div>
+                    <button onclick="exportToCSV()"
+                        class="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold transition-transform hover:scale-[1.02] active:scale-95 border border-slate-200 dark:border-slate-700">
+                        <span class="material-symbols-outlined text-xl">download</span>
+                        <span>Export CSV</span>
+                    </button>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div
+                        class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 shadow-sm">
+                        <p id="totalPayments" class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">0
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">receipt_long</span>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Transactions</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 shadow-sm">
+                        <p id="successfulPayments"
+                            class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">0</p>
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="material-symbols-outlined text-green-500 bg-green-500/10 p-2 rounded-lg">check_circle</span>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Successful</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 shadow-sm">
+                        <p id="pendingPayments" class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">
+                            0</p>
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="material-symbols-outlined text-orange-500 bg-orange-500/10 p-2 rounded-lg">schedule</span>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Pending</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 shadow-sm">
+                        <p id="totalRevenue" class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">₹0
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="material-symbols-outlined text-purple-500 bg-purple-500/10 p-2 rounded-lg">currency_rupee</span>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Revenue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div
+                    class="bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 rounded-xl mb-6">
+                    <div class="p-4 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="w-full md:flex-1">
+                            <label class="relative flex w-full">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                    <span class="material-symbols-outlined text-gray-400">search</span>
+                                </div>
+                                <input id="searchInput"
+                                    class="w-full h-12 rounded-lg border-none bg-background-light dark:bg-gray-800 pl-12 pr-4 text-[#111318] dark:text-white placeholder:text-[#616f89] focus:ring-2 focus:ring-primary transition-all"
+                                    placeholder="Search by student name, order ID, or payment ID..." />
+                            </label>
+                        </div>
+                        <div class="flex gap-3">
+                            <select id="statusFilter"
+                                class="h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-primary">
+                                <option value="">All Status</option>
+                                <option value="SUCCESS">Success</option>
+                                <option value="CREATED">Created</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="FAILED">Failed</option>
+                            </select>
+                            <button onclick="fetchAllPayments()"
+                                class="h-12 px-4 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div
+                    class="bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-gray-50 dark:bg-gray-800/50 border-b border-[#dbdfe6] dark:border-gray-800">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">#
+                                    </th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Student</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Amount</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Order
+                                        ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Payment ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Status</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">Date
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <!-- Loading state -->
+                                <tr>
+                                    <td colspan="8" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary">
+                                            </div>
+                                            <p class="text-sm text-gray-500">Loading payments...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div id="paginationContainer"
+                        class="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between border-t border-[#dbdfe6] dark:border-gray-800">
+                        <p class="text-sm text-gray-500">
+                            Showing <span id="showingFrom"
+                                class="font-semibold text-gray-700 dark:text-gray-300">0</span> to
+                            <span id="showingTo" class="font-semibold text-gray-700 dark:text-gray-300">0</span> of
+                            <span id="totalRecords" class="font-semibold text-gray-700 dark:text-gray-300">0</span>
+                            results
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div id="paymentModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Payment Details</h3>
+                <button onclick="closePaymentModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="paymentDetailsContent" class="p-6 space-y-4">
+                <!-- Payment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+            // Dark Mode Functionality
+            (function initDarkMode() {
+                const darkMode = localStorage.getItem('darkMode');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+
+        // Dark mode toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function () {
+                    document.documentElement.classList.toggle('dark');
+                    if (document.documentElement.classList.contains('dark')) {
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+
+            // Curriculum Management Sub-menu Toggle
+            const curriculumBtn = document.getElementById('curriculumBtn');
+            const curriculumSub = document.getElementById('curriculumSub');
+            const curriculumArrow = document.getElementById('curriculumArrow');
+
+            if (curriculumBtn && curriculumSub) {
+                curriculumBtn.addEventListener('click', function () {
+                    curriculumSub.classList.toggle('hidden');
+                    curriculumSub.classList.toggle('flex');
+                    curriculumArrow.classList.toggle('rotate-180');
+                });
+            }
+
+            // Examination Portal Sub-menu Toggle
+            const examPortalBtn = document.getElementById('examPortalBtn');
+            const examPortalSub = document.getElementById('examPortalSub');
+            const examPortalArrow = document.getElementById('examPortalArrow');
+
+            if (examPortalBtn && examPortalSub) {
+                examPortalBtn.addEventListener('click', function () {
+                    examPortalSub.classList.toggle('hidden');
+                    examPortalSub.classList.toggle('flex');
+                    examPortalArrow.classList.toggle('rotate-180');
+                });
+            }
+        });
+
+        // API URLs - BASE_URL comes from /js/config.js
+        const API_URL = `${BASE_URL}/api/payments`;
+
+        let allPayments = [];
+        let filteredPayments = [];
+
+        // Fetch admin profile on page load
+        const adminUid = localStorage.getItem('adminUid');
+
+        // Load admin name and photo
+        (async function loadAdminProfile() {
+            if (!adminUid) {
+                console.warn('No admin UID found in localStorage');
+                return;
+            }
+
+            try {
+                // Fetch admin name
+                const nameRes = await fetch(`${BASE_URL}/admin/profile/${adminUid}/name`);
+                if (nameRes.ok) {
+                    const name = await nameRes.text();
+                    const sidebarNameEl = document.getElementById('sidebarAdminName');
+                    if (sidebarNameEl) {
+                        sidebarNameEl.textContent = name;
+                        sidebarNameEl.removeAttribute('aria-busy');
+                    }
+                }
+
+                // Fetch admin profile picture
+                const picRes = await fetch(`${BASE_URL}/admin/profile/${adminUid}/profile-picture`);
+                if (picRes.ok) {
+                    const blob = await picRes.blob();
+                    if (blob && blob.size > 0) {
+                        const objectUrl = URL.createObjectURL(blob);
+                        const sidebarAvatar = document.getElementById('sidebarAvatar');
+                        if (sidebarAvatar) {
+                            sidebarAvatar.style.backgroundImage = `url("${objectUrl}")`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
+            }
+        })();
+
+        // Fetch all payments on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchAllPayments();
+        });
+
+        // Fetch all payments from API
+        async function fetchAllPayments() {
+            try {
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch payment data');
+                }
+
+                allPayments = await response.json();
+                filteredPayments = [...allPayments];
+
+                renderPaymentsTable(filteredPayments);
+                updateStats(allPayments);
+
+            } catch (error) {
+                console.error('Error fetching payments:', error);
+                showError('Failed to load payments. Please refresh the page.');
+            }
+        }
+
+        // Render payments table
+        function renderPaymentsTable(payments) {
+            const tbody = document.getElementById('paymentsTableBody');
+
+            if (!payments || payments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="material-symbols-outlined text-5xl text-gray-300">receipt_long</span>
+                                <p class="text-lg font-medium">No payments found</p>
+                                <p class="text-sm">Payments will appear here when students make transactions.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                updatePagination(0);
+                return;
+            }
+
+            tbody.innerHTML = payments.map((payment, index) => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                        ${index + 1}
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">${payment.studentName || 'Unknown'}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">₹${formatAmount(payment.amount)}</p>
+                        <p class="text-xs text-gray-500">${payment.currency || 'INR'}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-mono text-gray-600 dark:text-gray-400">${payment.razorpayOrderId || 'N/A'}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-mono text-gray-600 dark:text-gray-400">${payment.razorpayPaymentId || '-'}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${getStatusBadge(payment.status)}
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${formatDate(payment.createdAt)}</p>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            ${payment.status === 'SUCCESS' ? `
+                                <button onclick="approvePayment(${payment.id})" 
+                                    class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                                    title="Approve & Send Credentials">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                    Approve
+                                </button>
+                            ` : ''}
+                            <button onclick="viewPaymentDetails(${payment.id})" 
+                                class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 hover:text-primary transition-colors"
+                                title="View Details">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination(payments.length);
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const statusConfig = {
+                'SUCCESS': { color: 'yellow', icon: 'pending', text: 'Awaiting Approval' },
+                'APPROVED': { color: 'green', icon: 'check_circle', text: 'Approved' },
+                'CREATED': { color: 'blue', icon: 'schedule', text: 'Created' },
+                'PENDING': { color: 'orange', icon: 'hourglass_empty', text: 'Pending' },
+                'FAILED': { color: 'red', icon: 'cancel', text: 'Failed' }
+            };
+
+            const config = statusConfig[status] || { color: 'gray', icon: 'help', text: status };
+
+            return `
+                <div class="flex items-center gap-1.5 text-${config.color}-700 dark:text-${config.color}-400">
+                    <span class="material-symbols-outlined text-sm">${config.icon}</span>
+                    <span class="text-xs font-bold uppercase px-2 py-1 rounded-full bg-${config.color}-50 dark:bg-${config.color}-900/30">${config.text}</span>
+                </div>
+            `;
+        }
+
+        // Format amount (paise to rupees)
+        function formatAmount(amountInPaise) {
+            if (!amountInPaise) return '0';
+            const rupees = amountInPaise / 100;
+            return rupees.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get initials
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        // Update statistics
+        function updateStats(payments) {
+            const total = payments.length;
+            const successful = payments.filter(p => p.status === 'SUCCESS' || p.status === 'APPROVED').length;
+            const pending = payments.filter(p => p.status === 'CREATED' || p.status === 'PENDING').length;
+            const totalRevenue = payments
+                .filter(p => p.status === 'SUCCESS' || p.status === 'APPROVED')
+                .reduce((sum, p) => sum + (p.amount || 0), 0);
+
+            document.getElementById('totalPayments').textContent = total;
+            document.getElementById('successfulPayments').textContent = successful;
+            document.getElementById('pendingPayments').textContent = pending;
+            document.getElementById('totalRevenue').textContent = `₹${formatAmount(totalRevenue)}`;
+        }
+
+        // Approve payment and send credentials
+        async function approvePayment(paymentId) {
+            if (!confirm('Are you sure you want to approve this payment? This will activate the student account and send login credentials via email.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/payments/${paymentId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    showNotification('Payment approved successfully! Student credentials have been sent via email.', 'success');
+                    fetchAllPayments(); // Refresh the table
+                } else {
+                    const errorText = await response.text();
+                    showNotification(`Failed to approve payment: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error approving payment:', error);
+                showNotification('Error approving payment. Please try again.', 'error');
+            }
+        }
+
+        // Update pagination info
+        function updatePagination(count) {
+            document.getElementById('showingFrom').textContent = count > 0 ? '1' : '0';
+            document.getElementById('showingTo').textContent = count;
+            document.getElementById('totalRecords').textContent = count;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+        // Status filter
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredPayments = allPayments.filter(payment => {
+                // Search filter
+                const matchesSearch = !searchTerm ||
+                    payment.studentName?.toLowerCase().includes(searchTerm) ||
+                    payment.razorpayOrderId?.toLowerCase().includes(searchTerm) ||
+                    payment.razorpayPaymentId?.toLowerCase().includes(searchTerm);
+
+                // Status filter
+                const matchesStatus = !statusFilter || payment.status === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            renderPaymentsTable(filteredPayments);
+        }
+
+        // View payment details
+        async function viewPaymentDetails(paymentId) {
+            try {
+                const response = await fetch(`${API_URL}/${paymentId}`);
+                if (!response.ok) throw new Error('Failed to fetch payment details');
+
+                const payment = await response.json();
+                showPaymentModal(payment);
+            } catch (error) {
+                console.error('Error fetching payment details:', error);
+                showNotification('Failed to load payment details', 'error');
+            }
+        }
+
+        // Show payment modal
+        function showPaymentModal(payment) {
+            const content = document.getElementById('paymentDetailsContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 flex items-center justify-center mb-4">
+                        ${getStatusBadge(payment.status)}
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Student Name</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">${payment.studentName || 'N/A'}</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Amount</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">₹${formatAmount(payment.amount)} ${payment.currency}</p>
+                    </div>
+                    <div class="col-span-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Razorpay Order ID</p>
+                        <p class="text-sm font-mono text-gray-900 dark:text-white break-all">${payment.razorpayOrderId || 'N/A'}</p>
+                    </div>
+                    <div class="col-span-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Razorpay Payment ID</p>
+                        <p class="text-sm font-mono text-gray-900 dark:text-white break-all">${payment.razorpayPaymentId || 'Not yet captured'}</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Created At</p>
+                        <p class="text-sm text-gray-900 dark:text-white">${formatDate(payment.createdAt)}</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <p class="text-xs text-gray-500 mb-1">Updated At</p>
+                        <p class="text-sm text-gray-900 dark:text-white">${payment.updatedAt ? formatDate(payment.updatedAt) : '-'}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (filteredPayments.length === 0) {
+                showNotification('No data to export', 'error');
+                return;
+            }
+
+            const headers = ['#', 'Student Name', 'Amount (INR)', 'Order ID', 'Payment ID', 'Status', 'Date'];
+            const rows = filteredPayments.map((p, i) => [
+                i + 1,
+                p.studentName || 'N/A',
+                formatAmount(p.amount),
+                p.razorpayOrderId || 'N/A',
+                p.razorpayPaymentId || 'N/A',
+                p.status,
+                formatDate(p.createdAt)
+            ]);
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `payments_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('CSV exported successfully!', 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 ${type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                    'bg-blue-500 text-white'
+                }`;
+
+            notification.innerHTML = `
+                <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' :
+                    type === 'error' ? 'error' :
+                        'info'
+                }</span>
+                <span class="font-medium">${message}</span>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Show error message
+        function showError(message) {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center text-red-500">
+                        <div class="flex flex-col items-center gap-3">
+                            <span class="material-symbols-outlined text-5xl">error</span>
+                            <p class="text-lg font-medium">${message}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Close modal on outside click
+        document.getElementById('paymentModal').addEventListener('click', function (e) {
+            if (e.target === this) closePaymentModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closePaymentModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

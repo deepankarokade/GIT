@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - ExamPortal</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#135bec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+          },
+          fontFamily: {
+            display: ["Lexend", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+  <script src="/js/config.js"></script>
+</head>
+
+<body class="font-display bg-background-light min-h-screen flex flex-col">
+
+  <header class="border-b px-6 py-4 bg-white font-bold">
+    ExamPortal Admin
+  </header>
+
+  <main class="flex-1 flex items-center justify-center">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow">
+
+      <h1 class="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+
+      <form id="loginForm" class="space-y-5">
+
+        <!-- UID -->
+        <div>
+          <label class="text-sm font-medium">UID</label>
+          <input id="uid" type="text" required placeholder="Enter UID" class="w-full h-12 px-4 border rounded-lg" />
+        </div>
+
+        <!-- PASSWORD -->
+        <div>
+          <label class="text-sm font-medium">Password</label>
+          <input id="password" type="password" required placeholder="Enter Password"
+            class="w-full h-12 px-4 border rounded-lg" />
+        </div>
+
+        <!-- REMEMBER & FORGOT PASSWORD -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="remember" />
+            <label for="remember" class="text-sm">Remember me</label>
+          </div>
+          <a href="/admin/forgot-password" class="text-sm text-primary font-medium hover:underline">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="w-full h-12 bg-primary text-white rounded-lg font-bold">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const uid = document.getElementById("uid").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch(BASE_URL + "/admin/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ uid, password })
+        });
+
+        if (!response.ok) {
+          const msg = await response.text();
+          alert(msg);
+          return;
+        }
+
+        const admin = await response.json();
+
+        // store minimal info
+        localStorage.setItem("adminUid", admin.uid);
+
+        // redirect
+        window.location.href = BASE_URL + "/admin/dashboard";
+
+      } catch (err) {
+        alert("Backend not reachable");
+      }
+    });
+  </script>
+
+</body>
+
+</html>

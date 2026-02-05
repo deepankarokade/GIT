@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Payment - ExamPortal</title>
+    <meta name="description"
+        content="Secure payment gateway for ExamPortal - Complete your exam registration with Razorpay" />
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #f6f6f8;
+            background-image: radial-gradient(#135bec11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#135bec22 1px, transparent 1px);
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #135bec 0%, #6366f1 50%, #8b5cf6 100%);
+            padding: 2px;
+            border-radius: 1.5rem;
+        }
+
+        .gradient-border-inner {
+            background: white;
+            border-radius: calc(1.5rem - 2px);
+        }
+
+        .dark .gradient-border-inner {
+            background: #1e293b;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(19, 91, 236, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(19, 91, 236, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(19, 91, 236, 0);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .success-checkmark {
+            animation: checkmark 0.5s ease-in-out forwards;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+    <script src="/js/config.js"></script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+    <div class="min-h-screen geometric-bg flex items-center justify-center p-4">
+
+        <!-- Main Payment Container -->
+        <div class="w-full max-w-5xl">
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-2 mb-4">
+                    <div class="text-primary">
+                        <svg class="size-10" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">ExamPortal</h1>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400">Complete your payment securely</p>
+            </div>
+
+            <div class="grid lg:grid-cols-5 gap-8">
+
+                <!-- Left Section - Order Summary -->
+                <div class="lg:col-span-2">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
+
+                        <!-- Order Header -->
+                        <div class="bg-gradient-to-br from-primary to-indigo-600 p-6 text-white">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div
+                                    class="size-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                    <span class="material-symbols-outlined text-2xl">school</span>
+                                </div>
+                                <div>
+                                    <h2 class="font-bold text-lg">Exam Registration</h2>
+                                    <p class="text-blue-100 text-sm">One-time payment</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Details -->
+                        <div class="p-6">
+                            <h3 class="font-semibold text-slate-900 dark:text-white mb-4">What's Included</h3>
+
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="size-8 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-white text-sm">Full Exam Access
+                                        </p>
+                                        <p class="text-slate-500 text-xs">Access to all exam materials and questions</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="size-8 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-white text-sm">Result &
+                                            Certificate</p>
+                                        <p class="text-slate-500 text-xs">Instant results with downloadable certificate
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="size-8 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-white text-sm">24/7 Support</p>
+                                        <p class="text-slate-500 text-xs">Technical assistance during your exam</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Secure Badge -->
+                            <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center gap-2 text-slate-500">
+                                    <span class="material-symbols-outlined text-emerald-600">verified_user</span>
+                                    <span class="text-xs">256-bit SSL Encryption • Secured by Razorpay</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section - Payment Form -->
+                <div class="lg:col-span-3">
+                    <div class="gradient-border">
+                        <div class="gradient-border-inner p-8">
+
+                            <!-- Payment Form Header -->
+                            <div class="flex items-center gap-3 mb-8">
+                                <div class="size-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary text-2xl">credit_card</span>
+                                </div>
+                                <div>
+                                    <h2 class="font-bold text-xl text-slate-900 dark:text-white">Payment Details</h2>
+                                    <p class="text-slate-500 text-sm">Secure payment powered by Razorpay</p>
+                                </div>
+                            </div>
+
+                            <!-- Custom Amount -->
+                            <div class="mb-6">
+                                <label for="customAmount"
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Or Enter Custom Amount (in ₹)
+                                </label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                                    <input type="number" id="customAmount" placeholder="Enter amount" min="1"
+                                        class="w-full pl-10 pr-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-lg font-medium"
+                                        onchange="setCustomAmount(this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- User Info (Optional) -->
+                            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label for="userName"
+                                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Full Name
+                                    </label>
+                                    <input type="text" id="userName" placeholder="John Doe"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all" />
+                                </div>
+                                <div>
+                                    <label for="userEmail"
+                                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                        Email Address
+                                    </label>
+                                    <input type="email" id="userEmail" placeholder="john@example.com"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all" />
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <label for="userPhone"
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Phone Number
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">+91</span>
+                                    <input type="tel" id="userPhone" placeholder="9876543210" maxlength="10"
+                                        class="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all" />
+                                </div>
+                            </div>
+
+                            <!-- Student UID Field (Auto-filled after registration) -->
+                            <div class="mb-6">
+                                <label for="studentUid"
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Student UID <span class="text-xs text-slate-400">(Auto-generated after
+                                        registration)</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-primary">
+                                        <span class="material-symbols-outlined text-xl">badge</span>
+                                    </span>
+                                    <input type="text" id="studentUid" placeholder="Will be auto-filled" readonly
+                                        class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-primary/30 bg-primary/5 dark:bg-primary/10 text-slate-900 dark:text-white font-mono font-bold tracking-wider focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-not-allowed" />
+                                </div>
+                                <p id="uidMessage" class="mt-2 text-xs text-slate-500 dark:text-slate-400 hidden">
+                                    <span
+                                        class="material-symbols-outlined text-sm align-middle text-emerald-500">check_circle</span>
+                                    Your Student UID has been assigned
+                                </p>
+                            </div>
+
+                            <!-- Credential Notification Info -->
+                            <div
+                                class="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/50 flex items-start gap-3">
+                                <span
+                                    class="material-symbols-outlined text-blue-600 dark:text-blue-400 mt-0.5">info</span>
+                                <div>
+                                    <h4 class="text-blue-900 dark:text-blue-100 text-sm font-bold">Registration Approval
+                                    </h4>
+                                    <p class="text-blue-700 dark:text-blue-300 text-xs mt-1 leading-relaxed">
+                                        Your account will be activated after payment verification. Your <strong>login
+                                            credentials</strong> will be sent to your registered email address once the
+                                        administrator approves your payment.
+                                    </p>
+                                </div>
+                            </div>
+
+
+                            <!-- Pay Button -->
+                            <button id="payBtn" onclick="initiatePayment()"
+                                class="w-full relative overflow-hidden bg-gradient-to-r from-primary to-indigo-600 hover:from-primary hover:to-purple-600 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] shadow-xl shadow-primary/30 pulse-ring flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">lock</span>
+                                <span id="payBtnText">Pay ₹500 Securely</span>
+                                <div class="absolute inset-0 shimmer pointer-events-none"></div>
+                            </button>
+
+                            <!-- Payment Methods -->
+                            <div class="mt-6 text-center">
+                                <p class="text-xs text-slate-400 mb-3">Accepted Payment Methods</p>
+                                <div class="flex items-center justify-center gap-4">
+                                    <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                        <span class="text-xs font-medium text-slate-600 dark:text-slate-300">💳
+                                            Cards</span>
+                                    </div>
+                                    <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                        <span class="text-xs font-medium text-slate-600 dark:text-slate-300">📱
+                                            UPI</span>
+                                    </div>
+                                    <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                        <span class="text-xs font-medium text-slate-600 dark:text-slate-300">🏦 Net
+                                            Banking</span>
+                                    </div>
+                                    <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                        <span class="text-xs font-medium text-slate-600 dark:text-slate-300">💰
+                                            Wallets</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="mt-6 flex items-center justify-center gap-6 text-slate-400">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">lock</span>
+                            <span class="text-xs">Secure</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">verified</span>
+                            <span class="text-xs">Verified</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">shield</span>
+                            <span class="text-xs">Protected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <p class="text-slate-400 text-sm">
+                    Need help? <a href="#" class="text-primary hover:underline">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div
+                class="size-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6 success-checkmark">
+                <span class="material-symbols-outlined text-emerald-600 text-4xl">check_circle</span>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Payment Successful!</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-4">Your payment has been processed successfully.</p>
+
+            <div
+                class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-4 mb-6 text-left">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">mail</span>
+                    <div>
+                        <p class="text-blue-900 dark:text-blue-100 text-sm font-bold">Check Your Email Soon</p>
+                        <p class="text-blue-700 dark:text-blue-300 text-xs mt-1">
+                            After clinical approval of your payment, we will send your <strong>Username and
+                                Password</strong> to your registered email address.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-slate-500 text-sm">Payment ID</span>
+                    <span id="successPaymentId" class="text-slate-900 dark:text-white font-mono text-sm">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500 text-sm">Amount Paid</span>
+                    <span id="successAmount" class="text-slate-900 dark:text-white font-bold">₹500</span>
+                </div>
+            </div>
+            <button onclick="closeSuccessModal()"
+                class="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div
+                class="size-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-red-600 text-4xl">error</span>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Payment Failed</h3>
+            <p id="errorMessage" class="text-slate-500 dark:text-slate-400 mb-6">Something went wrong. Please try again.
+            </p>
+            <button onclick="closeErrorModal()"
+                class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white py-3 rounded-xl font-bold transition-all">
+                Try Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+            // Dark Mode Functionality
+            (function initDarkMode() {
+                const darkMode = localStorage.getItem('darkMode');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+
+        // BASE_URL comes from /js/config.js
+        let selectedAmount = 50000; // Default 500 INR in paise
+
+        // Read URL parameters and autofill form
+        (async function autofillFromUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name');
+            const phone = urlParams.get('phone');
+            const email = urlParams.get('email');
+            let uid = urlParams.get('uid');
+
+            if (name) {
+                document.getElementById('userName').value = decodeURIComponent(name);
+            }
+
+            let cleanPhone = '';
+            if (phone) {
+                // Remove any country code prefix if present (e.g., +91)
+                cleanPhone = decodeURIComponent(phone).replace(/^\+91/, '').replace(/\s/g, '');
+                document.getElementById('userPhone').value = cleanPhone;
+            }
+
+            let decodedEmail = '';
+            if (email) {
+                decodedEmail = decodeURIComponent(email);
+                document.getElementById('userEmail').value = decodedEmail;
+            }
+
+            // If UID is provided in URL, use it
+            if (uid) {
+                const decodedUid = decodeURIComponent(uid);
+                setStudentUid(decodedUid);
+            }
+            // Otherwise, try to fetch UID from database using email or phone
+            else if (decodedEmail || cleanPhone) {
+                await fetchStudentUid(decodedEmail, cleanPhone);
+            }
+        })();
+
+        // Function to set the student UID in the form
+        function setStudentUid(uid) {
+            document.getElementById('studentUid').value = uid;
+            document.getElementById('uidMessage').classList.remove('hidden');
+            document.getElementById('studentUid').placeholder = uid;
+            console.log('Student UID set:', uid);
+        }
+
+        // Function to fetch student UID from database
+        async function fetchStudentUid(email, phone) {
+            try {
+                const params = new URLSearchParams();
+                if (email) params.append('email', email);
+                if (phone) params.append('phone', phone);
+
+                const response = await fetch(`${BASE_URL}/admin/student/lookup?${params.toString()}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.uid) {
+                        setStudentUid(data.uid);
+                    }
+                } else {
+                    console.log('Student not found in database');
+                    document.getElementById('studentUid').placeholder = 'Not found - please register first';
+                }
+            } catch (error) {
+                console.error('Error fetching student UID:', error);
+            }
+        }
+
+        // Select Amount from predefined options
+        function selectAmount(amountInPaise, btn) {
+            selectedAmount = amountInPaise;
+
+            // Update button styles
+            document.querySelectorAll('.amount-btn').forEach(b => {
+                b.classList.remove('border-primary', 'bg-primary/5', 'active-amount');
+                b.classList.add('border-slate-200', 'dark:border-slate-700');
+                b.querySelector('.check-mark').classList.add('hidden');
+                b.querySelector('.check-mark').classList.remove('flex');
+            });
+
+            btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+            btn.classList.add('border-primary', 'bg-primary/5', 'active-amount');
+            btn.querySelector('.check-mark').classList.remove('hidden');
+            btn.querySelector('.check-mark').classList.add('flex');
+
+            // Update display
+            updateAmountDisplay();
+
+            // Clear custom amount input
+            document.getElementById('customAmount').value = '';
+        }
+
+        // Set custom amount
+        function setCustomAmount(value) {
+            if (value && value > 0) {
+                selectedAmount = parseInt(value) * 100; // Convert to paise
+
+                // Remove selection from predefined buttons
+                document.querySelectorAll('.amount-btn').forEach(b => {
+                    b.classList.remove('border-primary', 'bg-primary/5', 'active-amount');
+                    b.classList.add('border-slate-200', 'dark:border-slate-700');
+                    b.querySelector('.check-mark').classList.add('hidden');
+                });
+
+                updateAmountDisplay();
+            }
+        }
+
+        // Update amount display
+        function updateAmountDisplay() {
+            const amountInRupees = selectedAmount / 100;
+            document.getElementById('displayAmount').textContent = `₹${amountInRupees.toLocaleString('en-IN')}`;
+            document.getElementById('payBtnText').textContent = `Pay ₹${amountInRupees.toLocaleString('en-IN')} Securely`;
+        }
+
+        // Initiate Payment
+        async function initiatePayment() {
+            const payBtn = document.getElementById('payBtn');
+            const payBtnText = document.getElementById('payBtnText');
+
+            // Show loading state
+            payBtn.disabled = true;
+            payBtnText.textContent = 'Processing...';
+
+            try {
+                // Get user info for creating order
+                const userName = document.getElementById('userName').value || 'Customer';
+                const userEmail = document.getElementById('userEmail').value || '';
+
+                // Get studentUid from hidden field (populated from URL params on page load)
+                const studentUid = document.getElementById('studentUid').value || '';
+                console.log('Sending payment with Student UID:', studentUid);
+
+                // Create order on backend with student details
+                const response = await fetch(`${BASE_URL}/api/payments/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: selectedAmount,
+                        currency: 'INR',
+                        studentName: userName,
+                        studentUid: studentUid,
+                        studentEmail: userEmail
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create order');
+                }
+
+                const orderData = await response.json();
+
+                // Get additional user info for Razorpay prefill
+                const userPhone = document.getElementById('userPhone').value || '';
+
+                // Initialize Razorpay
+                const options = {
+                    key: orderData.key,
+                    amount: orderData.amount,
+                    currency: orderData.currency,
+                    order_id: orderData.razorpayOrderId,
+                    name: 'ExamPortal',
+                    description: 'Exam Registration Fee',
+                    image: 'https://lh3.googleusercontent.com/a/default-user=s120',
+                    prefill: {
+                        name: userName,
+                        email: userEmail,
+                        contact: userPhone ? `+91${userPhone}` : ''
+                    },
+                    theme: {
+                        color: '#135bec'
+                    },
+                    handler: async function (response) {
+                        // Payment successful - verify on backend
+                        try {
+                            const verifyResponse = await fetch(`${BASE_URL}/api/payments/verify`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                }),
+
+                            });
+
+                            // Log the Razorpay response for debugging
+                            console.log('ORDER_ID:', response.razorpay_order_id);
+                            console.log('PAYMENT_ID:', response.razorpay_payment_id);
+                            console.log('SIGNATURE:', response.razorpay_signature);
+                            if (verifyResponse.ok) {
+                                showSuccessModal(response.razorpay_payment_id, selectedAmount / 100);
+                            } else {
+                                showErrorModal('Payment verification failed. Please contact support.');
+                            }
+                        } catch (error) {
+                            showErrorModal('Payment verification failed. Please contact support.');
+                        }
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            resetPayButton();
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+
+                rzp.on('payment.failed', function (response) {
+                    showErrorModal(response.error.description || 'Payment failed. Please try again.');
+                });
+
+                rzp.open();
+                resetPayButton();
+
+            } catch (error) {
+                console.error('Payment error:', error);
+                showErrorModal('Unable to initiate payment. Please try again.');
+                resetPayButton();
+            }
+        }
+
+        function resetPayButton() {
+            const payBtn = document.getElementById('payBtn');
+            const payBtnText = document.getElementById('payBtnText');
+            payBtn.disabled = false;
+            const amountInRupees = selectedAmount / 100;
+            payBtnText.textContent = `Pay ₹${amountInRupees.toLocaleString('en-IN')} Securely`;
+        }
+
+        function showSuccessModal(paymentId, amount) {
+            document.getElementById('successPaymentId').textContent = paymentId;
+            document.getElementById('successAmount').textContent = `₹${amount.toLocaleString('en-IN')}`;
+            document.getElementById('successModal').classList.remove('hidden');
+            document.getElementById('successModal').classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+            // Redirect to student login page
+            window.location.href = '/student/login';
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
+            document.getElementById('errorModal').classList.add('flex');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+            document.getElementById('errorModal').classList.remove('flex');
+        }
+    </script>
+</body>
+
+</html>
