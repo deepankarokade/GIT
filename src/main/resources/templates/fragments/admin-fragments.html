@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="admin-head(title)">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title th:text="${title} + ' - ExamPortal'">Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script th:inline="javascript">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "sans-serif"],
+                        sans: ["Lexend", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #f6f6f8;
+            background-image: radial-gradient(#135bec11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#135bec22 1px, transparent 1px);
+        }
+    </style>
+    <script src="/js/config.js"></script>
+</head>
+
+<body>
+
+    <aside th:fragment="sidebar(activeItem)"
+        class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 shrink-0 transition-colors duration-300 h-screen overflow-y-auto">
+        <div class="flex flex-col gap-8 px-6">
+            <!-- Sidebar Header / Logo (Optional) -->
+            <div class="flex items-center px-4 mb-2">
+                <h5 class="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Admin Dashboard</h5>
+            </div>
+            <!-- Nav Links -->
+            <nav class="flex flex-col gap-1">
+                <a th:classappend="${activeItem == 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-display"
+                    href="/admin/dashboard">
+                    <span class="material-symbols-outlined shrink-0">dashboard</span>
+                    <p class="text-sm font-medium">Dashboard Overview</p>
+                </a>
+                <a th:classappend="${activeItem == 'student' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-display"
+                    href="/admin/dashboard/student">
+                    <span class="material-symbols-outlined shrink-0">group</span>
+                    <p class="text-sm font-medium">Students Directory</p>
+                </a>
+                <a th:classappend="${activeItem == 'professor' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-display"
+                    href="/admin/dashboard/professor">
+                    <span class="material-symbols-outlined shrink-0">school</span>
+                    <p class="text-sm font-medium">Faculty Members</p>
+                </a>
+                <!-- Curriculum Management Dropdown -->
+                <div class="relative">
+                    <button id="curriculumBtn"
+                        class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined shrink-0">menu_book</span>
+                            <p class="text-sm font-medium">Manage Curriculum</p>
+                        </div>
+                        <span id="curriculumArrow"
+                            class="material-symbols-outlined text-sm transition-transform duration-200"
+                            th:classappend="${activeItem.startsWith('curriculum') ? 'rotate-180' : ''}">expand_more</span>
+                    </button>
+                    <div id="curriculumSub"
+                        class="flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all"
+                        th:classappend="${activeItem.startsWith('curriculum') ? 'flex' : 'hidden'}">
+                        <a th:classappend="${activeItem == 'curriculum-course' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/course">
+                            <span class="material-symbols-outlined text-xs">auto_stories</span>
+                            <p class="text-xs">Manage Course</p>
+                        </a>
+                        <a th:classappend="${activeItem == 'curriculum-class' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/class">
+                            <span class="material-symbols-outlined text-xs">class</span>
+                            <p class="text-xs">Manage Class</p>
+                        </a>
+                        <a th:classappend="${activeItem == 'curriculum-section' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/section">
+                            <span class="material-symbols-outlined text-xs">segment</span>
+                            <p class="text-xs">Manage Section</p>
+                        </a>
+                        <a th:classappend="${activeItem == 'curriculum-subject' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/course/subject">
+                            <span class="material-symbols-outlined text-xs">menu_book</span>
+                            <p class="text-xs">Manage Subjects</p>
+                        </a>
+                        <a th:classappend="${activeItem == 'curriculum-question-types' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/question-types">
+                            <span class="material-symbols-outlined text-xs">quiz</span>
+                            <p class="text-xs">Manage Question Types</p>
+                        </a>
+                    </div>
+                </div>
+                <!-- Examination Portal Dropdown -->
+                <div class="relative">
+                    <button id="examPortalBtn"
+                        class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined shrink-0">quiz</span>
+                            <p class="text-sm font-medium">Examination Portal</p>
+                        </div>
+                        <span id="examPortalArrow"
+                            class="material-symbols-outlined text-sm transition-transform duration-200"
+                            th:classappend="${activeItem.startsWith('exam') ? 'rotate-180' : ''}">expand_more</span>
+                    </button>
+                    <div id="examPortalSub"
+                        class="flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all"
+                        th:classappend="${activeItem.startsWith('exam') ? 'flex' : 'hidden'}">
+                        <a th:classappend="${activeItem == 'exam-management' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/exam">
+                            <span class="material-symbols-outlined text-xs">edit_note</span>
+                            <p class="text-xs">Exam Management</p>
+                        </a>
+                        <a th:classappend="${activeItem == 'exam-types' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/curriculum/exam-type">
+                            <span class="material-symbols-outlined text-xs">category</span>
+                            <p class="text-xs">Manage Exam Types</p>
+                        </a>
+                    </div>
+                </div>
+                <a th:classappend="${activeItem == 'payment' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-display"
+                    href="/admin/dashboard/payment">
+                    <span class="material-symbols-outlined shrink-0">payments</span>
+                    <p class="text-sm font-medium">Payment Tracking</p>
+                </a>
+            </nav>
+        </div>
+        <!-- Footer Sidebar -->
+        <div class="flex flex-col gap-1 px-6">
+            <button id="darkModeToggle"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <span class="material-symbols-outlined">dark_mode</span>
+                <p class="text-sm font-medium">Appearance</p>
+                <div class="ml-auto">
+                    <div
+                        class="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-primary transition-colors">
+                        <div
+                            class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform dark:transform dark:translate-x-5">
+                        </div>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <header th:fragment="navbar"
+        class="flex items-center justify-between sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="text-primary">
+                    <svg class="size-8" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Admin Console</h2>
+            </div>
+            <div class="hidden md:flex relative group">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                <input
+                    class="form-input w-80 pl-10 pr-4 py-2 rounded-xl border-none bg-slate-100 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary transition-all"
+                    placeholder="Search exams, users, or reports..." />
+            </div>
+        </div>
+        <!-- Profile Section on the Extreme Right -->
+        <!-- Profile Section on the Extreme Right -->
+        <div class="flex items-center gap-2 relative">
+            <!-- Notification Icon -->
+            <button
+                class="flex items-center justify-center p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative">
+                <span class="material-symbols-outlined text-[24px]">notifications</span>
+                <span
+                    class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+            </button>
+
+            <div id="navProfileBtn"
+                class="flex items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1 rounded-full transition-all">
+                <div id="navAvatar"
+                    class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary"
+                    style='background-image: url("https://lh3.googleusercontent.com/a/default-user=s120");'></div>
+            </div>
+
+            <!-- Profile Dropdown Menu -->
+            <div id="profileDropdown"
+                class="hidden absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div
+                    class="px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                    <p id="dropdownAdminName" class="text-sm font-bold text-slate-900 dark:text-white truncate">
+                        Loading...</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">System Administrator</p>
+                </div>
+                <div class="p-2 flex flex-col gap-1">
+                    <a href="/admin/profile"
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                        <span
+                            class="material-symbols-outlined text-xl group-hover:text-primary transition-colors">edit_square</span>
+                        <span class="text-sm font-medium">Edit Profile</span>
+                    </a>
+                    <hr class="border-slate-100 dark:border-slate-800 my-1">
+                    <a href="/admin/login"
+                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all group">
+                        <span class="material-symbols-outlined text-xl">logout</span>
+                        <span class="text-sm font-medium">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div th:fragment="scripts">
+        <script th:inline="javascript">
+            // Dark Mode Functionality
+            (function initDarkMode() {
+                const darkMode = localStorage.getItem('darkMode');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Dark mode toggle
+                const darkModeToggle = document.getElementById('darkModeToggle');
+                if (darkModeToggle) {
+                    darkModeToggle.addEventListener('click', function () {
+                        document.documentElement.classList.toggle('dark');
+                        if (document.documentElement.classList.contains('dark')) {
+                            localStorage.setItem('darkMode', 'enabled');
+                        } else {
+                            localStorage.setItem('darkMode', 'disabled');
+                        }
+                    });
+                }
+
+                // Curriculum Management Sub-menu Toggle
+                const curriculumBtn = document.getElementById('curriculumBtn');
+                const curriculumSub = document.getElementById('curriculumSub');
+                const curriculumArrow = document.getElementById('curriculumArrow');
+
+                if (curriculumBtn && curriculumSub) {
+                    curriculumBtn.addEventListener('click', function () {
+                        curriculumSub.classList.toggle('hidden');
+                        curriculumSub.classList.toggle('flex');
+                        curriculumArrow.classList.toggle('rotate-180');
+                    });
+                }
+
+                // Examination Portal Sub-menu Toggle
+                const examPortalBtn = document.getElementById('examPortalBtn');
+                const examPortalSub = document.getElementById('examPortalSub');
+                const examPortalArrow = document.getElementById('examPortalArrow');
+
+                if (examPortalBtn && examPortalSub) {
+                    examPortalBtn.addEventListener('click', function () {
+                        examPortalSub.classList.toggle('hidden');
+                        examPortalSub.classList.toggle('flex');
+                        examPortalArrow.classList.toggle('rotate-180');
+                    });
+                }
+
+                // Profile Dropdown Toggle
+                const navProfileBtn = document.getElementById('navProfileBtn');
+                const profileDropdown = document.getElementById('profileDropdown');
+
+                if (navProfileBtn && profileDropdown) {
+                    navProfileBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        profileDropdown.classList.toggle('hidden');
+                    });
+
+                    // Close dropdown when clicking outside
+                    window.addEventListener('click', function () {
+                        if (!profileDropdown.classList.contains('hidden')) {
+                            profileDropdown.classList.add('hidden');
+                        }
+                    });
+
+                    // Prevent dropdown from closing when clicking inside
+                    profileDropdown.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    });
+                }
+            });
+
+            // BASE_URL is loaded from /js/config.js
+            const fragAdminUid = localStorage.getItem('adminUid');
+
+            (async function loadProfileInfo() {
+                try {
+                    if (!fragAdminUid) return;
+
+                    // Load name
+                    try {
+                        const res = await fetch(`${BASE_URL}/admin/profile/${fragAdminUid}/name`);
+                        if (res.ok) {
+                            const name = await res.text();
+                            const els = [document.getElementById('sidebarAdminName'), document.getElementById('dropdownAdminName')];
+                            els.forEach(el => {
+                                if (el) { el.textContent = name; el.removeAttribute('aria-busy'); }
+                            });
+                        }
+                    } catch (e) { }
+
+                    // Load profile picture
+                    try {
+                        const imgRes = await fetch(`${BASE_URL}/admin/profile/${fragAdminUid}/profile-picture`);
+                        if (imgRes.ok) {
+                            const blob = await imgRes.blob();
+                            if (blob && blob.size > 0) {
+                                const url = URL.createObjectURL(blob);
+                                const avatars = [document.getElementById('sidebarAvatar'), document.getElementById('navAvatar')];
+                                avatars.forEach(avatar => {
+                                    if (avatar) avatar.style.backgroundImage = `url("${url}")`;
+                                });
+                                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                            }
+                        }
+                    } catch (e) { }
+
+                } catch (e) { }
+            })();
+        </script>
+    </div>
+
+</body>
+
+</html>

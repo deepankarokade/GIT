@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Add New Student</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+    <script src="/js/config.js"></script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <header
+            class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a2231] px-6 lg:px-10 py-3 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined text-2xl">school</span>
+                </div>
+                <h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-tight">ExamPortal
+                </h2>
+            </div>
+        </header>
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="flex flex-1 justify-center py-8 px-4 md:px-8">
+                <div class="layout-content-container flex flex-col max-w-[1024px] flex-1 w-full gap-6">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 p-2">
+                        <div class="flex flex-col gap-2">
+                            <h1
+                                class="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
+                                Add New Student</h1>
+                        </div>
+                        <a href="/admin/dashboard/student">
+                            <button
+                                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-lg">arrow_back</span>
+                                Back to List
+                            </button>
+                        </a>
+                    </div>
+                    <form id="studentRegistrationForm"
+                        class="flex flex-col gap-6 bg-white dark:bg-[#1a2231] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                        <div class="h-1 w-full bg-slate-100 dark:bg-slate-800">
+                            <div class="h-full w-1/4 bg-primary rounded-r-full"></div>
+                        </div>
+                        <div class="p-6 md:p-8 flex flex-col gap-8">
+                            <section class="flex flex-col gap-6">
+                                <div
+                                    class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                                    <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                        <span class="material-symbols-outlined">person</span>
+                                    </div>
+                                    <h3 class="text-slate-900 dark:text-white text-lg font-bold">Personal Information
+                                    </h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                    <div class="md:col-span-3 flex flex-col items-center justify-start gap-4">
+                                        <div class="relative group cursor-pointer">
+                                            <div id="photoPreviewContainer"
+                                                class="size-32 md:size-40 rounded-full bg-slate-100 dark:bg-slate-700 border-4 border-white dark:border-slate-600 shadow-inner flex items-center justify-center overflow-hidden">
+                                                <span
+                                                    class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-500 group-hover:hidden">add_a_photo</span>
+                                                <div
+                                                    class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white font-medium text-sm">
+                                                    Change</div>
+                                            </div>
+                                            <div
+                                                class="absolute bottom-1 right-1 bg-primary text-white rounded-full p-2 border-2 border-white dark:border-slate-800 shadow-md">
+                                                <span class="material-symbols-outlined text-sm block">edit</span>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="photoInput" name="photo" accept="image/jpeg,image/png"
+                                            class="hidden" />
+                                        <button type="button" id="uploadPhotoBtn"
+                                            class="text-primary text-sm font-semibold hover:underline">Upload
+                                            Photo</button>
+                                        <p class="text-xs text-center text-slate-400 max-w-[150px]">Max size 2MB. JPG or
+                                            PNG only.</p>
+                                    </div>
+                                    <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <label class="flex flex-col gap-1.5 md:col-span-2">
+                                            <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Full
+                                                Name</span>
+                                            <input name="fullName" required
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                                placeholder="e.g. Johnathan Doe" type="text" />
+                                        </label>
+                                        <div class="flex flex-col gap-1.5 md:col-span-2">
+                                            <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Date of
+                                                Birth</span>
+                                            <input name="dob"
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                                type="date" />
+                                        </div>
+                                        <div class="flex flex-col gap-2 md:col-span-2">
+                                            <span
+                                                class="text-slate-700 dark:text-slate-300 text-sm font-medium">Gender</span>
+                                            <div class="flex flex-wrap gap-4">
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors flex-1 min-w-[120px]">
+                                                    <input
+                                                        class="size-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                                                        name="gender" value="Male" type="radio" />
+                                                    <span
+                                                        class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
+                                                </label>
+                                                <label
+                                                    class="flex items-center gap-2 cursor-pointer p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors flex-1 min-w-[120px]">
+                                                    <input
+                                                        class="size-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
+                                                        name="gender" value="Female" type="radio" />
+                                                    <span
+                                                        class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <section class="flex flex-col gap-6">
+                                <div
+                                    class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                                    <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                        <span class="material-symbols-outlined">call</span>
+                                    </div>
+                                    <h3 class="text-slate-900 dark:text-white text-lg font-bold">Contact Details</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Email
+                                            Address</span>
+                                        <div class="relative">
+                                            <span
+                                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">mail</span>
+                                            <input name="email"
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-11 pr-4"
+                                                placeholder="student@example.com" type="email" />
+                                        </div>
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Contact
+                                            Number</span>
+                                        <div class="relative">
+                                            <span
+                                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">phone</span>
+                                            <input name="contactNumber" required
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-11 pr-4"
+                                                placeholder="+1 (555) 000-0000" type="tel" />
+                                        </div>
+                                    </label>
+                                    <label class="flex flex-col gap-1.5 md:col-span-2">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Residential
+                                            Address</span>
+                                        <input name="address"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="Apartment, Street, Area" type="text" />
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span
+                                            class="text-slate-700 dark:text-slate-300 text-sm font-medium">State/Province</span>
+                                        <select name="state"
+                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
+                                            <option disabled="" selected="" value="">Select State</option>
+                                            <option>Maharashtra</option>
+                                            <option>Gujrat</option>
+                                            <option>Tamilnaudu</option>
+                                        </select>
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">City</span>
+                                        <input name="city"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="e.g. Pune" type="text" />
+                                    </label>
+
+                                </div>
+                            </section>
+                            <section class="flex flex-col gap-6">
+                                <div
+                                    class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                                    <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                        <span class="material-symbols-outlined">family_restroom</span>
+                                    </div>
+                                    <h3 class="text-slate-900 dark:text-white text-lg font-bold">Guardian / Parent
+                                        Information</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Guardian /
+                                            Parent Name</span>
+                                        <input name="parentName"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="Full Name" type="text" />
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Guardian /
+                                            Parent Contact</span>
+                                        <input name="parentContact"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="Phone Number" type="tel" />
+                                    </label>
+                                </div>
+                            </section>
+                            <section class="flex flex-col gap-6">
+                                <div
+                                    class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                                    <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                        <span class="material-symbols-outlined">school</span>
+                                    </div>
+                                    <h3 class="text-slate-900 dark:text-white text-lg font-bold">Academic &amp; Exam
+                                        Details</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <label class="flex flex-col gap-1.5 md:col-span-2">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">College
+                                            Name</span>
+                                        <input name="schoolCollegeName"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="Enter institution name" type="text" />
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Class <span
+                                                class="text-red-500">*</span></span>
+                                        <select name="studentClass" id="studentClassDropdown" required
+                                            onchange="loadCoursesForClass(this.value)"
+                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
+                                            <option disabled selected value="">Loading classes...</option>
+                                        </select>
+                                    </label>
+                                    <label class="flex flex-col gap-1.5">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Section
+                                            <span class="text-red-500">*</span></span>
+                                        <select name="section" id="sectionDropdown" required
+                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
+                                            <option disabled selected value="">Loading sections...</option>
+                                        </select>
+                                    </label>
+                                    <label class="flex flex-col gap-1.5 md:col-span-2">
+                                        <span
+                                            class="text-slate-700 dark:text-slate-300 text-sm font-medium">Registration/Student
+                                            ID <span class="text-slate-400 font-normal">(Optional)</span></span>
+                                        <input name="registrationId"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            placeholder="Enter ID if available" type="text" />
+                                    </label>
+                                    <label class="flex flex-col gap-1.5 md:col-span-2">
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Preferred
+                                            Exam Date <span class="text-slate-400 font-normal">(Optional)</span></span>
+                                        <input name="preferredExamDate"
+                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
+                                            type="date" />
+                                    </label>
+                                    <label class="flex flex-col gap-1.5 md:col-span-2">
+                                        <span
+                                            class="text-slate-700 dark:text-slate-300 text-sm font-medium">Subjects</span>
+                                        <select name="subjects" id="subjectsDropdown" required
+                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
+                                            <option disabled="" selected="" value="">Please select a class first
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </section>
+                            <div
+                                class="flex flex-col-reverse md:flex-row items-center justify-end gap-4 border-t border-slate-100 dark:border-slate-800 pt-6 mt-2">
+                                <button
+                                    class="w-full md:w-auto px-6 py-3 rounded-lg text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                    type="button">
+                                    Reset Form
+                                </button>
+                                <div class="flex w-full md:w-auto gap-4">
+                                    <a th:href="@{/student/login}">
+                                        <button
+                                            class="flex-1 md:flex-none md:w-32 justify-center px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                            type="button">
+                                            Cancel
+                                        </button>
+                                    </a>
+                                    <button
+                                        class="flex-1 md:flex-none md:w-40 justify-center px-6 py-3 rounded-lg bg-primary text-white font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                                        type="submit">
+                                        <span>Submit</span>
+                                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Photo upload functionality
+        const photoInput = document.getElementById('photoInput');
+        const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+
+        uploadPhotoBtn.addEventListener('click', () => {
+            photoInput.click();
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    photoInput.value = '';
+                    return;
+                }
+
+                // Validate file type
+                if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                    alert('Only JPG and PNG files are allowed');
+                    photoInput.value = '';
+                    return;
+                }
+
+                // Preview the image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photoPreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const form = document.getElementById('studentRegistrationForm');
+        // BASE_URL comes from /js/config.js
+        const COURSE_API_URL = BASE_URL + '/admin/course';
+
+        // Load classes for studentClass dropdown
+        async function loadClassesForDropdown() {
+            const classDropdown = document.getElementById('studentClassDropdown');
+            if (!classDropdown) return;
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/class/all`);
+                if (!response.ok) throw new Error('Failed to fetch classes');
+
+                const classes = await response.json();
+
+                // Clear existing options
+                classDropdown.innerHTML = '<option disabled selected value="">Select your class</option>';
+
+                // Add classes as options
+                classes.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.className;
+                    option.textContent = c.className;
+                    classDropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading classes:', error);
+                classDropdown.innerHTML = '<option disabled selected value="">Failed to load classes</option>';
+            }
+        }
+
+        // Fetch courses based on selected class
+        async function loadCoursesForClass(className) {
+            const subjectsDropdown = document.getElementById('subjectsDropdown');
+            if (!subjectsDropdown) return;
+
+            subjectsDropdown.innerHTML = '<option disabled selected value="">Loading subjects...</option>';
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/course/class/${encodeURIComponent(className)}`);
+                if (!response.ok) throw new Error('Failed to fetch courses');
+
+                const courses = await response.json();
+
+                if (courses.length === 0) {
+                    subjectsDropdown.innerHTML = '<option disabled selected value="">No subjects found for this class</option>';
+                    return;
+                }
+
+                subjectsDropdown.innerHTML = '<option disabled selected value="">Select subject stream</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.courseName; // Keep courseName as value for existing logic
+                    option.textContent = `${course.courseName} (${course.batchDescription || 'Regular Batch'})`;
+                    subjectsDropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                subjectsDropdown.innerHTML = '<option disabled selected value="">Failed to load subjects</option>';
+            }
+        }
+
+        // Load classes when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            loadClassesForDropdown();
+            loadSectionsForDropdown();
+        });
+
+        // Load sections for sectionDropdown
+        async function loadSectionsForDropdown() {
+            const sectionDropdown = document.getElementById('sectionDropdown');
+            if (!sectionDropdown) return;
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/section/all`);
+                if (!response.ok) throw new Error('Failed to fetch sections');
+
+                const sections = await response.json();
+
+                // Clear existing options
+                sectionDropdown.innerHTML = '<option disabled selected value="">Select section</option>';
+
+                // Add sections as options
+                sections.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.sectionName;
+                    option.textContent = s.sectionName;
+                    sectionDropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading sections:', error);
+                sectionDropdown.innerHTML = '<option disabled selected value="">Failed to load sections</option>';
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get all form inputs using name attributes (more reliable)
+            const formData = new FormData();
+
+            // Personal Information
+            const fullName = form.querySelector('input[name="fullName"]').value;
+            const dob = form.querySelector('input[name="dob"]').value;
+            const gender = form.querySelector('input[name="gender"]:checked')?.value || '';
+
+            // Contact Details - using name attributes
+            const email = form.querySelector('input[name="email"]')?.value || '';
+            const contactNumber = form.querySelector('input[name="contactNumber"]')?.value || '';
+            const address = form.querySelector('input[name="address"]')?.value || '';
+            const state = form.querySelector('select[name="state"]')?.value || '';
+            const city = form.querySelector('input[name="city"]')?.value || '';
+
+            // Parent/Guardian section
+            const parentName = form.querySelector('input[name="parentName"]')?.value || '';
+            const parentContact = form.querySelector('input[name="parentContact"]')?.value || '';
+
+            // Academic section
+            const schoolCollegeName = form.querySelector('input[name="schoolCollegeName"]')?.value || '';
+            const studentClass = form.querySelector('select[name="studentClass"]')?.value || '';
+            const section = form.querySelector('select[name="section"]')?.value || '';
+            const registrationId = form.querySelector('input[name="registrationId"]')?.value || '';
+            const preferredExamDate = form.querySelector('input[name="preferredExamDate"]')?.value || '';
+            const subjects = form.querySelector('select[name="subjects"]')?.value || '';
+
+            // Validation: Contact Number is required for UID generation
+            if (!contactNumber || contactNumber.length < 5) {
+                alert('❌ Contact Number is required and must have at least 5 digits');
+                return;
+            }
+
+            // Append all data to FormData
+            formData.append('fullName', fullName);
+            if (dob) formData.append('dob', dob);
+            if (gender) formData.append('gender', gender);
+            if (email) formData.append('email', email);
+            formData.append('contactNumber', contactNumber); // Required
+            if (address) formData.append('address', address);
+            if (state) formData.append('state', state);
+            if (city) formData.append('city', city);
+            if (parentName) formData.append('parentName', parentName);
+            if (parentContact) formData.append('parentContact', parentContact);
+            if (schoolCollegeName) formData.append('schoolCollegeName', schoolCollegeName);
+            if (studentClass) formData.append('studentClass', studentClass);
+            if (section) formData.append('section', section);
+            if (registrationId) formData.append('registrationId', registrationId);
+            if (preferredExamDate) formData.append('preferredExamDate', preferredExamDate);
+            if (subjects) formData.append('subjects', subjects);
+
+            // Append photo if selected
+            if (photoInput.files[0]) {
+                formData.append('photo', photoInput.files[0]);
+            }
+
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+            <div class="flex items-center gap-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Submitting...</span>
+            </div>
+        `;
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/student/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('✅ ' + data.message);
+                    // Redirect back to student list instead of immediate payment
+                    window.location.href = `${BASE_URL}/admin/dashboard/student`;
+                } else {
+                    const error = await response.text();
+                    alert('❌ Error: ' + error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('❌ Failed to register student. Please check your connection and try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnContent;
+            }
+        });
+    </script>
+</body>
+
+</html>

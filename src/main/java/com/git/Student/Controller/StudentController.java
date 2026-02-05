@@ -95,9 +95,48 @@ public class StudentController {
 
             Student savedStudent = studentService.registerStudent(student);
 
+            // Send Email with Payment Link
+            if (email != null && !email.isEmpty()) {
+                try {
+                    MimeMessage message = mailSender.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+                    String encodedName = java.net.URLEncoder.encode(fullName, "UTF-8");
+                    String encodedPhone = java.net.URLEncoder.encode(contactNumber, "UTF-8");
+                    String encodedEmail = java.net.URLEncoder.encode(email, "UTF-8");
+
+                    String paymentLink = baseUrl + "/payment?name=" + encodedName + "&phone=" + encodedPhone
+                            + "&email=" + encodedEmail;
+
+                    helper.setTo(email);
+                    helper.setSubject("Registration Successful - Complete Your Payment");
+
+                    String emailContent = "<div style='font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>"
+                            + "<h2 style='color: #135bec;'>Welcome to ExamPortal, " + fullName + "!</h2>"
+                            + "<p>Your registration has been successfully received. To complete the process and activate your account, please proceed with the payment.</p>"
+                            + "<div style='margin: 30px 0;'>"
+                            + "<a href='" + paymentLink + "' "
+                            + "style='display:inline-block;padding:14px 28px;background:#135bec;color:white;"
+                            + "text-decoration:none;border-radius:8px;font-weight:bold;'>Proceed to Payment</a>"
+                            + "</div>"
+                            + "<p style='color: #666; font-size: 14px;'>If the button above doesn't work, copy and paste this link into your browser:</p>"
+                            + "<p style='color: #135bec; font-size: 12px; word-break: break-all;'>" + paymentLink
+                            + "</p>"
+                            + "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>"
+                            + "<p style='color: #999; font-size: 12px;'>Thank you for choosing ExamPortal.</p>"
+                            + "</div>";
+
+                    helper.setText(emailContent, true);
+                    mailSender.send(message);
+                } catch (Exception e) {
+                    System.err.println("Failed to send registration email: " + e.getMessage());
+                    // We don't want to fail the registration if email fails
+                }
+            }
+
             // Return JSON response with student UID for payment linking
             java.util.Map<String, String> response = new java.util.HashMap<>();
-            response.put("message", "Student registered successfully");
+            response.put("message", "Student registered successfully. A payment link has been sent to their email.");
             response.put("uid", savedStudent.getUid());
             return ResponseEntity.ok(response);
 

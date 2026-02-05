@@ -1,218 +1,28 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Manage Students - Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#2563eb",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
-                    },
-                    fontFamily: {
-                        display: ["Lexend", "sans-serif"],
-                        sans: ["Lexend", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.75rem",
-                    },
-                },
-            },
-        };
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .active-nav {
-            background-color: #2563eb;
-            color: white !important;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .dark ::-webkit-scrollbar-thumb {
-            background: #334155;
-        }
-    </style>
-    <script src="/js/config.js"></script>
-</head>
+<head th:replace="~{fragments/admin-fragments :: admin-head(title='Manage Students')}"></head>
 
 <body
     class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white transition-colors duration-200">
     <div class="flex h-screen overflow-hidden">
-        <aside
-            class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 shrink-0 transition-colors duration-300">
-            <div class="flex flex-col gap-8 px-6">
-                <!-- Profile Section -->
-                <div class="flex gap-3 items-center">
-                    <div id="sidebarAvatar"
-                        class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary"
-                        data-alt="Professional portrait of the portal administrator"
-                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHDav7IDfvT9cSxg4jMV-mSFf7EAges7dHFo-J7bVhWbd2Vnwb6fU7qulhn4mAoXTNHaGRtii7HB08NakQLsiRy1rERs3XB6tFyH6_4gmkI3hs0rF9WhKVuQkq8lJZmciga4IrnqJIF7nH-QGLIH6DxNPVsfDe3oALQgeASqMBu5QzXZrlTsCvl_DC00n3wJ6BZ5ZrnL8FPADJ7VvtAFcZYhwJJ2rXDM0oocbtDvqSjeR10pPfjtGcmJlcKx7XsyrhAlgMwbinmmU");'>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 id="sidebarAdminName"
-                            class="text-[#111318] dark:text-white text-base font-semibold leading-tight"
-                            aria-busy="true">
-                            Loading…</h1>
-                        <p class="text-[#616f89] dark:text-slate-400 text-sm">Admin</p>
-                    </div>
-                </div>
-                <!-- Nav Links -->
-                <nav class="flex flex-col gap-1">
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
-                        href="/admin/dashboard">
-                        <span class="material-symbols-outlined shrink-0">dashboard</span>
-                        <p class="text-sm font-medium">Dashboard Overview</p>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
-                        href="/admin/profile">
-                        <span class="material-symbols-outlined shrink-0">account_circle</span>
-                        <p class="text-sm font-medium">Profile Management</p>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all font-display"
-                        href="/admin/dashboard/student">
-                        <span class="material-symbols-outlined shrink-0">group</span>
-                        <p class="text-sm font-medium">Students Directory</p>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
-                        href="/admin/dashboard/professor">
-                        <span class="material-symbols-outlined shrink-0">school</span>
-                        <p class="text-sm font-medium">Faculty Members</p>
-                    </a>
-                    <!-- Curriculum Management Dropdown -->
-                    <div class="relative">
-                        <button id="curriculumBtn"
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-                            <div class="flex items-center gap-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9 12h3.75M9 15h3.75M9 18h3.75m.75-12h4.5M12 3v1.5M12 21v-1.5M7.5 6.75h9a2.25 2.25 0 0 1 2.25 2.25v10.5A2.25 2.25 0 0 1 16.5 21h-9a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
-                                </svg>
-                                <p class="text-sm font-medium">Manage Curriculum</p>
-                            </div>
-                            <span id="curriculumArrow"
-                                class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
-                        </button>
-                        <div id="curriculumSub"
-                            class="hidden flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all">
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/course">
-                                <span class="material-symbols-outlined text-xs">auto_stories</span>
-                                <p class="text-xs">Manage Course</p>
-                            </a>
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/class">
-                                <span class="material-symbols-outlined text-xs">class</span>
-                                <p class="text-xs">Manage Class</p>
-                            </a>
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/section">
-                                <span class="material-symbols-outlined text-xs">segment</span>
-                                <p class="text-xs">Manage Section</p>
-                            </a>
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/course/subject">
-                                <span class="material-symbols-outlined text-xs">auto_stories</span>
-                                <p class="text-xs">Manage Subjects</p>
-                            </a>
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/question-types">
-                                <span class="material-symbols-outlined text-xs">quiz</span>
-                                <p class="text-xs">Manage Question Types</p>
-                            </a>
-                        </div>
-                    </div>
-                    <!-- Examination Portal Dropdown -->
-                    <div class="relative">
-                        <button id="examPortalBtn"
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined shrink-0">quiz</span>
-                                <p class="text-sm font-medium">Examination Portal</p>
-                            </div>
-                            <span id="examPortalArrow"
-                                class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
-                        </button>
-                        <div id="examPortalSub"
-                            class="hidden flex-col gap-1 mt-1 ml-4 border-l-2 border-primary/20 dark:border-primary/40 pl-4 transition-all">
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/exam">
-                                <span class="material-symbols-outlined text-xs">edit_note</span>
-                                <p class="text-xs">Exam Management</p>
-                            </a>
-                            <a class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all font-medium"
-                                href="/admin/dashboard/curriculum/exam-type">
-                                <span class="material-symbols-outlined text-xs">category</span>
-                                <p class="text-xs">Manage Exam Types</p>
-                            </a>
-                        </div>
-                    </div>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-display"
-                        href="/admin/dashboard/payment">
-                        <span class="material-symbols-outlined shrink-0">payments</span>
-                        <p class="text-sm font-medium">Payment Tracking</p>
-                    </a>
-                </nav>
-            </div>
-            <!-- Footer Sidebar -->
-            <div class="flex flex-col gap-1 px-6">
-                <button id="darkModeToggle"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                    <span class="material-symbols-outlined">dark_mode</span>
-                    <p class="text-sm font-medium">Appearance</p>
-                    <div class="ml-auto">
-                        <div
-                            class="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-primary transition-colors">
-                            <div
-                                class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform dark:transform dark:translate-x-5">
-                            </div>
-                        </div>
-                    </div>
-                </button>
-                <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                    href="/admin/login">
-                    <span class="material-symbols-outlined">logout</span>
-                    <p class="text-sm font-medium">Sign Out</p>
-                </a>
-            </div>
-        </aside>
-        <main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark transition-colors duration-300">
-            <div class="max-w-7xl mx-auto py-8 px-6">
+        <aside th:replace="~{fragments/admin-fragments :: sidebar(activeItem='student')}"></aside>
+
+        <main
+            class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark transition-colors duration-300">
+            <header th:replace="~{fragments/admin-fragments :: navbar}"></header>
+            <div class="max-w-7xl mx-auto py-8 px-6 w-full">
                 <header class="flex justify-between items-start mb-8">
                     <div>
                         <h1 class="text-3xl font-bold tracking-tight">Manage Students</h1>
                         <p class="text-slate-500 dark:text-slate-400 mt-1">Oversee and manage student records across all
                             courses.</p>
                     </div>
+                    <button onclick="window.location.href='/admin/dashboard/student/add'"
+                        class="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold transition-transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-xl">person_add</span>
+                        <span>Add New Student</span>
+                    </button>
                 </header>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div
@@ -331,61 +141,12 @@
                     </div>
                 </div>
             </div>
+        </main>
     </div>
-    </main>
-    <script>
-        // Dark Mode Functionality
-        (function initDarkMode() {
-            const darkMode = localStorage.getItem('darkMode');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            if (darkMode === 'enabled' || (darkMode === null && systemPrefersDark)) {
-                document.documentElement.classList.add('dark');
-            }
-        })();
+    <div th:replace="~{fragments/admin-fragments :: scripts}"></div>
 
-        // Dark mode toggle
-        document.addEventListener('DOMContentLoaded', function () {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            if (darkModeToggle) {
-                darkModeToggle.addEventListener('click', function () {
-                    document.documentElement.classList.toggle('dark');
-                    if (document.documentElement.classList.contains('dark')) {
-                        localStorage.setItem('darkMode', 'enabled');
-                    } else {
-                        localStorage.setItem('darkMode', 'disabled');
-                    }
-                });
-            }
-
-            // Curriculum Management Sub-menu Toggle
-            const curriculumBtn = document.getElementById('curriculumBtn');
-            const curriculumSub = document.getElementById('curriculumSub');
-            const curriculumArrow = document.getElementById('curriculumArrow');
-
-            if (curriculumBtn && curriculumSub) {
-                curriculumBtn.addEventListener('click', function () {
-                    curriculumSub.classList.toggle('hidden');
-                    curriculumSub.classList.toggle('flex');
-                    curriculumArrow.classList.toggle('rotate-180');
-                });
-            }
-
-            // Examination Portal Sub-menu Toggle
-            const examPortalBtn = document.getElementById('examPortalBtn');
-            const examPortalSub = document.getElementById('examPortalSub');
-            const examPortalArrow = document.getElementById('examPortalArrow');
-
-            if (examPortalBtn && examPortalSub) {
-                examPortalBtn.addEventListener('click', function () {
-                    examPortalSub.classList.toggle('hidden');
-                    examPortalSub.classList.toggle('flex');
-                    examPortalArrow.classList.toggle('rotate-180');
-                });
-            }
-        });
-
-
+    <script th:inline="javascript">
         // API URLs - BASE_URL comes from /js/config.js
         const COURSE_API_URL = BASE_URL + '/admin/course';
 
@@ -443,55 +204,6 @@
             loadClassesForFilter();
         });
         const studentsTableBody = document.getElementById('studentsTableBody');
-
-        // Load Admin Profile Information
-        const adminUid = localStorage.getItem('adminUid');
-
-        async function loadAdminProfile() {
-            if (!adminUid) {
-                console.warn('Admin UID not found in localStorage');
-                document.getElementById('sidebarAdminName').textContent = 'Admin';
-                return;
-            }
-
-            try {
-                // Fetch admin name
-                const nameResponse = await fetch(`${BASE_URL}/admin/profile/${adminUid}/name`);
-                if (nameResponse.ok) {
-                    const adminName = await nameResponse.text();
-                    document.getElementById('sidebarAdminName').textContent = adminName;
-                } else {
-                    console.warn('Failed to fetch admin name');
-                    document.getElementById('sidebarAdminName').textContent = 'Admin';
-                }
-            } catch (error) {
-                console.error('Error fetching admin name:', error);
-                document.getElementById('sidebarAdminName').textContent = 'Admin';
-            }
-
-            try {
-                // Fetch admin profile picture
-                const photoResponse = await fetch(`${BASE_URL}/admin/profile/${adminUid}/profile-picture`);
-                if (photoResponse.ok) {
-                    const blob = await photoResponse.blob();
-                    if (blob && blob.size > 0) {
-                        const imageUrl = URL.createObjectURL(blob);
-                        const avatarDiv = document.getElementById('sidebarAvatar');
-                        if (avatarDiv) {
-                            avatarDiv.style.backgroundImage = `url("${imageUrl}")`;
-                        }
-
-                        // Clean up the object URL after 5 seconds
-                        setTimeout(() => URL.revokeObjectURL(imageUrl), 5000);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching admin profile picture:', error);
-            }
-        }
-
-        // Load admin profile on page load
-        loadAdminProfile();
 
         // Function to fetch and display student counts
         async function loadStudentCounts() {
@@ -597,7 +309,7 @@
             if (!students || students.length === 0) {
                 studentsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-3">
                                 <span class="material-symbols-outlined text-6xl text-slate-300">group_off</span>
                                 <p class="text-slate-500 dark:text-slate-400 font-medium">No students found</p>
@@ -663,7 +375,7 @@
             try {
                 studentsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-3">
                                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                                 <p class="text-slate-500 dark:text-slate-400 font-medium">Loading students...</p>
@@ -679,14 +391,13 @@
                 }
 
                 allStudents = await response.json();
-                console.log('Fetched students:', allStudents);
                 applyFilters();
 
             } catch (error) {
                 console.error('Error fetching students:', error);
                 studentsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-3">
                                 <span class="material-symbols-outlined text-6xl text-red-400">error</span>
                                 <p class="text-slate-500 dark:text-slate-400 font-medium">Failed to load students</p>
@@ -742,7 +453,7 @@
             }
         });
 
-        // Delete student function (hard delete - removes from database)
+        // Delete student function
         async function deleteStudent(uid) {
             if (!confirm(`Are you sure you want to PERMANENTLY delete student with UID: ${uid}? This action cannot be undone!`)) {
                 return;
@@ -770,7 +481,8 @@
         document.addEventListener('DOMContentLoaded', fetchAllStudents);
     </script>
 
-    </div>
 </body>
+
+</html>
 
 </html>

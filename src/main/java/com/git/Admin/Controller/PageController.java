@@ -88,7 +88,7 @@ public class PageController {
     // Admin - Add Student
     @GetMapping("/admin/dashboard/student/add")
     public String addStudent() {
-        return "admin/admin-student-registration";
+        return "admin/admin-add-student";
     }
 
     // Admin - Edit Student
