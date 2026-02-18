@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.git.Admin.Entity.Course;
 import com.git.Admin.Entity.Subject;
+import com.git.Admin.Repository.CourseRepository;
 import com.git.Admin.Repository.SubjectRepository;
 
 @Service
@@ -13,6 +16,9 @@ public class SubjectService {
 
     @Autowired
     private SubjectRepository subjectRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     // GET All Subjects
     public List<Subject> getAllSubjects() {
@@ -23,12 +29,27 @@ public class SubjectService {
     public Subject addSubject(String subjectName, String subjectCode, Subject subject) {
         if (subjectRepository.existsBySubjectName(subjectName)) {
             throw new RuntimeException("Subject Name Already Exists");
-        } else if (subjectRepository.existsBySubjectCode(subjectCode)) {
-            throw new RuntimeException("Subject Code Already Exists");
         }
         subject.setSubjectName(subjectName);
-        subject.setSubjectCode(subjectCode);
+        subject.setSubjectCode(generateSubjectUid());
         return subjectRepository.save(subject);
+    }
+
+    private String generateSubjectUid() {
+        return subjectRepository.findTopByOrderByIdDesc()
+                .map(lastSubject -> {
+                    String lastUid = lastSubject.getSubjectCode();
+                    if (lastUid != null && lastUid.startsWith("SUB_")) {
+                        try {
+                            int lastNumber = Integer.parseInt(lastUid.substring(4));
+                            return String.format("SUB_%04d", lastNumber + 1);
+                        } catch (NumberFormatException e) {
+                            return String.format("SUB_%04d", lastSubject.getId() + 1);
+                        }
+                    }
+                    return String.format("SUB_%04d", lastSubject.getId() + 1);
+                })
+                .orElse("SUB_0001");
     }
 
     // Update subject
@@ -36,9 +57,7 @@ public class SubjectService {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
 
-        // Optional: Check if the new name/code exists in OTHER rows
         subject.setSubjectName(subjectDetails.getSubjectName());
-        subject.setSubjectCode(subjectDetails.getSubjectCode());
 
         return subjectRepository.save(subject);
     }
@@ -51,11 +70,20 @@ public class SubjectService {
     }
 
     // Delete a subject by ID
+    @Transactional
     public void deleteSubjectById(long id) {
-        if (!subjectRepository.existsById(id)) {
-            throw new RuntimeException("Subject not found");
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        // Remove subject from all courses (course_subjects join table)
+        List<Course> courses = courseRepository.findAll();
+        for (Course course : courses) {
+            if (course.getSubjects() != null && course.getSubjects().remove(subject)) {
+                courseRepository.save(course);
+            }
         }
-        subjectRepository.deleteById(id);
+
+        subjectRepository.delete(subject);
     }
 
     // GET Total subjects count

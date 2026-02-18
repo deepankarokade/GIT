@@ -7,18 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class PageController {
 
-    // Home / Landing Page
-    @GetMapping("/")
-    public String homePage() {
-        return "redirect:/landing-page.html";
-    }
-
-    // Student Registration (alternative route)
-    @GetMapping("/student/register")
-    public String studentRegister() {
-        return "student/student-registration.html";
-    }
-
     // Admin Login
     @GetMapping("/admin/login")
     public String loginPage() {
@@ -100,7 +88,7 @@ public class PageController {
     // Student Registration
     @GetMapping("/student/registration")
     public String studentRegistration() {
-        return "student/student-registration.html";
+        return "student/student-register";
     }
 
     // Payment Window
@@ -119,6 +107,12 @@ public class PageController {
     @GetMapping("/admin/dashboard/payment")
     public String managePayment() {
         return "admin/admin-payments";
+    }
+
+    // Admin Support Ticket
+    @GetMapping("/admin/dashboard/support-ticket")
+    public String manageSupportTicket() {
+        return "admin/admin-manage-support-ticket";
     }
 
     // Student Login Page
@@ -145,12 +139,6 @@ public class PageController {
         return "student/studentChangePassword";
     }
 
-    // Student Dashboard
-    @GetMapping("/student/dashboard")
-    public String studentDashboard() {
-        return "student/student-dashboard";
-    }
-
     // Manage Class Dashboard
     @GetMapping("/admin/dashboard/curriculum/class")
     public String manageClassDashboard() {
@@ -173,5 +161,11 @@ public class PageController {
     @GetMapping("/admin/dashboard/curriculum/question-types")
     public String manageQuestionTypes() {
         return "admin/admin-question-type";
+    }
+
+    // Manage Exam Set
+    @GetMapping("/admin/dashboard/exam/set")
+    public String manageExamSets() {
+        return "admin/admin-manage-set";
     }
 }

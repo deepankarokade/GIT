@@ -10,4 +10,6 @@ public interface StudentClassRepository extends JpaRepository<StudentClass, Long
     boolean existsByClassName(String className);
 
     Optional<StudentClass> findByClassId(String classId);
+
+    Optional<StudentClass> findTopByOrderByIdDesc();
 }

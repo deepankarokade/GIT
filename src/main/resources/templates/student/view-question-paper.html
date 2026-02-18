@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Live Exam | Assessment Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f8fafc;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b; /* Amber/Yellow for Skipped */
+            --text-main: #1e293b;
+        }
+
+        body { 
+            background: var(--bg-main); 
+            font-family: 'Inter', "Segoe UI", sans-serif; 
+            color: var(--text-main);
+            padding-bottom: 80px; 
+        }
+
+        .exam-header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .section-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            padding: 10px 15px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-slide h5 {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+        }
+
+        /* --- PALETTE BUTTON STYLES (Order Matters) --- */
+        .palette-btn {
+            width: 36px; height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #fff; /* Default: Not Visited */
+            font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            color: #64748b;
+        }
+
+        /* 1. Visited / Skipped (Yellow) - Lowest Priority Override */
+        .palette-btn.visited {
+            background: #fffbeb; 
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        /* 2. Answered (Green) - Medium Priority Override */
+        .palette-btn.answered {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+        }
+
+        /* 3. Active (Blue) - Highest Priority Override */
+        .palette-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .palette-btn:hover { border-color: var(--primary); }
+
+
+        /* --- LEGEND STYLES --- */
+        .right-palette {
+            position: sticky; top: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #64748b; font-weight: 500;}
+        .legend-dot { width: 12px; height: 12px; border-radius: 4px; border: 1px solid #ccc; }
+        
+        /* Legend Colors */
+        .dot-not-visited { background: #fff; border-color: #e2e8f0; }
+        .dot-skipped { background: #fffbeb; border-color: var(--warning); }
+        .dot-answered { background: var(--success); border-color: var(--success); }
+        .dot-active { background: var(--primary); border-color: var(--primary); }
+
+        .right-section { margin-bottom: 20px; }
+        .right-section h6 {
+            text-transform: uppercase;
+            letter-spacing: 0.05em; font-size: 11px;
+            color: #94a3b8; margin-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;
+        }
+
+        .palette-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        /* Match Pair Styles */
+        .match-line {
+            transition: all 0.3s ease;
+            border-radius: 10px; padding: 12px;
+            border: 2px solid #f1f5f9; margin-bottom: 12px;
+            background: #fff;
+        }
+        .match-left-target {
+            background-color: #f8fafc; border: 1px dashed #cbd5e1;
+            border-radius: 8px; padding: 12px; font-weight: 500;
+            min-height: 50px; display: flex; align-items: center;
+        }
+        .match-right-draggable {
+            cursor: grab; background-color: #ffffff;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 12px; font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            min-height: 50px; display: flex; align-items: center;
+        }
+        .match-line.selected-pair { background-color: #f0fdf4; border: 2px solid #22c55e; }
+
+        .btn-primary { background: var(--primary); border: none; padding: 10px 25px; border-radius: 8px; }
+        .btn-secondary { background: #fff; border: 1px solid var(--border-color); color: #64748b; padding: 10px 25px; border-radius: 8px; }
+    </style>
+</head>
+
+<body>
+
+<div class="exam-header shadow-sm">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1" style="font-weight: 800; color: #0f172a;">
+                    <span th:text="${paper.subject}">Subject</span> 
+                    <small class="text-muted fw-normal ms-2">Set <span th:text="${paper.selectset}">A</span></small>
+                </h4>
+                <div class="d-flex gap-4 text-muted small mt-2">
+                    <span><strong>Chapter:</strong> <span th:text="${paper.chapter}">Intro</span></span>
+                    <span><strong>Level:</strong> <span class="badge" th:text="${paper.difficulty}" style="background:#eef2ff; color:#4f46e5;">Hard</span></span>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="h5 mb-0 text-primary fw-bold"><span th:text="${paper.duration}">60</span> MIN</div>
+                <div class="small text-muted text-uppercase tracking-wider">Remaining Time</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-2">
+            <div class="sticky-top" style="top: 20px;">
+                <button th:if="${hasMcq}"   class="btn btn-outline-primary section-btn" data-type="mcq"   onclick="jumpSection('mcq')">Multiple Choice</button>
+                <button th:if="${hasFill}"  class="btn btn-outline-primary section-btn" data-type="fill"  onclick="jumpSection('fill')">Fill Blanks</button>
+                <button th:if="${hasMatch}" class="btn btn-outline-primary section-btn" data-type="match" onclick="jumpSection('match')">Match Pairs</button>
+                <button th:if="${hasTf}"    class="btn btn-outline-primary section-btn" data-type="tf"    onclick="jumpSection('tf')">True / False</button>
+                <button th:if="${hasShort}" class="btn btn-outline-primary section-btn" data-type="short" onclick="jumpSection('short')">Short Ans</button>
+                <button th:if="${hasLong}"  class="btn btn-outline-primary section-btn" data-type="long"  onclick="jumpSection('long')">Long Ans</button>
+                <button th:if="${hasEssay}" class="btn btn-outline-primary section-btn" data-type="essay" onclick="jumpSection('essay')">Essay</button>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="question-card p-4 p-lg-5">
+                <div id="question-container">
+                    <div th:each="question,stat : ${questions}"
+                         class="question-slide"
+                         th:attr="data-index=${stat.index},data-type=${question.questionType}"
+                         style="display:none">
+
+                        <span class="badge bg-light text-dark px-3 py-2 border mb-4">Question <span th:text="${stat.count}">1</span></span>
+                        <h5><span th:text="${question.questionText}">Question text?</span></h5>
+                        <hr class="my-4" style="opacity: 0.1;">
+
+                        <div th:if="${question.questionType=='mcq'}" class="row g-3">
+                            <div th:each="opt,optStat : ${#strings.arraySplit(question.options,'|')}" class="col-12">
+                                <label class="d-flex align-items-center p-3 border rounded-3 cursor-pointer">
+                                    <input type="radio" th:name="'q_'+${question.id}" onchange="markAnswered()" class="form-check-input me-3">
+									<span class="opt-label me-2"></span>
+									<span th:text="${opt}">Option</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div th:if="${question.questionType=='tf'}" class="d-flex gap-3">
+                            <label class="btn btn-outline-secondary px-4 py-2"><input type="radio" th:name="'q_'+${question.id}" onchange="markAnswered()"> True</label>
+                            <label class="btn btn-outline-secondary px-4 py-2"><input type="radio" th:name="'q_'+${question.id}" onchange="markAnswered()"> False</label>
+                        </div>
+
+                        <div th:if="${question.questionType=='fill'}">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button th:each="opt : ${#strings.arraySplit(question.fillintheblanks,'|')}" class="btn btn-light border fill-btn" onclick="fillSelect(this)">
+									<span class="opt-label me-2"></span>
+									<span th:text="${opt}">Option</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div th:if="${question.questionType=='short' or question.questionType=='long' or question.questionType=='essay'}">
+                            <textarea class="form-control" rows="10" placeholder="Type your answer here..." oninput="markAnswered()"></textarea>
+                        </div>
+
+                        <div th:if="${question.questionType=='match'}">
+                            <div class="match-container">
+                                <div th:each="pair,st : ${question.parsedMatchPairs}" class="row match-line align-items-stretch">
+                                    <div class="col-5">
+                                        <div class="match-left-target" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropOnLeft(event)">
+											<span class="opt-label me-2"></span>
+
+											  <span th:text="${pair[0]}">Left</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center justify-content-center text-muted">→</div>
+                                    <div class="col-5">
+                                        <div class="match-right-draggable" draggable="true" th:attr="data-val=${pair[1]}" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+											<span class="opt-label me-2"></span>
+
+											 <span th:text="${pair[1]}">Right</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div> 
+                
+                <div class="mt-auto pt-5 d-flex justify-content-between">
+                    <button class="btn btn-secondary" onclick="prevQ()">Back</button>
+                    <button id="nextBtn" class="btn btn-primary" onclick="nextQ()">Next Question</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="right-palette shadow-sm">
+                <h5 class="h6 mb-3 fw-bold">Question Palette</h5>
+                
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-dot dot-active"></div> Current
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot dot-answered"></div> Answered
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot dot-skipped"></div> Skipped
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot dot-not-visited"></div> Not Visited
+                    </div>
+                </div>
+
+                <div class="right-section" data-type="mcq"><h6>MCQ</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='mcq']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="fill"><h6>Fill Blanks</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='fill']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="match"><h6>Match</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='match']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="tf"><h6>True/False</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='tf']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="short"><h6>Short</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='short']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="long"><h6>Long Ans</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='long']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+
+                <div class="right-section" data-type="essay"><h6>Essay</h6><div class="palette-grid">
+                    <button class="palette-btn" th:each="q,stat : ${questions.?[questionType=='essay']}" th:text="${stat.count}" th:attr="data-index=${questions.indexOf(q)}" onclick="jumpQ(this)"></button>
+                </div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.question-slide');
+    const paletteBtns = document.querySelectorAll('.palette-btn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Create the order based on the left sidebar sequence
+    const sectionOrder = [...document.querySelectorAll('.section-btn')].map(b => b.dataset.type);
+    let orderedIndexes = [];
+    sectionOrder.forEach(type => {
+        slides.forEach((slide, idx) => {
+            if (slide.dataset.type === type) orderedIndexes.push(idx);
+        });
+    });
+
+    function highlightSection(type) {
+        document.querySelectorAll('.section-btn').forEach(b => {
+            b.classList.remove('btn-primary', 'text-white');
+            b.classList.add('btn-outline-primary');
+        });
+        const activeBtn = document.querySelector(`.section-btn[data-type="${type}"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('btn-outline-primary');
+            activeBtn.classList.add('btn-primary', 'text-white');
+        }
+    }
+
+    function showQ(idx) {
+        if(idx === undefined || idx < 0) return;
+        
+        // Hide all slides
+        slides.forEach(s => s.style.display = 'none');
+        // Show current slide
+        slides[idx].style.display = 'block';
+        
+        // Handle Palette Colors
+        paletteBtns.forEach(p => {
+            p.classList.remove('active'); // Remove Blue from all
+            
+            if (parseInt(p.dataset.index) === idx) {
+                p.classList.add('active'); // Add Blue to current
+                p.classList.add('visited'); // Add Yellow (Visited) to current
+            }
+        });
+
+        // Highlight Left Sidebar
+        highlightSection(slides[idx].dataset.type);
+        
+        // Update Nav Buttons
+        current = orderedIndexes.indexOf(idx);
+        nextBtn.textContent = (current === orderedIndexes.length - 1) ? 'Submit Exam' : 'Next Question';
+    }
+
+    function nextQ() { if (current < orderedIndexes.length - 1) showQ(orderedIndexes[current + 1]); }
+    function prevQ() { if (current > 0) showQ(orderedIndexes[current - 1]); }
+    function jumpQ(btn) { showQ(parseInt(btn.dataset.index)); }
+
+    function jumpSection(type) {
+        const typeIndexes = orderedIndexes.filter(i => slides[i].dataset.type === type);
+        if (typeIndexes.length === 0) return;
+        
+        let firstUnanswered = typeIndexes.find(i => {
+            const pBtn = Array.from(paletteBtns).find(p => parseInt(p.dataset.index) === i);
+            return pBtn ? !pBtn.classList.contains('answered') : true;
+        });
+        showQ(firstUnanswered !== undefined ? firstUnanswered : typeIndexes[0]);
+    }
+
+    function markAnswered() {
+        const realIdx = orderedIndexes[current];
+        paletteBtns.forEach(p => {
+            if (parseInt(p.dataset.index) === realIdx) p.classList.add('answered');
+        });
+    }
+
+    function fillSelect(btn) {
+        btn.parentElement.querySelectorAll('.fill-btn').forEach(x => {
+            x.classList.replace('btn-primary', 'btn-light');
+            x.classList.remove('text-white');
+        });
+        btn.classList.replace('btn-light', 'btn-primary');
+        btn.classList.add('text-white');
+        markAnswered();
+    }
+
+    /* MATCH DRAG-DROP */
+    let dragSrcEl = null;
+    function handleDragStart(e) {
+        dragSrcEl = e.target.closest('.match-right-draggable');
+        e.dataTransfer.setData('text/html', dragSrcEl.innerHTML);
+        e.dataTransfer.setData('val', dragSrcEl.getAttribute('data-val'));
+    }
+    function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); return false; }
+    function handleDropOnLeft(e) {
+        if (e.stopPropagation) e.stopPropagation();
+        const targetLeft = e.target.closest('.match-left-target');
+        const parentRow = targetLeft.closest('.match-line');
+        const targetRightSlot = parentRow.querySelector('.match-right-draggable');
+        
+        if (dragSrcEl !== targetRightSlot) {
+            const oldHTML = targetRightSlot.innerHTML;
+            const oldVal = targetRightSlot.getAttribute('data-val');
+            targetRightSlot.innerHTML = dragSrcEl.innerHTML;
+            targetRightSlot.setAttribute('data-val', dragSrcEl.getAttribute('data-val'));
+            dragSrcEl.innerHTML = oldHTML;
+            dragSrcEl.setAttribute('data-val', oldVal);
+        }
+        parentRow.classList.add('selected-pair');
+        markAnswered();
+        return false;
+    }
+
+    function hideEmptySections() {
+        document.querySelectorAll('.right-section').forEach(sec => {
+            if (sec.querySelectorAll('.palette-btn').length === 0) sec.style.display = 'none';
+        });
+    }
+
+	const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+
+	   function applyABCD(container) {
+	       const labels = container.querySelectorAll('.opt-label');
+	       labels.forEach((l, i) => {
+	           l.textContent = LETTERS[i] + '.';
+	       });
+	   }
+
+	   /* 1. Improved Labeling: Only run once or target specific parts */
+	   function refreshAllABCD() {
+	       document.querySelectorAll('.question-slide').forEach(slide => {
+	           // MCQ & Fill Blanks (These remain the same)
+	           slide.querySelectorAll('.row.g-3, .d-flex.flex-wrap').forEach(applyABCD);
+
+			   // MATCH LEFT → a,b,c,d
+			   slide.querySelectorAll('.match-left-target').forEach((el, i) => {
+			       let lbl = el.querySelector('.opt-label');
+			       if (!lbl) {
+			           lbl = document.createElement('span');
+			           lbl.className = 'opt-label me-2 fw-semibold';
+			           el.prepend(lbl);
+			       }
+			       lbl.textContent = LETTERS[i] + '.';
+			   });
+
+
+
+	           // Match pairs (RIGHT - Labels a, b, c...)
+	           // We only set these if they are empty or for the first time
+	           slide.querySelectorAll('.match-right-draggable').forEach((el, i) => {
+	               const lbl = el.querySelector('.opt-label');
+	               if (lbl) lbl.textContent = LETTERS[i] + '.';
+	           });
+	       });
+	   }
+
+	   /* 2. Modified Drop Logic: Swap ONLY the text, not the label */
+	   function handleDropOnLeft(e) {
+	       e.preventDefault();
+	       e.stopPropagation();
+
+	       const targetLeft = e.currentTarget;
+	       const parentRow = targetLeft.closest('.match-line');
+	       const targetRight = parentRow.querySelector('.match-right-draggable');
+
+	       if (!dragSrcEl) return;
+
+	       // 🔁 Swap ONLY if different
+	       if (dragSrcEl !== targetRight) {
+	           const tempHTML = targetRight.innerHTML;
+	           const tempVal  = targetRight.getAttribute('data-val');
+
+	           targetRight.innerHTML = dragSrcEl.innerHTML;
+	           targetRight.setAttribute('data-val', dragSrcEl.getAttribute('data-val'));
+
+	           dragSrcEl.innerHTML = tempHTML;
+	           dragSrcEl.setAttribute('data-val', tempVal);
+	       }
+
+	       // ✅ ALWAYS mark green
+	       parentRow.classList.add('selected-pair');
+
+	       // ✅ ALWAYS mark answered
+	       markAnswered();
+	   }
+
+
+
+	   /* 🔁 Re-apply after question change */
+	   const _oldShowQ = showQ;
+	   showQ = function (idx) {
+	       _oldShowQ(idx);
+	       refreshAllABCD();
+	   };
+
+	   window.addEventListener('load', refreshAllABCD);
+    window.onload = () => {
+        hideEmptySections();
+        if(orderedIndexes.length > 0) showQ(orderedIndexes[0]);
+    };
+</script>
+
+</body>
+</html>

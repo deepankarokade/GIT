@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/student-sidebar-fragment :: Head}">
+</head>
+
+<body>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='past-exam', expandItem='exam')}">
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <div class="p-8 max-w-[1200px] mx-auto w-full flex flex-col gap-8">
+                <!-- Page Header -->
+                <div
+                    class="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="flex gap-2 text-xs text-slate-500 mb-2">
+                                <li><a th:href="@{/student/manage-exam}"
+                                        class="hover:text-primary transition-all">Exams</a></li>
+                                <li class="text-slate-300">/</li>
+                                <li class="text-slate-500 font-bold uppercase tracking-wider">Previous History</li>
+                            </ol>
+                        </nav>
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-slate-600">
+                                <span class="material-symbols-outlined">history</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Exam History</h2>
+                        </div>
+                    </div>
+                    <a th:href="@{/student/manage-exam}"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Overview
+                    </a>
+                </div>
+
+                <!-- Exams Table Card -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                    <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                        Exam Name</th>
+                                    <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                        Completion Date</th>
+                                    <th
+                                        class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest text-center">
+                                        Outcome</th>
+                                    <th
+                                        class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest text-end">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tr th:each="e : ${exams}"
+                                    class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all">
+                                    <td class="px-8 py-6">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors"
+                                                th:text="${e.title}">Midterm Quiz</span>
+                                            <span class="text-xs text-slate-500">Standard Assessment</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div
+                                            class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-medium">
+                                            <span class="material-symbols-outlined text-sm">done_all</span>
+                                            <span th:text="${e.examDate}">Oct 24, 2023</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-900/50 text-slate-600 border border-slate-200 dark:border-slate-800 tracking-wider">
+                                            COMPLETED
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-end">
+                                        <a href="#"
+                                            class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-all group/link">
+                                            <span>View Report</span>
+                                            <span
+                                                class="material-symbols-outlined text-sm group-hover/link:translate-x-0.5 transition-transform">description</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(exams)}">
+                                    <td colspan="4" class="px-8 py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4 text-slate-400">
+                                            <div
+                                                class="h-16 w-16 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center">
+                                                <span
+                                                    class="material-symbols-outlined text-3xl opacity-20">history_edu</span>
+                                            </div>
+                                            <div class="max-w-xs mx-auto">
+                                                <h5 class="font-bold text-slate-800 dark:text-slate-200">No history
+                                                    found</h5>
+                                                <p class="text-sm mt-1">You haven't participated in any exams yet. Your
+                                                    finished assessments will appear here.</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Removed Bootstrap JS -->
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

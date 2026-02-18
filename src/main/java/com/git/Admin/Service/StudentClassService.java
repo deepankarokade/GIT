@@ -24,14 +24,26 @@ public class StudentClassService {
         StudentClass studentClass = new StudentClass();
         studentClass.setClassName(className);
         studentClass.setClassDescription(classDescription != null ? classDescription : "");
-        studentClass.setClassId(generateUniqueClassId(className));
+        studentClass.setClassId(generateClassUid());
 
         return studentClassRepository.save(studentClass);
     }
 
-    private String generateUniqueClassId(String className) {
-        // Generate ID like CLS-CLASSNAME (removing spaces and making uppercase)
-        return "CLS-" + className.toUpperCase().replaceAll("\\s+", "");
+    private String generateClassUid() {
+        return studentClassRepository.findTopByOrderByIdDesc()
+                .map(lastClass -> {
+                    String lastUid = lastClass.getClassId();
+                    if (lastUid != null && lastUid.startsWith("CLS_")) {
+                        try {
+                            int lastNumber = Integer.parseInt(lastUid.substring(4));
+                            return String.format("CLS_%04d", lastNumber + 1);
+                        } catch (NumberFormatException e) {
+                            return String.format("CLS_%04d", lastClass.getId() + 1);
+                        }
+                    }
+                    return String.format("CLS_%04d", lastClass.getId() + 1);
+                })
+                .orElse("CLS_0001");
     }
 
     public void deleteClass(Long id) {
@@ -53,7 +65,6 @@ public class StudentClassService {
 
         existingClass.setClassName(className);
         existingClass.setClassDescription(classDescription != null ? classDescription : "");
-        existingClass.setClassId(generateUniqueClassId(className));
 
         return studentClassRepository.save(existingClass);
     }

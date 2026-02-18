@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Professor Study Materials - ExamPortal</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#135bec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+          },
+          fontFamily: {
+            "display": ["Lexend", "sans-serif"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Lexend', sans-serif;
+    }
+
+    .geometric-bg {
+      background-color: #f6f6f8;
+      background-image: radial-gradient(#135bec11 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .dark .geometric-bg {
+      background-color: #101622;
+      background-image: radial-gradient(#135bec22 1px, transparent 1px);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside th:replace="~{fragments/ProfessorDashboardfragment :: Sidebar}"></aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+      <!-- Top Navigation Bar -->
+      <header th:replace="~{fragments/ProfessorDashboardfragment :: topnavigationbar}"></header>
+
+      <!-- Study Material Content -->
+      <div class="p-8 max-w-[1400px] mx-auto w-full flex flex-col gap-8">
+        <!-- Title Section -->
+        <section>
+          <h1 class="text-2xl md:text-3xl font-bold">Faculty Study Materials</h1>
+          <p class="text-slate-500 dark:text-slate-400 mt-1">Access all your course resources in one place.</p>
+        </section>
+
+        <!-- Quick Access Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Syllabus Card -->
+          <a href="/professor/syllabus" class="block">
+            <div
+              class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer group">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                  <span class="material-symbols-outlined">assignment</span>
+                </div>
+                <span class="text-xs font-medium text-slate-400">8 Files</span>
+              </div>
+              <h3 class="font-semibold text-lg">Syllabus</h3>
+              <p class="text-xs text-slate-500 mt-1">Course structures & guides</p>
+            </div>
+          </a>
+
+          <!-- Videos Card -->
+          <a href="/professor/videos" class="block">
+            <div
+              class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer group">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+                  <span class="material-symbols-outlined">movie</span>
+                </div>
+                <span class="text-xs font-medium text-slate-400">24 Files</span>
+              </div>
+              <h3 class="font-semibold text-lg">Videos</h3>
+              <p class="text-xs text-slate-500 mt-1">Lectures & tutorials</p>
+            </div>
+          </a>
+
+          <!-- PDF Notes Card -->
+          <a href="/professor/pdfs" class="block">
+            <div
+              class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer group">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg">
+                  <span class="material-symbols-outlined">description</span>
+                </div>
+                <span class="text-xs font-medium text-slate-400">142 Files</span>
+              </div>
+              <h3 class="font-semibold text-lg">Notes</h3>
+              <p class="text-xs text-slate-500 mt-1">Lecture slides & handouts</p>
+            </div>
+          </a>
+
+          <!-- Presentations Card -->
+          <a href="/professor/presentations" class="block">
+            <div
+              class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer group">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+                  <span class="material-symbols-outlined">present_to_all</span>
+                </div>
+                <span class="text-xs font-medium text-slate-400">15 Files</span>
+              </div>
+              <h3 class="font-semibold text-lg">Presentations</h3>
+              <p class="text-xs text-slate-500 mt-1">Interactive PPT modules</p>
+            </div>
+          </a>
+        </section>
+
+        <!-- Recent Materials Section -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Recent Materials</h2>
+            <button class="text-primary font-semibold text-sm hover:underline">View All</button>
+          </div>
+          <div class="flex overflow-x-auto gap-6 pb-4 custom-scrollbar">
+            <!-- Dynamic Recent Materials -->
+            <th:block th:each="m, stat : ${materials}" th:if="${stat.index < 4}">
+              <div
+                class="min-w-[280px] bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800">
+                <div
+                  class="h-32 bg-slate-100 dark:bg-slate-800 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden group">
+                  <span
+                    class="material-symbols-outlined text-4xl text-slate-400 group-hover:scale-110 transition-transform"
+                    th:text="${m.fileType != null and m.fileType.contains('pdf') ? 'picture_as_pdf' : (m.fileType != null and m.fileType.contains('video') ? 'movie' : 'article')}">movie</span>
+                </div>
+                <p class="text-[10px] font-bold text-primary uppercase tracking-wider" th:text="${m.fileType}">Type</p>
+                <h4 class="font-semibold truncate" th:text="${m.title}">Material Title</h4>
+                <p class="text-xs text-slate-500 mt-1" th:text="${m.course + ' - ' + m.subject}">Course
+                  - Subject</p>
+                <div class="mt-4 flex gap-2">
+                  <a th:href="@{'/materials/download/' + ${m.id}}"
+                    class="flex-1 text-center bg-primary text-white text-xs py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Download</a>
+                  <a th:href="${'/' + m.filePath}" target="_blank"
+                    class="flex-1 text-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors">View</a>
+                </div>
+              </div>
+            </th:block>
+          </div>
+        </section>
+
+        <!-- All Materials Table -->
+        <section
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div
+            class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="text-xl font-bold">All Materials</h2>
+            <div class="flex items-center gap-2">
+              <select class="text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-primary">
+                <option>All Subjects</option>
+                <option>Chemistry</option>
+                <option>Economics</option>
+                <option>Computer Science</option>
+              </select>
+              <select class="text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-primary">
+                <option>Sort by: Newest</option>
+                <option>Name (A-Z)</option>
+                <option>Subject</option>
+              </select>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                  <th class="px-6 py-4">Material Title</th>
+                  <th class="px-6 py-4">Course ID</th>
+                  <th class="px-6 py-4">Subject</th>
+                  <th class="px-6 py-4">Upload Date</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr th:each="m : ${materials}" class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <span class="material-symbols-outlined text-primary"
+                        th:text="${m.fileType != null and m.fileType.contains('pdf') ? 'picture_as_pdf' : (m.fileType != null and m.fileType.contains('video') ? 'movie' : 'article')}">article</span>
+                      <span class="font-medium" th:text="${m.title}">Title</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span
+                      class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 uppercase"
+                      th:text="${m.course}">CourseID</span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400" th:text="${m.subject}">Subject</td>
+                  <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"
+                    th:text="${#temporals.format(m.uploadDate, 'dd-MM-yyyy HH:mm')}">Date</td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-3 text-slate-400">
+                      <a th:href="${'/' + m.filePath}" target="_blank" class="hover:text-blue-500"
+                        title="View Document">
+                        <span class="material-symbols-outlined text-xl">visibility</span>
+                      </a>
+                      <a th:href="@{'/materials/download/' + ${m.id}}" class="hover:text-primary" title="Download">
+                        <span class="material-symbols-outlined text-xl">download</span>
+                      </a>
+                      <a th:href="@{'/materials/delete/' + ${m.id}}" class="hover:text-red-500" title="Delete"
+                        onclick="return confirm('Delete this material?')">
+                        <span class="material-symbols-outlined text-xl">delete</span>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-sm text-slate-500">
+            <p>Showing <span th:text="${materials.size()}">0</span> materials</p>
+            <div class="flex gap-2">
+              <button
+                class="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+                disabled="">Previous</button>
+              <button
+                class="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800">Next</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <footer th:replace="~{fragments/ProfessorDashboardfragment :: Footer}"></footer>
+    </main>
+  </div>
+
+  <script>
+    function toggleSubmenu(submenuId) {
+      const submenu = document.getElementById(submenuId);
+      const icon = document.getElementById(submenuId + 'Icon');
+
+      if (submenu.classList.contains('hidden')) {
+        submenu.classList.remove('hidden');
+        submenu.classList.add('flex');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      } else {
+        submenu.classList.add('hidden');
+        submenu.classList.remove('flex');
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    function toggleProfileMenu() {
+      document.getElementById("profileMenu").classList.toggle("hidden");
+    }
+
+    /* Close when clicking outside */
+    document.addEventListener("click", function (e) {
+      const menu = document.getElementById("profileMenu");
+      const avatar = e.target.closest(".rounded-full.cursor-pointer");
+
+      if (menu && !menu.classList.contains("hidden") && !menu.contains(e.target) && !avatar) {
+        menu.classList.add("hidden");
+      }
+    });
+
+    // Theme Switching Logic (if needed, but dashboard usually handles it)
+    (function initDarkMode() {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</body>
+
+</html>

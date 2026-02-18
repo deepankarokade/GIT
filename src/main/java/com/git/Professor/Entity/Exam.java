@@ -1,10 +1,14 @@
 package com.git.Professor.Entity;
 
 import jakarta.persistence.*;
+import java.time.LocalTime;
+
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "exams")
@@ -41,6 +45,12 @@ public class Exam {
 
     private String status;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime startTime;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime endTime;
+
     @Column(nullable = false)
     private boolean enabled = false;
 
@@ -48,7 +58,8 @@ public class Exam {
     private int totalMarks;
     private String professorName;
 
-    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Questionpaper> questionPapers;
 
     public Exam() {
@@ -158,6 +169,22 @@ public class Exam {
         this.status = status;
     }
 
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -189,4 +216,13 @@ public class Exam {
     public void setProfessorName(String professorName) {
         this.professorName = professorName;
     }
+
+    public List<Questionpaper> getQuestionPapers() {
+        return questionPapers;
+    }
+
+    public void setQuestionPapers(List<Questionpaper> questionPapers) {
+        this.questionPapers = questionPapers;
+    }
+
 }

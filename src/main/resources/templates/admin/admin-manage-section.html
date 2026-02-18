@@ -105,6 +105,10 @@
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Section Name</th>
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Course</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                        Class</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Description</th>
                                     <th
                                         class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-right">
@@ -161,6 +165,23 @@
                         placeholder="e.g., A" />
                 </div>
                 <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Class <span
+                            class="text-red-500">*</span></label>
+                    <select id="classSelect" required
+                        class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course <span
+                            class="text-red-500">*</span></label>
+                    <select id="courseSelect" required disabled
+                        class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <option value="">Select Class First</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
                     <textarea id="sectionDescriptionInput"
                         class="w-full h-24 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
@@ -200,6 +221,23 @@
                         class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                         placeholder="e.g., A" />
                 </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Class <span
+                            class="text-red-500">*</span></label>
+                    <select id="editClassSelect" required
+                        class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course <span
+                            class="text-red-500">*</span></label>
+                    <select id="editCourseSelect" required disabled
+                        class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <option value="">Select Class First</option>
+                    </select>
+                </div>
                 <div class="space-y-2">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
                     <textarea id="editSectionDescriptionInput"
@@ -229,6 +267,8 @@
         // API Configuration - BASE_URL is defined in config.js
         const API_URL = `${BASE_URL}/admin/section`;
         let allSections = [];
+        let allCourses = [];
+        let allClasses = [];
 
         // CRUD Operations
         async function fetchSections() {
@@ -242,6 +282,85 @@
             } catch (e) { showNotification('Failed to load sections', 'error'); }
         }
 
+        async function fetchCourses() {
+            try {
+                const response = await fetch(`${BASE_URL}/admin/course`);
+                if (response.ok) {
+                    allCourses = await response.json();
+                }
+            } catch (e) { console.error('Failed to load courses', e); }
+        }
+
+        async function fetchClasses() {
+            try {
+                const response = await fetch(`${BASE_URL}/admin/class/all`);
+                if (response.ok) {
+                    allClasses = await response.json();
+                    populateClassDropdowns();
+                }
+            } catch (e) { console.error('Failed to load classes', e); }
+        }
+
+        function populateClassDropdowns() {
+            const options = allClasses.map(c => `<option value="${c.id}" data-classname="${c.className}">${c.className}</option>`).join('');
+            document.getElementById('classSelect').innerHTML = '<option value="">Select Class</option>' + options;
+            document.getElementById('editClassSelect').innerHTML = '<option value="">Select Class</option>' + options;
+        }
+
+        // Fetch courses from server based on className (same pattern as admin-add-student.html)
+        async function loadCoursesForClass(className, targetSelectId) {
+            const selectEl = document.getElementById(targetSelectId);
+            selectEl.innerHTML = '<option value="">Loading courses...</option>';
+            selectEl.disabled = true;
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/course/class/${encodeURIComponent(className)}`);
+                if (!response.ok) throw new Error('Failed to fetch courses');
+
+                const courses = await response.json();
+
+                if (courses.length === 0) {
+                    selectEl.innerHTML = '<option value="">No courses found for this class</option>';
+                    selectEl.disabled = true;
+                    return;
+                }
+
+                selectEl.innerHTML = '<option value="">Select Course</option>' +
+                    courses.map(c => `<option value="${c.id}">${c.courseName}</option>`).join('');
+                selectEl.disabled = false;
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                selectEl.innerHTML = '<option value="">Failed to load courses</option>';
+                selectEl.disabled = true;
+            }
+        }
+
+        // When class is selected, fetch courses for that class
+        document.getElementById('classSelect').addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const courseSelect = document.getElementById('courseSelect');
+            if (!e.target.value) {
+                courseSelect.innerHTML = '<option value="">Select Class First</option>';
+                courseSelect.disabled = true;
+                return;
+            }
+            const className = selectedOption.dataset.classname;
+            loadCoursesForClass(className, 'courseSelect');
+        });
+
+        document.getElementById('editClassSelect').addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const editCourseSelect = document.getElementById('editCourseSelect');
+            if (!e.target.value) {
+                editCourseSelect.innerHTML = '<option value="">Select Class First</option>';
+                editCourseSelect.disabled = true;
+                return;
+            }
+            const className = selectedOption.dataset.classname;
+            loadCoursesForClass(className, 'editCourseSelect');
+        });
+
+
         function renderSections(sections) {
             const tbody = document.getElementById('sectionsTableBody');
             if (sections.length === 0) {
@@ -254,6 +373,8 @@
                     <td class="px-6 py-4 text-sm font-medium text-gray-500">${idx + 1}</td>
                     <td class="px-6 py-4 text-sm font-medium text-primary bg-primary/5 rounded px-2 py-1 inline-block mt-3 ml-6">${s.sectionId || 'N/A'}</td>
                     <td class="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">${s.sectionName}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 font-medium">${s.course ? s.course.courseName : '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 font-medium">${s.studentClass ? s.studentClass.className : '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">${s.sectionDescription || '-'}</td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <button onclick='openEditModal(${s.id})' class="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors">
@@ -281,7 +402,9 @@
             e.preventDefault();
             const sectionData = {
                 sectionName: document.getElementById('sectionNameInput').value.trim(),
-                sectionDescription: document.getElementById('sectionDescriptionInput').value.trim()
+                sectionDescription: document.getElementById('sectionDescriptionInput').value.trim(),
+                classId: document.getElementById('classSelect').value,
+                courseId: document.getElementById('courseSelect').value || null
             };
 
             try {
@@ -321,22 +444,38 @@
         function closeAddModal() {
             document.getElementById('addSectionModal').classList.add('hidden');
             document.getElementById('addSectionForm').reset();
+            const courseSelect = document.getElementById('courseSelect');
+            courseSelect.innerHTML = '<option value="">Select Class First</option>';
+            courseSelect.disabled = true;
         }
 
         // Edit Modal Helpers
-        function openEditModal(id) {
+        async function openEditModal(id) {
             const sectionObj = allSections.find(s => s.id === id);
             if (!sectionObj) return;
 
             document.getElementById('editSectionId').value = id;
             document.getElementById('editSectionNameInput').value = sectionObj.sectionName;
             document.getElementById('editSectionDescriptionInput').value = sectionObj.sectionDescription || '';
+
+            if (sectionObj.studentClass) {
+                document.getElementById('editClassSelect').value = sectionObj.studentClass.id;
+                // Fetch courses based on the class name (same API as admin-add-student.html)
+                await loadCoursesForClass(sectionObj.studentClass.className, 'editCourseSelect');
+                if (sectionObj.course) {
+                    document.getElementById('editCourseSelect').value = sectionObj.course.id;
+                }
+            }
+
             document.getElementById('editSectionModal').classList.remove('hidden');
         }
 
         function closeEditModal() {
             document.getElementById('editSectionModal').classList.add('hidden');
             document.getElementById('editSectionForm').reset();
+            const editCourseSelect = document.getElementById('editCourseSelect');
+            editCourseSelect.innerHTML = '<option value="">Select Class First</option>';
+            editCourseSelect.disabled = true;
         }
 
         document.getElementById('editSectionForm').addEventListener('submit', async (e) => {
@@ -344,7 +483,9 @@
             const id = document.getElementById('editSectionId').value;
             const sectionData = {
                 sectionName: document.getElementById('editSectionNameInput').value.trim(),
-                sectionDescription: document.getElementById('editSectionDescriptionInput').value.trim()
+                sectionDescription: document.getElementById('editSectionDescriptionInput').value.trim(),
+                classId: document.getElementById('editClassSelect').value,
+                courseId: document.getElementById('editCourseSelect').value || null
             };
 
             try {
@@ -393,6 +534,8 @@
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             fetchSections();
+            fetchCourses();
+            fetchClasses();
         });
     </script>
 </body>

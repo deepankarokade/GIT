@@ -3,7 +3,6 @@ package com.git.Student.Controller;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.git.Student.Entity.Student;
@@ -26,8 +26,8 @@ import com.git.Student.Repository.StudentRepository;
 import com.git.Student.Service.StudentService;
 import com.git.Student.enumactivity.ActivityStudent;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class StudentController {
@@ -41,8 +41,8 @@ public class StudentController {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    @Autowired
+    private com.git.Admin.Service.EmailService emailService;
 
     // Save Student (Form Submit)
     @PostMapping("/admin/student/register")
@@ -64,7 +64,8 @@ public class StudentController {
             @RequestParam(value = "preferredExamDate", required = false) String preferredExamDate,
             @RequestParam(value = "subjects", required = false) String subjects,
             @RequestParam(value = "section", required = false) String section,
-            @RequestParam(value = "photo", required = false) MultipartFile photo
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            @RequestParam(value = "sendEmail", defaultValue = "false") boolean sendEmail
 
     ) {
 
@@ -95,48 +96,20 @@ public class StudentController {
 
             Student savedStudent = studentService.registerStudent(student);
 
-            // Send Email with Payment Link
-            if (email != null && !email.isEmpty()) {
+            // Send payment link email to student only if requested (usually from admin
+            // side)
+            if (sendEmail) {
                 try {
-                    MimeMessage message = mailSender.createMimeMessage();
-                    MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-                    String encodedName = java.net.URLEncoder.encode(fullName, "UTF-8");
-                    String encodedPhone = java.net.URLEncoder.encode(contactNumber, "UTF-8");
-                    String encodedEmail = java.net.URLEncoder.encode(email, "UTF-8");
-
-                    String paymentLink = baseUrl + "/payment?name=" + encodedName + "&phone=" + encodedPhone
-                            + "&email=" + encodedEmail;
-
-                    helper.setTo(email);
-                    helper.setSubject("Registration Successful - Complete Your Payment");
-
-                    String emailContent = "<div style='font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>"
-                            + "<h2 style='color: #135bec;'>Welcome to ExamPortal, " + fullName + "!</h2>"
-                            + "<p>Your registration has been successfully received. To complete the process and activate your account, please proceed with the payment.</p>"
-                            + "<div style='margin: 30px 0;'>"
-                            + "<a href='" + paymentLink + "' "
-                            + "style='display:inline-block;padding:14px 28px;background:#135bec;color:white;"
-                            + "text-decoration:none;border-radius:8px;font-weight:bold;'>Proceed to Payment</a>"
-                            + "</div>"
-                            + "<p style='color: #666; font-size: 14px;'>If the button above doesn't work, copy and paste this link into your browser:</p>"
-                            + "<p style='color: #135bec; font-size: 12px; word-break: break-all;'>" + paymentLink
-                            + "</p>"
-                            + "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>"
-                            + "<p style='color: #999; font-size: 12px;'>Thank you for choosing ExamPortal.</p>"
-                            + "</div>";
-
-                    helper.setText(emailContent, true);
-                    mailSender.send(message);
+                    emailService.sendRegistrationPaymentEmail(savedStudent);
                 } catch (Exception e) {
-                    System.err.println("Failed to send registration email: " + e.getMessage());
-                    // We don't want to fail the registration if email fails
+                    System.err.println("Failed to send payment email: " + e.getMessage());
+                    // We don't fail the whole registration if email fails
                 }
             }
 
             // Return JSON response with student UID for payment linking
             java.util.Map<String, String> response = new java.util.HashMap<>();
-            response.put("message", "Student registered successfully. A payment link has been sent to their email.");
+            response.put("message", "Student registered successfully");
             response.put("uid", savedStudent.getUid());
             return ResponseEntity.ok(response);
 
@@ -150,13 +123,37 @@ public class StudentController {
         }
     }
 
-    // Student Login
-    @PostMapping("/admin/student/login")
-    public ResponseEntity<Student> login(@RequestBody Student student) {
+    // Student Login (Form Based for Studentlogin.html)
+    @PostMapping("/student/login")
+    public String login(
+            @RequestParam String uid,
+            @RequestParam String password,
+            HttpSession session,
+            Model model) {
 
-        Student loggedInStudent = studentService.login(student.getUid(), student.getPassword());
+        try {
+            Student student = studentService.login(uid, password);
 
-        return ResponseEntity.ok(loggedInStudent);
+            if (student != null) {
+                // Check if account is active
+                if (student.getActivityStudent() != ActivityStudent.ACTIVE) {
+                    model.addAttribute("error", "Your account is not active. Please contact administrator.");
+                    model.addAttribute("activeTab", "student");
+                    return "student/Studentlogin";
+                }
+
+                session.setAttribute("loggedStudent", student);
+                return "redirect:/student/login-options";
+            } else {
+                model.addAttribute("error", "Invalid UID or Password");
+                model.addAttribute("activeTab", "student");
+                return "student/Studentlogin";
+            }
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("activeTab", "student");
+            return "student/Studentlogin";
+        }
     }
 
     // Fetch All Students
@@ -323,26 +320,38 @@ public class StudentController {
     // Change Student password (requires current password - from dashboard)
     @PostMapping("/admin/student/{uid}/change-password")
     @ResponseBody
-    public void changePassword(
+    public ResponseEntity<String> changePassword(
             @PathVariable String uid,
             @RequestBody Map<String, String> body) {
 
-        studentService.changePassword(uid, body.get("currentPassword"), body.get("newPassword"));
+        try {
+            studentService.changePassword(uid, body.get("currentPassword"), body.get("newPassword"));
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (RuntimeException e) {
+            String errorMessage = e.getMessage();
+            if (errorMessage != null && errorMessage.contains("Current password incorrect")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Password");
+            } else if (errorMessage != null && errorMessage.contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to change password");
+            }
+        }
     }
 
-    // Reset password by email (from forgot password email link - no current
+    // Reset password by token (from forgot password email link - no current
     // password needed)
-    @PostMapping("/admin/student/reset-password-by-email")
-    public ResponseEntity<String> resetPasswordByEmail(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
+    @PostMapping("/admin/student/reset-password-by-token")
+    public ResponseEntity<String> resetPasswordByToken(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
         String newPassword = body.get("newPassword");
 
-        if (email == null || email.isEmpty() || newPassword == null || newPassword.isEmpty()) {
-            return ResponseEntity.badRequest().body("Email and new password are required");
+        if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token and new password are required");
         }
 
         try {
-            studentService.resetPasswordByEmail(email, newPassword);
+            studentService.resetPasswordByToken(token, newPassword);
             return ResponseEntity.ok("Password reset successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -351,37 +360,45 @@ public class StudentController {
 
     // Forgot password - Send reset link
     @PostMapping("/student/sendforgot-password")
-    public String handleForgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes)
-            throws MessagingException {
-        // Check if email exists
-        Student student = studentRepository.findByEmail(email).orElse(null);
+    public String handleForgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes) {
+        try {
+            String token = studentService.generateResetToken(email);
+            String resetLink = "http://localhost:8081/student/change-password?token=" + token;
 
-        if (student == null) {
-            redirectAttributes.addFlashAttribute("error", "Email not found");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(email);
+            helper.setSubject("Reset Your Password");
+
+            helper.setText("<h3>Password Reset</h3>"
+                    + "<p>Click the button below to reset your password:</p>"
+                    + "<a href='" + resetLink + "' "
+                    + "style='display:inline-block;padding:10px 16px;background:#2563eb;color:white;"
+                    + "text-decoration:none;border-radius:6px;font-weight:bold;'>"
+                    + "Change Password</a>"
+                    + "<p style='margin-top:10px;'>This link is valid for <b>12 hours</b> only. After that, you will need to request a new link.</p>",
+                    true // enables HTML
+            );
+
+            mailSender.send(message);
+            redirectAttributes.addFlashAttribute("info",
+                    "Password reset link has been sent to your registered email.");
+            redirectAttributes.addFlashAttribute("activeTab", "student");
+            return "redirect:/student/login";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error sending email: " + e.getMessage());
             return "redirect:/student/forgot-password";
         }
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-        String resetLink = baseUrl + "/student/change-password?email=" + email;
-
-        helper.setTo(email);
-        helper.setSubject("Reset Your Password");
-
-        helper.setText("<h3>Password Reset</h3>"
-                + "<p>Click the button below to reset your password:</p>"
-                + "<a href='" + resetLink + "' "
-                + "style='display:inline-block;padding:10px 16px;background:#2563eb;color:white;"
-                + "text-decoration:none;border-radius:6px;font-weight:bold;'>"
-                + "Change Password</a>"
-                + "<p style='margin-top:10px;'>This link is valid for a limited time.</p>",
-                true // enables HTML
-        );
-
-        mailSender.send(message);
-        redirectAttributes.addFlashAttribute("info",
-                "Password reset link has been sent to your registered email.");
-        return "redirect:/student/login";
     }
+
+    // Login Options Page (Skip/Continue)
+    @GetMapping("/student/login-options")
+    public String studentLoginOptions(HttpSession session) {
+        if (session.getAttribute("loggedStudent") == null) {
+            return "redirect:/student/login";
+        }
+        return "student/student-login-options";
+    }
+
 }

@@ -73,6 +73,32 @@
             background-color: #101622;
             background-image: radial-gradient(#135bec22 1px, transparent 1px);
         }
+
+        /* Sidebar Specific Scrollbar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 225, 0.4);
+            border-radius: 10px;
+        }
+
+        .dark .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.4);
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(203, 213, 225, 0.8);
+        }
+
+        .dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(51, 65, 85, 0.8);
+        }
     </style>
     <script src="/js/config.js"></script>
 </head>
@@ -80,7 +106,7 @@
 <body>
 
     <aside th:fragment="sidebar(activeItem)"
-        class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 shrink-0 transition-colors duration-300 h-screen overflow-y-auto">
+        class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6 shrink-0 transition-colors duration-300 h-screen overflow-y-auto sidebar-scroll">
         <div class="flex flex-col gap-8 px-6">
             <!-- Sidebar Header / Logo (Optional) -->
             <div class="flex items-center px-4 mb-2">
@@ -180,6 +206,12 @@
                             <span class="material-symbols-outlined text-xs">category</span>
                             <p class="text-xs">Manage Exam Types</p>
                         </a>
+                        <a th:classappend="${activeItem == 'exam-set' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg hover:text-primary dark:hover:text-white transition-all font-medium"
+                            href="/admin/dashboard/exam/set">
+                            <span class="material-symbols-outlined text-xs">library_books</span>
+                            <p class="text-xs">Manage Set</p>
+                        </a>
                     </div>
                 </div>
                 <a th:classappend="${activeItem == 'payment' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
@@ -187,6 +219,12 @@
                     href="/admin/dashboard/payment">
                     <span class="material-symbols-outlined shrink-0">payments</span>
                     <p class="text-sm font-medium">Payment Tracking</p>
+                </a>
+                <a th:classappend="${activeItem == 'support' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-display"
+                    href="/admin/dashboard/support-ticket">
+                    <span class="material-symbols-outlined shrink-0">confirmation_number</span>
+                    <p class="text-sm font-medium">Support Ticket</p>
                 </a>
             </nav>
         </div>
@@ -231,12 +269,37 @@
         <!-- Profile Section on the Extreme Right -->
         <div class="flex items-center gap-2 relative">
             <!-- Notification Icon -->
-            <button
-                class="flex items-center justify-center p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative">
-                <span class="material-symbols-outlined text-[24px]">notifications</span>
-                <span
-                    class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-            </button>
+            <div class="relative items-center flex" id="notificationBtn">
+                <button
+                    class="flex items-center justify-center p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all relative">
+                    <span class="material-symbols-outlined text-[24px]">notifications</span>
+                    <span id="notificationBadge"
+                        class="hidden absolute top-2 right-2.5 w-4 h-4 bg-red-500 text-[10px] text-white flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold">0</span>
+                </button>
+
+                <!-- Notification Dropdown -->
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div
+                        class="px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">Notifications</p>
+                        <button onclick="markAllNotificationsAsRead()"
+                            class="text-[10px] text-primary hover:underline font-medium">Mark all as read</button>
+                    </div>
+                    <div id="notificationList" class="max-h-96 overflow-y-auto p-2 flex flex-col gap-1">
+                        <!-- Notifications will be loaded here -->
+                        <div class="p-8 text-center text-slate-400">
+                            <span class="material-symbols-outlined text-3xl mb-2">notifications_off</span>
+                            <p class="text-xs">No new notifications</p>
+                        </div>
+                    </div>
+                    <div class="p-2 border-t border-slate-100 dark:border-slate-800">
+                        <a href="#"
+                            class="block text-center text-xs text-slate-500 hover:text-primary py-2 transition-colors">View
+                            all activity</a>
+                    </div>
+                </div>
+            </div>
 
             <div id="navProfileBtn"
                 class="flex items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1 rounded-full transition-all">
@@ -252,14 +315,14 @@
                     class="px-4 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                     <p id="dropdownAdminName" class="text-sm font-bold text-slate-900 dark:text-white truncate">
                         Loading...</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">System Administrator</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Admin</p>
                 </div>
                 <div class="p-2 flex flex-col gap-1">
                     <a href="/admin/profile"
                         class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
                         <span
                             class="material-symbols-outlined text-xl group-hover:text-primary transition-colors">edit_square</span>
-                        <span class="text-sm font-medium">Edit Profile</span>
+                        <span class="text-sm font-medium">Edit Profile and Change Password</span>
                     </a>
                     <hr class="border-slate-100 dark:border-slate-800 my-1">
                     <a href="/admin/login"
@@ -324,6 +387,20 @@
                     });
                 }
 
+                // Notification Dropdown Toggle
+                const notificationBtn = document.getElementById('notificationBtn');
+                const notificationDropdown = document.getElementById('notificationDropdown');
+
+                if (notificationBtn && notificationDropdown) {
+                    notificationBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        notificationDropdown.classList.toggle('hidden');
+                        if (!notificationDropdown.classList.contains('hidden')) {
+                            loadNotifications();
+                        }
+                    });
+                }
+
                 // Profile Dropdown Toggle
                 const navProfileBtn = document.getElementById('navProfileBtn');
                 const profileDropdown = document.getElementById('profileDropdown');
@@ -385,6 +462,97 @@
 
                 } catch (e) { }
             })();
+            (async function initNotifications() {
+                updateNotificationBadge();
+                setInterval(updateNotificationBadge, 30000); // Poll every 30s
+            })();
+
+            async function updateNotificationBadge() {
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/api/notifications/unread-count`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const badge = document.getElementById('notificationBadge');
+                        if (badge) {
+                            if (data.count > 0) {
+                                badge.textContent = data.count > 99 ? '99+' : data.count;
+                                badge.classList.remove('hidden');
+                            } else {
+                                badge.classList.add('hidden');
+                            }
+                        }
+                    }
+                } catch (e) { }
+            }
+
+            async function loadNotifications() {
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/api/notifications/recent`);
+                    if (res.ok) {
+                        const notifications = await res.json();
+                        const list = document.getElementById('notificationList');
+                        if (!list) return;
+
+                        if (notifications.length === 0) {
+                            list.innerHTML = `
+                                <div class="p-8 text-center text-slate-400">
+                                    <span class="material-symbols-outlined text-3xl mb-2">notifications_off</span>
+                                    <p class="text-xs">No new notifications</p>
+                                </div>`;
+                            return;
+                        }
+
+                        list.innerHTML = notifications.map(n => `
+                            <div class="p-3 rounded-lg ${n.read ? 'opacity-60' : 'bg-primary/5 border border-primary/10'} transition-all hover:bg-slate-50 dark:hover:bg-slate-800">
+                                <div class="flex items-start gap-3">
+                                    <div class="size-8 rounded-full flex items-center justify-center shrink-0 ${n.type === 'PAYMENT' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}">
+                                        <span class="material-symbols-outlined text-sm">${n.type === 'PAYMENT' ? 'payments' : 'confirmation_number'}</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs text-slate-900 dark:text-white font-medium mb-0.5 line-clamp-2">${n.message}</p>
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-[10px] text-slate-500">${formatRelativeTime(n.createdAt)}</p>
+                                            ${!n.read ? `<button onclick="markNotificationAsRead(${n.id}, event)" class="text-[10px] text-primary hover:underline">Mark as read</button>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } catch (e) { }
+            }
+
+            function formatRelativeTime(dateStr) {
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000);
+
+                if (diff < 60) return 'Just now';
+                if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+                if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+                return Math.floor(diff / 86400) + 'd ago';
+            }
+
+            async function markNotificationAsRead(id, event) {
+                if (event) event.stopPropagation();
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/api/notifications/${id}/mark-as-read`, { method: 'POST' });
+                    if (res.ok) {
+                        updateNotificationBadge();
+                        loadNotifications();
+                    }
+                } catch (e) { }
+            }
+
+            async function markAllNotificationsAsRead() {
+                try {
+                    const res = await fetch(`${BASE_URL}/admin/api/notifications/mark-all-as-read`, { method: 'POST' });
+                    if (res.ok) {
+                        updateNotificationBadge();
+                        loadNotifications();
+                    }
+                } catch (e) { }
+            }
         </script>
     </div>
 

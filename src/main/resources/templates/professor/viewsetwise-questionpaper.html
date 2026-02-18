@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Professional Question Selection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .paper-header {
+            background: #fff;
+            border-bottom: 3px solid #0d6efd;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .group-header {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #0d6efd;
+        }
+
+        .question-item {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        
+        .question-item:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .marks-tag {
+            background: #f0f7ff;
+            color: #0d6efd;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: 1px solid #cfe2ff;
+        }
+
+        .selection-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+
+        @media print {
+            .d-print-none {
+                display: none !important;
+            }
+            body { background: white; }
+            .card { border: none !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-4 mb-5">
+        <div class="paper-header mb-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold text-primary mb-0">
+                    <i class="fas fa-file-signature me-2"></i>QUESTION SELECTION MODULE
+                </h4>
+                <div class="d-print-none">
+                    <button onclick="finalizeSelection()" class="btn btn-success fw-bold px-4 shadow-sm">
+                        <i class="fas fa-check-double me-2"></i>Finalize Paper
+                    </button>
+                </div>
+            </div>
+            <hr>
+            <div class="row text-center small fw-bold text-uppercase">
+                <div class="col-md-3" th:if="${course != null}">COURSE: [[${course}]]</div>
+                <div class="col-md-2" th:if="${className != null}">CLASS: [[${className}]]</div>
+                <div class="col-md-2" th:if="${division != null}">DIV: [[${division}]]</div>
+                <div class="col-md-3" th:if="${subject != null}">SUBJECT: [[${subject}]]</div>
+                <div class="col-md-2 text-danger">SET: [[${set}]]</div>
+            </div>
+        </div>
+
+        <div id="counterBadge" class="selection-counter d-print-none">
+            <div class="badge bg-primary p-3 shadow-lg">
+                Selected: <span id="selectedCount">0</span> Questions
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div th:if="${#lists.isEmpty(questions)}" class="text-center p-5">
+                    <i class="fas fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
+                    <p class="text-danger fw-bold">No questions found for the selected filters.</p>
+                </div>
+
+                <div th:with="types=${ {'MCQ', 'TRUE_FALSE', 'MATCH_THE_PAIRS', 'FILL_IN_THE_BLANKS', 'SHORT_ANSWER', 'LONG_ANSWER', 'ESSAY'} }">
+                    <th:block th:each="currentType : ${types}">
+                        
+                        <div th:if="${#lists.toList(questions).?[questionType.name() == '__${currentType}__'].size() > 0}" 
+                             class="group-header mb-3">
+                            <span><i class="fas fa-layer-group me-2"></i>[[${currentType.replace('_', ' ')}]]</span>
+                        </div>
+
+                        <div th:each="q, stat : ${questions}" th:if="${q.questionType.name() == currentType}"
+                            class="question-item p-3">
+                            <div class="d-flex align-items-start">
+                                <div class="form-check d-print-none me-3">
+                                    <input type="checkbox" class="form-check-input q-checkbox size-lg" 
+                                           th:value="${q.id}" 
+                                           onchange="updateUIStatus()"
+                                           style="transform: scale(1.3); cursor: pointer;">
+                                </div>
+                                
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <p class="mb-2 fw-bold text-dark">
+                                            [[${stat.count}]]. [[${q.questionText}]]
+                                        </p>
+                                        <span class="marks-tag">[[${q.marks}]] Marks</span>
+                                    </div>
+
+                                    <div th:if="${q.questionType.name() == 'MCQ'}" class="row g-2 mt-1 ms-1">
+                                        <div class="col-md-6 small text-muted">A) [[${q.optionA}]]</div>
+                                        <div class="col-md-6 small text-muted">B) [[${q.optionB}]]</div>
+                                        <div class="col-md-6 small text-muted">C) [[${q.optionC}]]</div>
+                                        <div class="col-md-6 small text-muted">D) [[${q.optionD}]]</div>
+                                        <div class="col-12 mt-2 text-success fw-bold small d-print-none">
+                                            <i class="fas fa-check-circle me-1"></i>Answer: [[${q.correctAnswer}]]
+                                        </div>
+                                    </div>
+
+                                    <div th:if="${q.questionType.name() == 'MATCH_THE_PAIRS'}" class="mt-2 ms-1">
+                                        <table class="table table-sm table-bordered w-auto mb-0 bg-light">
+                                            <thead class="table-secondary">
+                                                <tr><th class="small px-3">Column A</th><th class="small px-3">Column B</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="pair : ${#strings.arraySplit(q.matchPairs, ';;')}">
+                                                    <td class="small py-1 px-3" th:text="${#strings.arraySplit(pair, '|')[0]}"></td>
+                                                    <td class="small py-1 px-3" th:text="${#strings.arraySplit(pair, '|')[1]}"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div th:if="${q.questionType.name() == 'FILL_IN_THE_BLANKS'}"
+                                        class="mt-2 ms-1 d-print-none bg-light p-2 rounded">
+                                        <span class="text-info small fw-bold">Correct Answers:</span>
+                                        <span class="small" th:each="ans, iter : ${#strings.arraySplit(q.fillInTheBlanks, ';;')}">
+                                            [[${iter.index + 1}]]. [[${ans}]][[${!iter.last ? ', ' : ''}]]
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center d-print-none">
+            <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                <i class="fas fa-print me-2"></i>Quick Print All
+            </button>
+            <a th:href="@{/professor/question-bank}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Bank
+            </a>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Selection Counter update logic
+        function updateUIStatus() {
+            const checkedCount = document.querySelectorAll('.q-checkbox:checked').length;
+            const counterBadge = document.getElementById('counterBadge');
+            const countDisplay = document.getElementById('selectedCount');
+            
+            countDisplay.innerText = checkedCount;
+            counterBadge.style.display = (checkedCount > 0) ? 'block' : 'none';
+        }
+
+        // Finalize Selection and Post to Backend
+        function finalizeSelection() {
+            const selectedBoxes = document.querySelectorAll('.q-checkbox:checked');
+            
+            if (selectedBoxes.length === 0) {
+                alert("Please select at least one question to generate a paper!");
+                return;
+            }
+
+            if(confirm("Are you sure you want to finalize the paper with " + selectedBoxes.length + " questions?")) {
+                const selectedIds = Array.from(selectedBoxes).map(cb => cb.value);
+
+                // Create dynamic form to post data
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/professor/question-bank/generate-paper'; 
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'questionIds';
+                input.value = selectedIds.join(',');
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

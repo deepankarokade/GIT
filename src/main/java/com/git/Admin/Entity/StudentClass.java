@@ -17,27 +17,27 @@ public class StudentClass {
 
     @Column(nullable = false)
     private String classDescription;
-    
+
     @Column(unique = true, nullable = false)
     private String classId;
-    
+
     public String getClassDescription() {
-		return classDescription;
-	}
+        return classDescription;
+    }
 
-	public void setClassDescription(String classDescription) {
-		this.classDescription = classDescription;
-	}
+    public void setClassDescription(String classDescription) {
+        this.classDescription = classDescription;
+    }
 
-	public String getClassId() {
-		return classId;
-	}
+    public String getClassId() {
+        return classId;
+    }
 
-	public void setClassId(String classId) {
-		this.classId = classId;
-	}
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
 
-	public Long getId() {
+    public Long getId() {
         return id;
     }
 

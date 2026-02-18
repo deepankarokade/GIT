@@ -1,6 +1,8 @@
 package com.git.Student.Service;
 
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import com.git.Student.Entity.Student;
@@ -23,13 +25,8 @@ public class StudentService {
         student.setUid(uid);
         student.setActivityStudent(ActivityStudent.INACTIVE);
 
-        // Convert empty strings to null for unique-constrained fields
-        String email = student.getEmail();
-        if (email != null && email.trim().isEmpty()) {
-            student.setEmail(null);
-        }
-        String regId = student.getRegistrationId();
-        if (regId != null && regId.trim().isEmpty()) {
+        // Sanitize unique but optional fields: registrationId
+        if (student.getRegistrationId() != null && student.getRegistrationId().trim().isEmpty()) {
             student.setRegistrationId(null);
         }
 
@@ -39,7 +36,7 @@ public class StudentService {
     public Student login(String uid, String password) {
 
         Student student = studentRepository.findByUid(uid)
-                .orElseThrow(() -> new RuntimeException("Admin not found with UID " + uid));
+                .orElseThrow(() -> new RuntimeException("Student not found with UID " + uid));
 
         if (!student.getPassword().equals(password)) {
             throw new RuntimeException("Invalid Password");
@@ -56,16 +53,16 @@ public class StudentService {
                     if (lastUid != null && lastUid.startsWith("S")) {
                         try {
                             int lastNumber = Integer.parseInt(lastUid.substring(1));
-                            return String.format("S%03d", lastNumber + 1);
+                            return String.format("STU_%04d", lastNumber + 1);
                         } catch (NumberFormatException e) {
                             // Fallback if parsing fails
-                            return String.format("S%03d", lastStudent.getId() + 1);
+                            return String.format("STU_%04d", lastStudent.getId() + 1);
                         }
                     }
                     // Fallback if UID format is unexpected
-                    return String.format("S%03d", lastStudent.getId() + 1);
+                    return String.format("STU_%04d", lastStudent.getId() + 1);
                 })
-                .orElse("S001"); // First student
+                .orElse("STU_0001"); // First student
     }
 
     // Fetch all students
@@ -86,19 +83,20 @@ public class StudentService {
 
         student.setFullName(updatedStudent.getFullName());
         student.setGender(updatedStudent.getGender());
-        // Convert empty email to null to avoid unique constraint violations
-        String email = updatedStudent.getEmail();
-        student.setEmail((email != null && email.trim().isEmpty()) ? null : email);
+        student.setEmail(updatedStudent.getEmail());
         student.setContactNumber(updatedStudent.getContactNumber());
         student.setAddress(updatedStudent.getAddress());
         student.setState(updatedStudent.getState());
         student.setCity(updatedStudent.getCity());
+        student.setParentName(updatedStudent.getParentName());
         student.setParentContact(updatedStudent.getParentContact());
         student.setSchoolCollegeName(updatedStudent.getSchoolCollegeName());
         student.setStudentClass(updatedStudent.getStudentClass());
-        // Convert empty registrationId to null to avoid unique constraint violations
+
+        // Handle unique but optional fields: registrationId
         String regId = updatedStudent.getRegistrationId();
-        student.setRegistrationId((regId != null && regId.trim().isEmpty()) ? null : regId);
+        student.setRegistrationId((regId == null || regId.trim().isEmpty()) ? null : regId.trim());
+
         student.setPreferredExamDate(updatedStudent.getPreferredExamDate());
         student.setSubjects(updatedStudent.getSubjects());
         student.setSection(updatedStudent.getSection());
@@ -187,6 +185,7 @@ public class StudentService {
         }
 
         student.setPassword(newPassword);
+        student.setMustResetPassword(false);
         studentRepository.save(student);
     }
 
@@ -197,7 +196,60 @@ public class StudentService {
                 .orElseThrow(() -> new RuntimeException("No student found with email: " + email));
 
         student.setPassword(newPassword);
+        student.setMustResetPassword(false);
         studentRepository.save(student);
+    }
+
+    // Generate password reset token
+    public String generateResetToken(String email) {
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No student found with email: " + email));
+
+        String token = UUID.randomUUID().toString();
+        student.setResetToken(token);
+        student.setResetTokenExpiry(LocalDateTime.now().plusHours(12));
+        studentRepository.save(student);
+        return token;
+    }
+
+    // Reset password by token (with 12-hour expiry check)
+    public void resetPasswordByToken(String token, String newPassword) {
+        Student student = studentRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset link."));
+
+        if (student.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("This reset link has expired. It was valid for only 12 hours.");
+        }
+
+        student.setPassword(newPassword);
+        student.setMustResetPassword(false);
+        student.setResetToken(null);
+        student.setResetTokenExpiry(null);
+        studentRepository.save(student);
+    }
+
+    public void updateStudent(Student loggedStudent) {
+        // Simply save updated student details
+        studentRepository.save(loggedStudent);
+    }
+
+    // Change password from dashboard (logged-in student)
+    public boolean changePasswordDashboard(String uid, String oldPassword, String newPassword) {
+        // Find student by UID
+        Student student = studentRepository.findByUid(uid).orElse(null);
+        if (student == null)
+            return false;
+
+        // Check old password
+        if (!student.getPassword().equals(oldPassword))
+            return false;
+
+        // Update to new password
+        student.setPassword(newPassword);
+        student.setMustResetPassword(false);
+        studentRepository.save(student);
+
+        return true;
     }
 
 }

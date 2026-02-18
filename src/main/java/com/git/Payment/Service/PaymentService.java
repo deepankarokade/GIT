@@ -1,7 +1,7 @@
 package com.git.Payment.Service;
 
 import org.springframework.stereotype.Service;
-
+import com.git.Admin.Service.AdminNotificationService;
 import com.git.Admin.Service.EmailService;
 import com.git.Payment.Entity.Payment;
 import com.git.Payment.Repository.PaymentRepository;
@@ -39,13 +39,16 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final StudentRepository studentRepository;
     private final EmailService emailService;
+    private final AdminNotificationService notificationService;
 
     public PaymentService(PaymentRepository paymentRepository,
             StudentRepository studentRepository,
-            EmailService emailService) {
+            EmailService emailService,
+            AdminNotificationService notificationService) {
         this.paymentRepository = paymentRepository;
         this.studentRepository = studentRepository;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     public Payment createPayment(Long amount, String currency) {
@@ -177,6 +180,11 @@ public class PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
 
         paymentRepository.save(payment);
+
+        // CREATE ADMIN NOTIFICATION
+        String notificationMessage = "New successful payment from " + payment.getStudentName() + " ("
+                + payment.getStudentUid() + "): " + payment.getAmount() / 100 + " " + payment.getCurrency();
+        notificationService.createNotification(notificationMessage, "PAYMENT", "/admin/dashboard/payment");
     }
 
     // Mark FAILED
@@ -210,6 +218,11 @@ public class PaymentService {
     // GET All Payments
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
+    }
+
+    // GET Payments by Student UID
+    public List<Payment> getPaymentsByStudentUid(String studentUid) {
+        return paymentRepository.findByStudentUid(studentUid);
     }
 
     /*

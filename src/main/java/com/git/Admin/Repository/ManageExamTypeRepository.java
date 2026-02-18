@@ -19,4 +19,8 @@ public interface ManageExamTypeRepository extends JpaRepository<ManageExamType, 
     List<ManageExamType> findByCourseId(Long courseId);
 
     boolean existsByExamTypeId(String examTypeId);
+
+    void deleteByCourse(Course course);
+
+    Optional<ManageExamType> findTopByOrderByIdDesc();
 }

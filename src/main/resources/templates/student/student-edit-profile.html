@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<title>Edit Profile - ExamPortal</title>
+	<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+		rel="stylesheet" />
+	<script id="tailwind-config">
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						"primary": "#0f766e",
+						"secondary": "#6366f1",
+						"background-light": "#f0fdfa",
+						"background-dark": "#101622",
+					},
+					fontFamily: {
+						"display": ["Lexend", "sans-serif"]
+					},
+					borderRadius: {
+						"DEFAULT": "0.25rem",
+						"lg": "0.5rem",
+						"xl": "0.75rem",
+						"full": "9999px"
+					},
+				},
+			},
+		}
+	</script>
+	<style>
+		body {
+			font-family: 'Lexend', sans-serif;
+		}
+
+		.geometric-bg {
+			background-color: #ededed;
+			background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+			background-size: 24px 24px;
+		}
+
+		.dark .geometric-bg {
+			background-color: #101622;
+			background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+		}
+	</style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+
+	<div class="flex h-screen overflow-hidden">
+		<!-- Sidebar Navigation -->
+		<aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='profile')}"></aside>
+
+		<!-- Main Content Area -->
+		<main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+			<!-- Top Navigation Bar -->
+			<header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+			<!-- Main Content -->
+			<div class="p-8 max-w-[1000px] mx-auto w-full flex flex-col gap-6">
+				<!-- Page Header -->
+				<div class="flex items-center gap-4 mb-2">
+					<a href="/student/dashboard"
+						class="flex items-center justify-center size-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-primary transition-all shadow-sm">
+						<span class="material-symbols-outlined">arrow_back</span>
+					</a>
+					<div>
+						<h1 class="text-slate-900 dark:text-white text-2xl font-bold">Edit Profile</h1>
+						<p class="text-slate-500 dark:text-slate-400 text-sm">Update your personal information and
+							account settings</p>
+					</div>
+				</div>
+
+				<!-- Messages -->
+				<div id="successMsg"
+					class="hidden flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+					<span class="material-symbols-outlined">check_circle</span>
+					<span id="successText"></span>
+				</div>
+
+				<div th:if="${errorMessage}"
+					class="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-sm font-medium">
+					<span class="material-symbols-outlined">error</span>
+					<span th:text="${errorMessage}"></span>
+				</div>
+
+				<!-- Profile Card -->
+				<div
+					class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+					<div
+						class="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+						<div class="flex flex-col md:flex-row items-center gap-6">
+							<div class="relative group">
+								<div
+									class="size-24 rounded-full border-4 border-white dark:border-slate-900 shadow-md overflow-hidden bg-primary/10 flex items-center justify-center">
+									<img th:src="|https://ui-avatars.com/api/?name=${student.fullName}&background=0f766e&color=fff&bold=true&size=128|"
+										class="size-full object-cover" alt="Profile avatar">
+								</div>
+							</div>
+							<div class="text-center md:text-left">
+								<h3 class="text-xl font-bold text-slate-900 dark:text-white"
+									th:text="${student.fullName}">Student Name</h3>
+								<p class="text-slate-500 dark:text-slate-400 text-sm" th:text="${student.email}">
+									email@example.com</p>
+								<div
+									class="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+									Student Account
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<form th:action="@{/student/edit-profile}" method="post" id="profileForm" class="p-8">
+						<input type="hidden" name="id" th:value="${student.id}">
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<!-- Full Name -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Full
+									Name</label>
+								<div class="relative">
+									<span
+										class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">person</span>
+									<input type="text" name="fullName" th:value="${student.fullName}"
+										class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+										placeholder="Enter full name">
+								</div>
+								<p id="nameError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Date of Birth -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Date of
+									Birth</label>
+								<div class="relative">
+									<span
+										class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">calendar_today</span>
+									<input type="date" name="dob" id="dobField" th:value="${student.dob}" required
+										class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+								</div>
+								<p id="dobError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Gender -->
+							<div class="space-y-2">
+								<label
+									class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Gender</label>
+								<div
+									class="flex gap-4 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+									<label class="flex items-center gap-2 cursor-pointer group">
+										<input type="radio" name="gender" value="Male"
+											th:checked="${student.gender=='Male'}"
+											class="size-4 text-primary focus:ring-primary border-slate-300">
+										<span
+											class="text-slate-600 dark:text-slate-400 text-sm group-hover:text-primary transition-colors">Male</span>
+									</label>
+									<label class="flex items-center gap-2 cursor-pointer group">
+										<input type="radio" name="gender" value="Female"
+											th:checked="${student.gender=='Female'}"
+											class="size-4 text-primary focus:ring-primary border-slate-300">
+										<span
+											class="text-slate-600 dark:text-slate-400 text-sm group-hover:text-primary transition-colors">Female</span>
+									</label>
+								</div>
+							</div>
+
+							<!-- Email -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Email
+									Address</label>
+								<div class="relative">
+									<span
+										class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">mail</span>
+									<input type="email" id="emailField" name="email" th:value="${student.email}"
+										class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+										placeholder="Enter email">
+								</div>
+								<p id="emailError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Contact Number -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Contact
+									Number</label>
+								<div class="relative">
+									<span
+										class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">call</span>
+									<span
+										class="absolute left-10 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
+									<input type="text" id="contactField" name="contactNumber"
+										th:value="${student.contactNumber}"
+										class="w-full pl-[5.5rem] pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+										placeholder="9876543210">
+								</div>
+								<p id="contactError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Title Spacer for mobile -->
+							<div class="md:col-span-2 pt-4">
+								<h4
+									class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+									<span class="material-symbols-outlined text-sm">location_on</span>
+									Location & Education Details
+								</h4>
+							</div>
+
+							<!-- Address -->
+							<div class="space-y-2 md:col-span-2">
+								<label
+									class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Address</label>
+								<div class="relative">
+									<span
+										class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-xl">home</span>
+									<textarea name="address" rows="3" th:text="${student.address}" id="addressField"
+										class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+										placeholder="Enter your permanent address"></textarea>
+								</div>
+								<p id="addressError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- City -->
+							<div class="space-y-2">
+								<label
+									class="block text-sm font-semibold text-slate-700 dark:text-slate-300">City</label>
+								<input type="text" name="city" th:value="${student.city}" id="cityField"
+									class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									placeholder="Enter city">
+								<p id="cityError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- State -->
+							<div class="space-y-2">
+								<label
+									class="block text-sm font-semibold text-slate-700 dark:text-slate-300">State</label>
+								<input type="text" name="state" th:value="${student.state}" id="stateField"
+									class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									placeholder="Enter state">
+								<p id="stateError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Parent Info Spacer -->
+							<div class="md:col-span-2 pt-4">
+								<h4
+									class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+									<span class="material-symbols-outlined text-sm">family_restroom</span>
+									Parent / Guardian Information
+								</h4>
+							</div>
+
+							<!-- Parent Name -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Parent
+									Name</label>
+								<input type="text" name="parentName" id="parentNameField"
+									th:value="${student.parentName}"
+									class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									placeholder="Enter parent's name">
+								<p id="parentNameError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Parent Contact -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Parent
+									Contact</label>
+								<div class="relative">
+									<span
+										class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
+									<input type="text" name="parentContact" id="parentContactField"
+										th:value="${student.parentContact}"
+										class="w-full pl-16 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+										placeholder="Enter parent's contact">
+								</div>
+								<p id="parentContactError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]">
+								</p>
+							</div>
+
+							<!-- Education Spacer -->
+							<div class="md:col-span-2 pt-4">
+								<h4
+									class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+									<span class="material-symbols-outlined text-sm">school</span>
+									Educational Institution
+								</h4>
+							</div>
+
+							<!-- College Name -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">College /
+									School Name</label>
+								<input type="text" name="schoolCollegeName" id="collegeField"
+									th:value="${student.schoolCollegeName}"
+									class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									placeholder="Enter institution name">
+								<p id="collegeError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+
+							<!-- Class -->
+							<div class="space-y-2">
+								<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Current
+									Class</label>
+								<input type="text" name="studentClass" id="classField"
+									th:value="${student.studentClass}"
+									class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+									placeholder="Enter class">
+								<p id="classError" class="text-red-500 text-xs font-medium mt-1 min-h-[1rem]"></p>
+							</div>
+						</div>
+
+						<!-- Actions -->
+						<div
+							class="flex flex-col sm:flex-row items-center justify-end gap-4 mt-12 pt-8 border-t border-slate-100 dark:border-slate-800">
+							<a href="/student/dashboard"
+								class="w-full sm:w-auto px-8 py-3 rounded-xl text-slate-600 dark:text-slate-400 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-center">
+								Cancel
+							</a>
+							<button type="submit"
+								class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all">
+								<span class="material-symbols-outlined">save</span>
+								Update Profile
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<footer th:replace="~{fragments/student-sidebar-fragment :: Footer}"></footer>
+		</main>
+	</div>
+
+	<!-- Scripts -->
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const form = document.getElementById("profileForm");
+			const successMsg = document.getElementById("successMsg");
+			const successText = document.getElementById("successText");
+
+			// --- Full Name Validation ---
+			const nameField = document.querySelector("[name=fullName]");
+			const nameError = document.getElementById("nameError");
+
+			nameField.addEventListener("input", function () {
+				let value = this.value;
+				let valid = /^[A-Za-z ]*$/.test(value);
+
+				if (!valid) {
+					nameError.innerText = "❌ Only alphabets allowed";
+					this.value = value.replace(/[^A-Za-z ]/g, '');
+				} else if (value.trim().length > 0 && value.trim().split(/\s+/).length < 2) {
+					nameError.innerText = "❌ Please enter at least two names";
+				} else if (value.length > 0 && value.length < 3) {
+					nameError.innerText = "❌ Name must be at least 3 letters";
+				} else {
+					nameError.innerText = "";
+				}
+			});
+
+			// --- Date of Birth Validation ---
+			const dobField = document.getElementById("dobField");
+			const dobError = document.getElementById("dobError");
+
+			dobField.addEventListener("change", function () {
+				if (!this.value) {
+					dobError.innerText = "❌ Please select DOB";
+					return;
+				}
+				let dob = new Date(this.value);
+				let today = new Date();
+
+				if (dob > today) {
+					dobError.innerText = "❌ DOB cannot be in future";
+					this.value = "";
+					return;
+				}
+
+				let age = today.getFullYear() - dob.getFullYear();
+				let m = today.getMonth() - dob.getMonth();
+				if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+					age--;
+				}
+
+				if (age < 5) {
+					dobError.innerText = "❌ Minimum age must be 5 years";
+				} else {
+					dobError.innerText = "";
+				}
+			});
+
+			// --- Email Validation ---
+			const emailField = document.getElementById("emailField");
+			const emailError = document.getElementById("emailError");
+
+			emailField.addEventListener("input", function () {
+				const email = this.value.trim();
+				const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+				if (email === "") {
+					emailError.innerText = "❌ Email is required";
+				} else if (!emailPattern.test(email)) {
+					emailError.innerText = "❌ Invalid email format";
+				} else {
+					emailError.innerText = "";
+				}
+			});
+
+			// --- Contact Number Validation ---
+			const contactField = document.getElementById("contactField");
+			const contactError = document.getElementById("contactError");
+
+			contactField.addEventListener("input", function () {
+				let value = this.value.replace(/\D/g, '');
+				this.value = value;
+				if (value === "") {
+					contactError.innerText = "❌ Contact number is required";
+				} else if (value.length !== 10) {
+					contactError.innerText = "❌ Must be 10 digits";
+				} else {
+					contactError.innerText = "";
+				}
+			});
+
+			// --- Address Validation ---
+			const addressField = document.getElementById("addressField");
+			const addressError = document.getElementById("addressError");
+
+			addressField.addEventListener("input", function () {
+				const value = this.value.trim();
+				if (value === "") {
+					addressError.innerText = "❌ Address is required";
+				} else if (value.length < 5) {
+					addressError.innerText = "❌ At least 5 characters";
+				} else {
+					addressError.innerText = "";
+				}
+			});
+
+			// --- City Validation ---
+			const cityField = document.getElementById("cityField");
+			const cityError = document.getElementById("cityError");
+
+			cityField.addEventListener("input", function () {
+				let value = this.value.trim();
+				let valid = /^[A-Za-z ]*$/.test(value);
+				if (value === "") {
+					cityError.innerText = "❌ City is required";
+				} else if (!valid) {
+					cityError.innerText = "❌ Only alphabets allowed";
+					this.value = value.replace(/[^A-Za-z ]/g, '');
+				} else if (value.length < 2) {
+					cityError.innerText = "❌ At least 2 letters";
+				} else {
+					cityError.innerText = "";
+				}
+			});
+
+			// --- State Validation ---
+			const stateField = document.getElementById("stateField");
+			const stateError = document.getElementById("stateError");
+
+			stateField.addEventListener("input", function () {
+				let value = this.value.trim();
+				let valid = /^[A-Za-z ]*$/.test(value);
+				if (value === "") {
+					stateError.innerText = "❌ State is required";
+				} else if (!valid) {
+					stateError.innerText = "❌ Only alphabets allowed";
+					this.value = value.replace(/[^A-Za-z ]/g, '');
+				} else if (value.length < 2) {
+					stateError.innerText = "❌ At least 2 letters";
+				} else {
+					stateError.innerText = "";
+				}
+			});
+
+			// --- Parent Info Validation ---
+			const parentNameField = document.getElementById("parentNameField");
+			const parentNameError = document.getElementById("parentNameError");
+			const parentContactField = document.getElementById("parentContactField");
+			const parentContactError = document.getElementById("parentContactError");
+
+			parentNameField.addEventListener("input", function () {
+				let value = this.value.trim();
+				let valid = /^[A-Za-z ]*$/.test(value);
+				if (value === "") {
+					parentNameError.innerText = "❌ Parent Name required";
+				} else if (!valid) {
+					parentNameError.innerText = "❌ Only alphabets allowed";
+					this.value = value.replace(/[^A-Za-z ]/g, '');
+				} else if (value.length < 3) {
+					parentNameError.innerText = "❌ At least 3 letters";
+				} else {
+					parentNameError.innerText = "";
+				}
+			});
+
+			parentContactField.addEventListener("input", function () {
+				let value = this.value.replace(/\D/g, '');
+				this.value = value;
+				if (value === "") {
+					parentContactError.innerText = "❌ Parent contact required";
+				} else if (value.length !== 10) {
+					parentContactError.innerText = "❌ Must be 10 digits";
+				} else {
+					parentContactError.innerText = "";
+				}
+			});
+
+			// --- College & Class Validation ---
+			const collegeField = document.getElementById("collegeField");
+			const collegeError = document.getElementById("collegeError");
+			const classField = document.getElementById("classField");
+			const classError = document.getElementById("classError");
+
+			collegeField.addEventListener("input", function () {
+				let value = this.value.trim();
+				let valid = /^[A-Za-z0-9 ]*$/.test(value);
+				if (value === "") {
+					collegeError.innerText = "❌ Institution name required";
+				} else if (!valid) {
+					collegeError.innerText = "❌ Invalid characters";
+					this.value = value.replace(/[^A-Za-z0-9 ]/g, '');
+				} else if (value.length < 3) {
+					collegeError.innerText = "❌ At least 3 characters";
+				} else {
+					collegeError.innerText = "";
+				}
+			});
+
+			classField.addEventListener("input", function () {
+				let value = this.value.trim();
+				let valid = /^[A-Za-z0-9 ]*$/.test(value);
+				if (value === "") {
+					classError.innerText = "❌ Class is required";
+				} else if (!valid) {
+					classError.innerText = "❌ Invalid characters";
+					this.value = value.replace(/[^A-Za-z0-9 ]/g, '');
+				} else {
+					classError.innerText = "";
+				}
+			});
+
+			// --- Form Submission ---
+			form.addEventListener("submit", function (e) {
+				// Trigger all inputs to show errors if fields are untouched but empty
+				nameField.dispatchEvent(new Event('input'));
+				dobField.dispatchEvent(new Event('change'));
+				emailField.dispatchEvent(new Event('input'));
+				contactField.dispatchEvent(new Event('input'));
+				addressField.dispatchEvent(new Event('input'));
+				cityField.dispatchEvent(new Event('input'));
+				stateField.dispatchEvent(new Event('input'));
+				parentNameField.dispatchEvent(new Event('input'));
+				parentContactField.dispatchEvent(new Event('input'));
+				collegeField.dispatchEvent(new Event('input'));
+				classField.dispatchEvent(new Event('input'));
+
+				const errors = document.querySelectorAll("[id$=Error]");
+				let hasErrors = false;
+				errors.forEach(err => {
+					if (err.innerText.trim() !== "") hasErrors = true;
+				});
+
+				if (hasErrors) {
+					e.preventDefault();
+					return;
+				}
+
+				// Show success on screen before redirecting (optional since form submits)
+				successMsg.classList.remove("hidden");
+				successText.innerText = "Processing profile update...";
+			});
+		});
+	</script>
+	<div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

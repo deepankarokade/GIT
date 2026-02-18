@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+
+<head th:replace="~{fragments/admin-fragments :: admin-head(title='Manage Support Tickets')}"></head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white">
+    <div class="flex h-screen overflow-hidden">
+        <aside th:replace="~{fragments/admin-fragments :: sidebar(activeItem='support')}"></aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <header th:replace="~{fragments/admin-fragments :: navbar}"></header>
+
+            <div class="p-8 max-w-6xl mx-auto w-full flex flex-col gap-8">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div
+                        class="bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#f0f2f4] dark:border-white/10 flex items-center gap-4">
+                        <div class="size-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                            <span class="material-symbols-outlined">confirmation_number</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-[#616f89] dark:text-white/40">Total Tickets</p>
+                            <h4 id="totalTicketsCount" class="text-2xl font-bold">0</h4>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#f0f2f4] dark:border-white/10 flex items-center gap-4">
+                        <div class="size-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500">
+                            <span class="material-symbols-outlined">hourglass_empty</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-[#616f89] dark:text-white/40">Open Tickets</p>
+                            <h4 id="openTicketsCount" class="text-2xl font-bold">0</h4>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-white/5 p-6 rounded-2xl border border-[#f0f2f4] dark:border-white/10 flex items-center gap-4">
+                        <div class="size-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-[#616f89] dark:text-white/40">Resolved</p>
+                            <h4 id="resolvedTicketsCount" class="text-2xl font-bold">0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets List Area -->
+                <div
+                    class="bg-white dark:bg-white/5 rounded-2xl border border-[#f0f2f4] dark:border-white/10 overflow-hidden">
+                    <div class="p-6 border-b border-[#f0f2f4] dark:border-white/10">
+                        <h3 class="text-lg font-bold">All Support Requests</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-white/5">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">Student UID</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">Subject</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">Type</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">Status</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89]">Date</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-[#616f89] text-right">Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketsTableBody" class="divide-y divide-[#f0f2f4] dark:divide-white/10">
+                                <!-- Dynamic Content -->
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center text-[#616f89]">
+                                        <div
+                                            class="animate-spin size-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4">
+                                        </div>
+                                        <p>Loading support tickets...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Modal -->
+            <div id="responseModal"
+                class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg shadow-2xl animate-in zoom-in duration-200">
+                    <div class="p-6 border-b border-[#f0f2f4] dark:border-white/10 flex justify-between items-center">
+                        <h3 class="text-xl font-bold">Respond to Ticket</h3>
+                        <button onclick="hideModal('responseModal')" class="text-[#616f89] hover:text-red-500">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs font-bold uppercase text-[#616f89]">
+                                <span>Ticket ID: <span id="modalTicketId"></span></span>
+                                <span class="bg-primary/10 text-primary px-2 py-0.5 rounded">Student UID: <span
+                                        id="modalStudentUid"></span></span>
+                            </div>
+                            <h4 id="modalTicketSubject" class="text-lg font-bold text-slate-900 dark:text-white mt-2">
+                            </h4>
+                            <p id="modalTicketDesc"
+                                class="text-sm text-[#616f89] dark:text-white/60 bg-slate-50 dark:bg-white/5 p-3 rounded-lg">
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Admin Response</label>
+                            <textarea id="adminResponseText" rows="5"
+                                class="w-full rounded-xl border-[#f0f2f4] dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm focus:ring-primary focus:border-primary"
+                                placeholder="Type your response here..."></textarea>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-[#f0f2f4] dark:border-white/10 flex justify-end gap-4">
+                        <button onclick="hideModal('responseModal')"
+                            class="px-6 py-2 rounded-xl text-sm font-bold hover:bg-slate-100 dark:hover:bg-white/5 transition-all">Cancel</button>
+                        <button id="submitResponseBtn"
+                            class="px-6 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-primary/20">Send
+                            Response</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/admin-fragments :: scripts}"></div>
+
+    <script th:inline="javascript">
+        // API URL
+        const TICKETS_API = `/api/admin/support-tickets`;
+        let currentTicketId = null;
+
+        async function fetchTickets() {
+            try {
+                const res = await fetch(TICKETS_API);
+                if (!res.ok) throw new Error("Failed to fetch tickets");
+                const tickets = await res.json();
+                renderTickets(tickets);
+                updateStats(tickets);
+            } catch (err) {
+                console.error(err);
+                alert("Error loading support tickets");
+            }
+        }
+
+        function renderTickets(tickets) {
+            const tableBody = document.getElementById("ticketsTableBody");
+            if (!tickets.length) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#616f89]">No support tickets found.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = tickets.map(ticket => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium">#${ticket.ticketId}</td>
+                    <td class="px-6 py-4 text-sm font-bold text-primary">${ticket.student ? ticket.student.uid : 'N/A'}</td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">${ticket.subject}</p>
+                        <p class="text-xs text-[#616f89] dark:text-white/40 truncate max-w-[200px]">${ticket.description}</p>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${ticket.ticketType}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-[10px] font-bold rounded-full ${getStatusStyle(ticket.status)}">
+                            ${ticket.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-[#616f89]">${new Date(ticket.createdDate).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick='showResponseModal(${JSON.stringify(ticket).replace(/'/g, "&apos;")})' class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-all" title="View & Respond">
+                            <span class="material-symbols-outlined text-xl">reply</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function getStatusStyle(status) {
+            switch (status) {
+                case "OPEN": return "bg-blue-500/10 text-blue-500 uppercase";
+                case "RESOLVED": return "bg-green-500/10 text-green-500 uppercase";
+                case "CLOSED": return "bg-[#616f89]/10 text-[#616f89] uppercase";
+                default: return "bg-slate-500/10 text-slate-500 uppercase";
+            }
+        }
+
+        function updateStats(tickets) {
+            document.getElementById("totalTicketsCount").textContent = tickets.length;
+            document.getElementById("openTicketsCount").textContent = tickets.filter(t => t.status === "OPEN").length;
+            document.getElementById("resolvedTicketsCount").textContent = tickets.filter(t => t.status === "RESOLVED").length;
+        }
+
+        function showResponseModal(ticket) {
+            currentTicketId = ticket.ticketId;
+            document.getElementById("modalTicketId").textContent = ticket.ticketId;
+            document.getElementById("modalStudentUid").textContent = ticket.student ? ticket.student.uid : 'N/A';
+            document.getElementById("modalTicketSubject").textContent = ticket.subject;
+            document.getElementById("modalTicketDesc").textContent = ticket.description;
+            document.getElementById("adminResponseText").value = ticket.adminResponse || "";
+
+            document.getElementById("responseModal").classList.remove("hidden");
+        }
+
+        function hideModal(id) {
+            document.getElementById(id).classList.add("hidden");
+        }
+
+        document.getElementById("submitResponseBtn").addEventListener("click", async () => {
+            const response = document.getElementById("adminResponseText").value.trim();
+            if (!response) {
+                alert("Please enter a response");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${TICKETS_API}/${currentTicketId}/respond`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ response })
+                });
+
+                if (res.ok) {
+                    alert("Response sent successfully!");
+                    hideModal("responseModal");
+                    fetchTickets(); // Refresh table
+                } else {
+                    throw new Error("Failed to send response");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error sending response");
+            }
+        });
+
+        // Initialize
+        fetchTickets();
+        setInterval(fetchTickets, 30000); // Poll every 30s
+    </script>
+</body>
+
+</html>

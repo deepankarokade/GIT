@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+
+<head th:replace="~{fragments/admin-fragments :: admin-head(title='Manage Exam Sets')}">
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white transition-colors duration-200">
+    <div class="flex h-screen overflow-hidden">
+        <aside th:replace="~{fragments/admin-fragments :: sidebar(activeItem='exam-set')}"></aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark">
+            <header th:replace="~{fragments/admin-fragments :: navbar}"></header>
+
+            <div class="max-w-7xl mx-auto py-8 px-6 lg:px-10 w-full">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                    <div class="flex flex-col gap-1">
+                        <h2
+                            class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                            Manage Exam Sets
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400">Create and manage question sets (Set A, B, C etc.)
+                            for examinations.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="fetchAllSets()"
+                            class="flex items-center justify-center p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                            <span class="material-symbols-outlined text-xl">refresh</span>
+                        </button>
+                        <button onclick="openAddModal()"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all">
+                            <span class="material-symbols-outlined">add</span>
+                            <span class="font-semibold text-sm">Add New Set</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Panel -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <div
+                        class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl text-blue-600 dark:text-blue-400">
+                                <span class="material-symbols-outlined">library_books</span>
+                            </div>
+                        </div>
+                        <p id="totalSets" class="text-3xl font-black mb-1 text-slate-900 dark:text-white">0</p>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Active Sets</p>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-gray-200/50 dark:shadow-none">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">ID
+                                    </th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Set
+                                        Name</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                        Generated Set ID</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="setTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <!-- Loading State -->
+                                <tr>
+                                    <td colspan="4" class="px-6 py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div
+                                                class="size-12 border-4 border-slate-200 border-t-primary rounded-full animate-spin">
+                                            </div>
+                                            <p class="text-slate-500 font-medium">Fetching set records...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Set Modal -->
+    <div id="addModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div
+            class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Add New Exam Set</h3>
+                    <button onclick="closeAddModal()"
+                        class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="addSetForm" onsubmit="saveSet(event)" class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Set Name</label>
+                        <input id="setNameInput" type="text" placeholder="e.g. A, B, C" required
+                            class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary transition-all text-sm uppercase">
+                        <p class="text-[10px] text-slate-500 mt-1">Single character recommended (A, B, C etc.)</p>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button type="button" onclick="closeAddModal()"
+                            class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Cancel</button>
+                        <button type="submit"
+                            class="flex-1 px-4 py-3 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all">Save
+                            Set</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <div th:replace="~{fragments/admin-fragments :: scripts}"></div>
+
+    <script th:inline="javascript">
+        let allSets = [];
+
+        // Fetch All Sets
+        async function fetchAllSets() {
+            const tbody = document.getElementById('setTableBody');
+            try {
+                const response = await fetch(`${BASE_URL}/admin/api/exam-set`);
+                if (!response.ok) throw new Error('Failed to fetch sets');
+
+                allSets = await response.json();
+                renderSets();
+                updateStats();
+            } catch (err) {
+                console.error('Fetch error:', err);
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-20 text-center text-red-500">
+                    <span class="material-symbols-outlined text-4xl mb-2">error</span>
+                    <p>Failed to load sets.</p>
+                </td></tr>`;
+            }
+        }
+
+        // Render Table
+        function renderSets() {
+            const tbody = document.getElementById('setTableBody');
+            if (allSets.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-20 text-center text-slate-500">
+                    <span class="material-symbols-outlined text-4xl mb-2">library_add</span>
+                    <p>No sets found. Click "Add New Set" to get started.</p>
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allSets.map(set => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-500">#${set.id}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-lg uppercase">${set.setName}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-sm font-bold text-slate-900 dark:text-white">${set.setId}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="deleteSet(${set.id})" class="p-2 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Delete Set">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalSets').textContent = allSets.length;
+        }
+
+        // Modal Controls
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            document.getElementById('setNameInput').focus();
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addSetForm').reset();
+        }
+
+        // Save Set
+        async function saveSet(e) {
+            e.preventDefault();
+            const setName = document.getElementById('setNameInput').value.trim();
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/api/exam-set`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ setName })
+                });
+
+                if (response.ok) {
+                    showNotification('New exam set added successfully');
+                    closeAddModal();
+                    fetchAllSets();
+                } else {
+                    const error = await response.text();
+                    showNotification(error || 'Failed to add set', 'error');
+                }
+            } catch (err) {
+                showNotification('Connection error: ' + err.message, 'error');
+            }
+        }
+
+        // Delete Set
+        async function deleteSet(id) {
+            if (!confirm('Are you sure you want to delete this set?')) return;
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/api/exam-set/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showNotification('Set deleted successfully');
+                    fetchAllSets();
+                } else {
+                    showNotification('Failed to delete set', 'error');
+                }
+            } catch (err) {
+                showNotification('Connection error: ' + err.message, 'error');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const id = 'notif-' + Date.now();
+            const bg = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'check_circle' : 'error';
+
+            container.insertAdjacentHTML('beforeend', `
+                <div id="${id}" class="notification glass p-4 rounded-xl border border-white dark:border-slate-700 shadow-2xl flex items-center gap-3 min-w-[300px]">
+                    <div class="size-10 rounded-full ${bg} flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined">${icon}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-slate-800 dark:text-white">${type === 'success' ? 'Success' : 'Attention'}</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">${message}</span>
+                    </div>
+                </div>
+            `);
+
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateX(20px)';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', fetchAllSets);
+    </script>
+</body>
+
+</html>

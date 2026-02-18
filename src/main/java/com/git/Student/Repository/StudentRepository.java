@@ -24,4 +24,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     // Find student by contact number
     Optional<Student> findByContactNumber(String contactNumber);
+
+    // Find student by reset token
+    Optional<Student> findByResetToken(String resetToken);
+
 }

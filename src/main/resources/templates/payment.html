@@ -346,7 +346,7 @@
                             <button id="payBtn" onclick="initiatePayment()"
                                 class="w-full relative overflow-hidden bg-gradient-to-r from-primary to-indigo-600 hover:from-primary hover:to-purple-600 text-white py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] shadow-xl shadow-primary/30 pulse-ring flex items-center justify-center gap-3">
                                 <span class="material-symbols-outlined">lock</span>
-                                <span id="payBtnText">Pay ₹500 Securely</span>
+                                <span id="payBtnText">Enter amount to pay</span>
                                 <div class="absolute inset-0 shimmer pointer-events-none"></div>
                             </button>
 
@@ -471,7 +471,7 @@
             })();
 
         // BASE_URL comes from /js/config.js
-        let selectedAmount = 50000; // Default 500 INR in paise
+        let selectedAmount = 0; // Initialize to 0
 
         // Read URL parameters and autofill form
         (async function autofillFromUrlParams() {
@@ -583,8 +583,12 @@
         // Update amount display
         function updateAmountDisplay() {
             const amountInRupees = selectedAmount / 100;
-            document.getElementById('displayAmount').textContent = `₹${amountInRupees.toLocaleString('en-IN')}`;
-            document.getElementById('payBtnText').textContent = `Pay ₹${amountInRupees.toLocaleString('en-IN')} Securely`;
+            if (selectedAmount > 0) {
+                // document.getElementById('displayAmount').textContent = `₹${amountInRupees.toLocaleString('en-IN')}`;
+                document.getElementById('payBtnText').textContent = `Pay ₹${amountInRupees.toLocaleString('en-IN')} Securely`;
+            } else {
+                document.getElementById('payBtnText').textContent = 'Enter amount to pay';
+            }
         }
 
         // Initiate Payment
@@ -592,17 +596,37 @@
             const payBtn = document.getElementById('payBtn');
             const payBtnText = document.getElementById('payBtnText');
 
+            // Validation checks
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+            const userPhone = document.getElementById('userPhone').value.trim();
+            const studentUid = document.getElementById('studentUid').value || '';
+
+            if (selectedAmount <= 0) {
+                showErrorModal('Please enter a valid payment amount.');
+                return;
+            }
+
+            if (!userName) {
+                showErrorModal('Please enter your full name.');
+                return;
+            }
+
+            if (!userEmail || !userEmail.includes('@')) {
+                showErrorModal('Please enter a valid email address.');
+                return;
+            }
+
+            if (!userPhone || userPhone.length < 10) {
+                showErrorModal('Please enter a valid 10-digit phone number.');
+                return;
+            }
+
             // Show loading state
             payBtn.disabled = true;
             payBtnText.textContent = 'Processing...';
 
             try {
-                // Get user info for creating order
-                const userName = document.getElementById('userName').value || 'Customer';
-                const userEmail = document.getElementById('userEmail').value || '';
-
-                // Get studentUid from hidden field (populated from URL params on page load)
-                const studentUid = document.getElementById('studentUid').value || '';
                 console.log('Sending payment with Student UID:', studentUid);
 
                 // Create order on backend with student details

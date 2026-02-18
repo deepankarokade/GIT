@@ -104,6 +104,7 @@
                                         Class ID</th>
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Class Name</th>
+
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Description</th>
                                     <th
@@ -160,6 +161,7 @@
                         class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                         placeholder="e.g., 10th Standard" />
                 </div>
+
                 <div class="space-y-2">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
                     <textarea id="classDescriptionInput"
@@ -200,6 +202,7 @@
                         class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                         placeholder="e.g., 10th Standard" />
                 </div>
+
                 <div class="space-y-2">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
                     <textarea id="editClassDescriptionInput"
@@ -242,6 +245,8 @@
             } catch (e) { showNotification('Failed to load classes', 'error'); }
         }
 
+
+
         function renderClasses(classes) {
             const tbody = document.getElementById('classesTableBody');
             if (classes.length === 0) {
@@ -254,6 +259,7 @@
                     <td class="px-6 py-4 text-sm font-medium text-gray-500">${idx + 1}</td>
                     <td class="px-6 py-4 text-sm font-medium text-primary bg-primary/5 rounded px-2 py-1 inline-block mt-3 ml-6">${c.classId || 'N/A'}</td>
                     <td class="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">${c.className}</td>
+
                     <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">${c.classDescription || '-'}</td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <button onclick='openEditModal(${c.id})' class="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors">
@@ -331,6 +337,7 @@
             document.getElementById('editClassId').value = id;
             document.getElementById('editClassNameInput').value = classObj.className;
             document.getElementById('editClassDescriptionInput').value = classObj.classDescription || '';
+
             document.getElementById('editClassModal').classList.remove('hidden');
         }
 

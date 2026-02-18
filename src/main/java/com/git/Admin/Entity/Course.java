@@ -41,6 +41,10 @@ public class Course {
     @JoinTable(name = "course_subjects", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private List<Subject> subjects;
 
+    @ManyToMany
+    @JoinTable(name = "course_exam_sets", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "exam_set_id"))
+    private List<ExamSet> examSets;
+
     @Column(nullable = false)
     private String batchDescription;
 
@@ -124,5 +128,13 @@ public class Course {
 
     public void setQuestionTypes(Set<QuestionType> questionTypes) {
         this.questionTypes = questionTypes;
+    }
+
+    public List<ExamSet> getExamSets() {
+        return examSets;
+    }
+
+    public void setExamSets(List<ExamSet> examSets) {
+        this.examSets = examSets;
     }
 }

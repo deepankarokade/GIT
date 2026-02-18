@@ -59,31 +59,65 @@
                         </div>
                     </div>
                 </div>
+                <!-- Search and Filters -->
                 <div
-                    class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 flex flex-wrap gap-4 items-center">
-                    <div class="flex-1 min-w-[300px] relative">
-                        <span
-                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                        <input
-                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary dark:placeholder-slate-500"
-                            placeholder="Search by name, UID, or email..." type="text" />
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl mb-6 overflow-hidden shadow-sm">
+                    <div class="p-4 flex flex-col lg:flex-row gap-4">
+                        <!-- Search Box -->
+                        <div class="flex-1 lg:max-w-md xl:max-w-xl">
+                            <label class="relative flex w-full group">
+                                <div
+                                    class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none transition-colors group-focus-within:text-primary">
+                                    <span
+                                        class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                                </div>
+                                <input id="studentSearchInput"
+                                    class="w-full h-11 rounded-xl border-none bg-slate-50 dark:bg-slate-800/50 pl-11 pr-4 text-sm text-[#111318] dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-primary transition-all"
+                                    placeholder="Search by name, UID, or email..." type="text" />
+                            </label>
+                        </div>
+
+                        <!-- Responsive Filters Grid -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-row gap-3 w-full lg:w-auto items-center">
+                            <div class="relative w-full lg:w-44">
+                                <select id="departmentFilter" onchange="applyFilters()"
+                                    class="w-full h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 px-4 pr-10 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="">All Courses</option>
+                                    <!-- Courses loaded dynamically -->
+                                </select>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <span class="material-symbols-outlined text-xl">expand_more</span>
+                                </div>
+                            </div>
+
+                            <div class="relative w-full lg:w-40">
+                                <select id="statusFilter" onchange="applyFilters()"
+                                    class="w-full h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 px-4 pr-10 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="">All Status</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                </select>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <span class="material-symbols-outlined text-xl">expand_more</span>
+                                </div>
+                            </div>
+
+                            <div class="relative w-full lg:w-40">
+                                <select id="classFilter" onchange="applyFilters()"
+                                    class="w-full h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 px-4 pr-10 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="">All Classes</option>
+                                    <!-- Classes loaded dynamically -->
+                                </select>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <span class="material-symbols-outlined text-xl">expand_more</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <select id="departmentFilter" onchange="applyFilters()"
-                        class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm px-4 py-2.5 min-w-[160px] focus:ring-2 focus:ring-primary">
-                        <option value="">All Courses</option>
-                        <!-- Courses loaded dynamically -->
-                    </select>
-                    <select id="statusFilter" onchange="applyFilters()"
-                        class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm px-4 py-2.5 min-w-[140px] focus:ring-2 focus:ring-primary">
-                        <option value="">All Status</option>
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                    </select>
-                    <select id="classFilter" onchange="applyFilters()"
-                        class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm px-4 py-2.5 min-w-[140px] focus:ring-2 focus:ring-primary">
-                        <option value="">All Classes</option>
-                        <!-- Classes loaded dynamically -->
-                    </select>
                 </div>
                 <div
                     class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
@@ -122,21 +156,13 @@
                     <div
                         class="px-6 py-4 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                         <p class="text-sm text-slate-500 dark:text-slate-400">
-                            Showing <span class="font-semibold text-slate-900 dark:text-white">1</span> to <span
-                                class="font-semibold text-slate-900 dark:text-white">4</span> of <span
-                                class="font-semibold text-slate-900 dark:text-white">4</span> results
+                            Showing <span id="showingFrom" class="font-semibold text-slate-900 dark:text-white">0</span>
+                            to <span id="showingTo" class="font-semibold text-slate-900 dark:text-white">0</span> of
+                            <span id="totalRecords" class="font-semibold text-slate-900 dark:text-white">0</span>
+                            results
                         </p>
-                        <div class="flex items-center gap-2">
-                            <button
-                                class="p-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 cursor-not-allowed">
-                                <span class="material-symbols-outlined">chevron_left</span>
-                            </button>
-                            <button
-                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium">1</button>
-                            <button
-                                class="p-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <span class="material-symbols-outlined">chevron_right</span>
-                            </button>
+                        <div id="paginationControls" class="flex items-center gap-2">
+                            <!-- Pagination buttons will be generated here -->
                         </div>
                     </div>
                 </div>
@@ -152,6 +178,9 @@
 
         // Store all students for filtering
         let allStudents = [];
+        let filteredStudents = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         // Load courses for department filter dropdown
         async function loadCoursesForFilter() {
@@ -304,9 +333,20 @@
             `;
         }
 
-        // Function to render student rows
+        // Function to render student rows with pagination
         function renderStudents(students) {
-            if (!students || students.length === 0) {
+            const tbody = document.getElementById('studentsTableBody');
+            const totalItems = students.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            // Bounds check
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const paginatedStudents = students.slice(startIndex, endIndex);
+
+            if (!paginatedStudents || paginatedStudents.length === 0) {
                 studentsTableBody.innerHTML = `
                     <tr>
                         <td colspan="7" class="px-6 py-12 text-center">
@@ -368,6 +408,63 @@
                     </td>
                 </tr>
             `).join('');
+
+            updatePaginationControls(totalItems);
+        }
+
+        // Update pagination numbers and text
+        function updatePaginationControls(totalItems) {
+            const paginationControls = document.getElementById('paginationControls');
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            // Update range text
+            const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(currentPage * itemsPerPage, totalItems);
+            document.getElementById('showingFrom').textContent = start;
+            document.getElementById('showingTo').textContent = end;
+            document.getElementById('totalRecords').textContent = totalItems;
+
+            // Generate buttons
+            let buttonsHtml = `
+                <button onclick="changePage(${currentPage - 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+            `;
+
+            // Page numbers (showing max 5 around current page)
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                buttonsHtml += `
+                    <button onclick="changePage(${i})" 
+                        class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${i === currentPage ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage + 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+            `;
+
+            paginationControls.innerHTML = buttonsHtml;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderStudents(filteredStudents);
+            // Scroll to top of table
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Fetch all students
@@ -414,13 +511,13 @@
 
         // Apply filters function
         function applyFilters() {
-            const searchInput = document.querySelector('input[placeholder*="Search"]');
+            const searchInput = document.getElementById('studentSearchInput');
             const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const departmentFilter = document.getElementById('departmentFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
             const classFilterValue = document.getElementById('classFilter').value;
 
-            const filteredStudents = allStudents.filter(student => {
+            filteredStudents = allStudents.filter(student => {
                 // Search filter
                 const matchesSearch = !searchTerm ||
                     (student.fullName && student.fullName.toLowerCase().includes(searchTerm)) ||
@@ -442,12 +539,13 @@
                 return matchesSearch && matchesDepartment && matchesStatus && matchesClass;
             });
 
+            currentPage = 1; // Reset to page 1 on filter
             renderStudents(filteredStudents);
         }
 
         // Add search input listener
         document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.querySelector('input[placeholder*="Search"]');
+            const searchInput = document.getElementById('studentSearchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', applyFilters);
             }

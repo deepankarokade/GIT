@@ -67,7 +67,7 @@
                 <label class="text-sm font-semibold text-[#111318] dark:text-white/80 px-1">Full Name</label>
                 <input id="fullName"
                   class="w-full rounded-lg border-[#f0f2f4] dark:border-white/10 bg-[#f9fafb] dark:bg-white/5 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                  type="text" value="" placeholder="Loading name..." aria-busy="true" />
+                  type="text" value="" placeholder="Enter First and Last Name" />
               </div>
               <div class="space-y-2">
                 <label class="text-sm font-semibold text-[#111318] dark:text-white/80 px-1">UID (Unique ID)</label>
@@ -81,7 +81,7 @@
                 <label class="text-sm font-semibold text-[#111318] dark:text-white/80 px-1">Contact Number</label>
                 <input id="phoneInput"
                   class="w-full rounded-lg border-[#f0f2f4] dark:border-white/10 bg-[#f9fafb] dark:bg-white/5 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                  type="tel" value="+1 (555) 123-4567" />
+                  type="tel" placeholder="10-digit number" minlength="10" maxlength="10" pattern="[0-9]{10}" />
               </div>
               <div class="space-y-2">
                 <label class="text-sm font-semibold text-[#111318] dark:text-white/80 px-1">Email Address</label>
@@ -127,7 +127,9 @@
                 <div class="relative">
                   <input id="newPassword"
                     class="w-full rounded-lg border-[#f0f2f4] dark:border-white/10 bg-[#f9fafb] dark:bg-white/5 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                    placeholder="Min 8 characters" type="password" />
+                    placeholder="8-15 alphanumeric characters" type="password" minlength="8" maxlength="15"
+                    pattern="(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}"
+                    title="Password must be alphanumeric (contain both letters and numbers) and between 8 to 15 characters" />
                   <span id="toggleNewPassword"
                     class="material-symbols-outlined absolute right-3 top-3 text-[#616f89] cursor-pointer text-xl hover:text-primary transition-colors">visibility</span>
                 </div>
@@ -139,15 +141,17 @@
                 <div class="relative">
                   <input id="confirmPassword"
                     class="w-full rounded-lg border-[#f0f2f4] dark:border-white/10 bg-[#f9fafb] dark:bg-white/5 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                    placeholder="Re-enter password" type="password" />
+                    placeholder="Re-enter password" type="password" minlength="8" maxlength="15"
+                    pattern="(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}"
+                    title="Password must be alphanumeric (contain both letters and numbers) and between 8 to 15 characters" />
                   <span id="toggleConfirmPassword"
                     class="material-symbols-outlined absolute right-3 top-3 text-[#616f89] cursor-pointer text-xl hover:text-primary transition-colors">visibility</span>
                 </div>
               </div>
               <div class="p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <p class="text-xs text-[#111318] dark:text-white/70 leading-relaxed">
-                  <strong>Pro tip:</strong> A secure password should contain at least one uppercase letter, one
-                  lowercase letter, one number, and one special character.
+                  <strong>Pro tip:</strong> Password must be alphanumeric (must contain both letters and numbers) and
+                  between 8 and 15 characters long.
                 </p>
               </div>
               <div class="pt-4 border-t border-[#f0f2f4] dark:border-white/10 flex justify-end">
@@ -258,18 +262,26 @@
 
       const name = nameInput.value.trim();
       const rawPhoneNumber = phoneInput.value.trim();
+      const email = emailInput.value.trim();
 
-      if (!name || !rawPhoneNumber) {
-        alert("Name and phone number cannot be empty");
+      // 1. Validation for Name (at least 2 words)
+      const nameRegex = /^\s*\S+\s+\S+.*$/;
+      if (!nameRegex.test(name)) {
+        alert("Full Name must consist of both first and last name.");
         return;
       }
 
-      // normalize phone to digits-only for backend Long parsing
-      const phoneNumber = rawPhoneNumber.replace(/\D/g, '');
+      // 2. Validation for Email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
 
-      // basic validation: ensure we have digits in a reasonable length
-      if (!/^\d{6,15}$/.test(phoneNumber)) {
-        alert("Please enter a valid phone number (digits only)");
+      // 3. Validation for Phone (exactly 10 digits)
+      const phoneNumber = rawPhoneNumber.replace(/\D/g, '');
+      if (phoneNumber.length !== 10) {
+        alert("Phone number must be exactly 10 digits.");
         return;
       }
 
@@ -301,8 +313,7 @@
         }
 
         // UPDATE EMAIL
-        const email = emailInput.value.trim();
-        const emailRes = await fetch(
+        const emailUpdateRes = await fetch(
           `${BASE_URL}/admin/profile/${uid}/email`,
           {
             method: "PUT",
@@ -311,9 +322,9 @@
           }
         );
 
-        if (!emailRes.ok) {
-          const text = await emailRes.text();
-          throw new Error("Email update failed: " + emailRes.status + " " + text);
+        if (!emailUpdateRes.ok) {
+          const text = await emailUpdateRes.text();
+          throw new Error("Email update failed: " + emailUpdateRes.status + " " + text);
         }
 
         // UPDATE ADDRESS
@@ -449,8 +460,15 @@
         return;
       }
 
+      // Alphanumeric validation: letters and numbers required, 8-15 total
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}$/;
+      if (!passwordRegex.test(newPassword)) {
+        alert("New password must be alphanumeric (contain both letters and numbers) and between 8 to 15 characters long.");
+        return;
+      }
+
       if (newPassword !== confirmPassword) {
-        alert("Passwords do not match");
+        alert("New passwords do not match");
         return;
       }
 
@@ -464,7 +482,10 @@
           })
         });
 
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          const errorMsg = await res.text();
+          throw new Error(errorMsg || "Failed to change password");
+        }
 
         alert("Password changed successfully");
 
@@ -472,8 +493,8 @@
         document.getElementById("newPassword").value = "";
         document.getElementById("confirmPassword").value = "";
 
-      } catch {
-        alert("Failed to change password");
+      } catch (e) {
+        alert(e.message || "Failed to change password. Please check your current password.");
       }
     });
 

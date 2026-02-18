@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/student-sidebar-fragment :: Head}">
+</head>
+
+<body>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem=${activeItem})}"></aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <div class="p-8 max-w-[1200px] mx-auto w-full flex flex-col gap-8">
+                <!-- Page Header -->
+                <div
+                    class="flex justify-between items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Exam Overview</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Track and manage your examination
+                            progress</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined">quiz</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Previous -->
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-2">
+                            <h5
+                                class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                <span class="material-symbols-outlined text-sm">history</span> Previous Exams
+                            </h5>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"
+                                th:text="${#lists.size(pastExams)}">0</span>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <div th:each="e : ${pastExams}"
+                                class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-slate-300 transition-all group">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span
+                                        class="text-base font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors"
+                                        th:text="${e.title}">Weekly Quiz 1</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-500 mb-4">
+                                    <span
+                                        class="material-symbols-outlined text-sm text-slate-400">event_available</span>
+                                    <span th:text="${e.examDate}">Oct 24, 2023</span>
+                                </div>
+                                <a href="/student/exams/past"
+                                    class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                                    View Results
+                                </a>
+                            </div>
+                            <div th:if="${#lists.isEmpty(pastExams)}"
+                                class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-dashed border-slate-200 dark:border-slate-800 text-center">
+                                <p class="text-slate-400 text-sm italic">No exam history found.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current -->
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-2">
+                            <h5
+                                class="flex items-center gap-2 text-xs font-bold text-teal-600 uppercase tracking-widest">
+                                <span class="material-symbols-outlined text-sm animate-pulse">bolt</span> Current
+                            </h5>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-600"
+                                th:text="${#lists.size(currentExams)}">0</span>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <div th:each="e : ${currentExams}"
+                                class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-teal-100 dark:border-teal-900/30 hover:shadow-md transition-all relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-2">
+                                    <span class="flex h-2 w-2 rounded-full bg-teal-500 animate-ping"></span>
+                                </div>
+                                <span class="text-base font-bold text-slate-900 dark:text-white block mb-2"
+                                    th:text="${e.title}">Midterm Quiz</span>
+                                <div class="flex items-center gap-2 text-xs text-slate-500 mb-4">
+                                    <span class="material-symbols-outlined text-sm text-teal-500">schedule</span>
+                                    <span th:text="${e.startTime + ' - ' + e.endTime}">09:00 - 10:00</span>
+                                </div>
+                                <a th:href="@{/student/exams/current}"
+                                    class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition-all shadow-sm shadow-teal-200 dark:shadow-none">
+                                    Go to Live Portal
+                                </a>
+                            </div>
+                            <div th:if="${#lists.isEmpty(currentExams)}"
+                                class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400">
+                                <p class="text-sm italic">No live exams scheduled.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Future -->
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-2">
+                            <h5
+                                class="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-widest">
+                                <span class="material-symbols-outlined text-sm">calendar_month</span> Upcoming
+                            </h5>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600"
+                                th:text="${#lists.size(futureExams)}">0</span>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <div th:each="e : ${futureExams}"
+                                class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all group">
+                                <span class="text-base font-bold text-slate-900 dark:text-white block mb-2"
+                                    th:text="${e.title}">Final Exam</span>
+                                <div class="flex items-center gap-2 text-xs text-slate-500 mb-4">
+                                    <span class="material-symbols-outlined text-sm text-amber-500">event</span>
+                                    <span th:text="${e.examDate}">Nov 15, 2023</span>
+                                </div>
+                                <a href="/student/exams/future"
+                                    class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-amber-200 dark:border-amber-900/30 text-amber-600 dark:text-amber-500 font-bold text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all">
+                                    View Schedule
+                                </a>
+                            </div>
+                            <div th:if="${#lists.isEmpty(futureExams)}"
+                                class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-8 border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400">
+                                <p class="text-sm italic">No upcoming exams.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Removed redundant Bootstrap script -->
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

@@ -43,17 +43,13 @@ public class ManageExamTypeService {
 
 	// CREATE Exam Type
 	public ManageExamType createExamType(ManageExamType examType) {
-		if (examTypeRepository.existsByExamTypeId(examType.getExamTypeId())) {
-			throw new RuntimeException("Exam Type ID already exists: " + examType.getExamTypeId());
-		}
+		examType.setExamTypeId(generateExamTypeUid());
 		return examTypeRepository.save(examType);
 	}
 
 	// CREATE Exam Type with Course ID
 	public ManageExamType createExamTypeWithCourse(ManageExamType examType, Long courseId) {
-		if (examTypeRepository.existsByExamTypeId(examType.getExamTypeId())) {
-			throw new RuntimeException("Exam Type ID already exists: " + examType.getExamTypeId());
-		}
+		examType.setExamTypeId(generateExamTypeUid());
 
 		if (courseId != null) {
 			Course course = courseRepository.findById(courseId)
@@ -62,6 +58,23 @@ public class ManageExamTypeService {
 		}
 
 		return examTypeRepository.save(examType);
+	}
+
+	private String generateExamTypeUid() {
+		return examTypeRepository.findTopByOrderByIdDesc()
+				.map(last -> {
+					String lastUid = last.getExamTypeId();
+					if (lastUid != null && lastUid.startsWith("EXAM_")) {
+						try {
+							int lastNumber = Integer.parseInt(lastUid.substring(5));
+							return String.format("EXAM_%04d", lastNumber + 1);
+						} catch (NumberFormatException e) {
+							return String.format("EXAM_%04d", last.getId() + 1);
+						}
+					}
+					return String.format("EXAM_%04d", last.getId() + 1);
+				})
+				.orElse("EXAM_0001");
 	}
 
 	// UPDATE Exam Type

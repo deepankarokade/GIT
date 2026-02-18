@@ -23,7 +23,7 @@ public class SectionController {
     public ResponseEntity<?> addSection(@RequestBody SectionRequest request) {
         try {
             Section savedSection = sectionService.addSection(request.getSectionName(),
-                    request.getSectionDescription());
+                    request.getSectionDescription(), request.getClassId(), request.getCourseId());
             return ResponseEntity.ok(savedSection);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -40,7 +40,7 @@ public class SectionController {
     public ResponseEntity<?> updateSection(@PathVariable Long id, @RequestBody SectionRequest request) {
         try {
             Section updatedSection = sectionService.updateSection(id, request.getSectionName(),
-                    request.getSectionDescription());
+                    request.getSectionDescription(), request.getClassId(), request.getCourseId());
             return ResponseEntity.ok(updatedSection);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -50,6 +50,8 @@ public class SectionController {
     public static class SectionRequest {
         private String sectionName;
         private String sectionDescription;
+        private Long classId;
+        private Long courseId;
 
         public String getSectionName() {
             return sectionName;
@@ -65,6 +67,22 @@ public class SectionController {
 
         public void setSectionDescription(String sectionDescription) {
             this.sectionDescription = sectionDescription;
+        }
+
+        public Long getClassId() {
+            return classId;
+        }
+
+        public void setClassId(Long classId) {
+            this.classId = classId;
+        }
+
+        public Long getCourseId() {
+            return courseId;
+        }
+
+        public void setCourseId(Long courseId) {
+            this.courseId = courseId;
         }
     }
 }

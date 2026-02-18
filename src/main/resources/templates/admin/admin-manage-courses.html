@@ -138,7 +138,7 @@
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Class</th>
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
-                                        Batch Description</th>
+                                        Course Description</th>
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
                                         Course Type</th>
                                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500">
@@ -192,14 +192,6 @@
             <form id="addCourseForm" class="flex flex-col max-h-[85vh]">
                 <div class="p-6 space-y-5 overflow-y-auto flex-1">
                     <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course ID <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" id="courseIdInput" required
-                            class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                            placeholder="e.g., JEE-001" />
-                        <p class="text-xs text-gray-500">Unique identifier for the course</p>
-                    </div>
-                    <div class="space-y-2">
                         <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course Name <span
                                 class="text-red-500">*</span></label>
                         <input type="text" id="courseNameInput" required
@@ -215,7 +207,7 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Batch Description <span
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course Description <span
                                 class="text-red-500">*</span></label>
                         <input type="text" id="batchDescriptionInput" required
                             class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
@@ -237,6 +229,14 @@
                         <div id="subjectList"
                             class="grid grid-cols-1 gap-1 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 max-h-40 overflow-y-auto">
                             <div class="text-center py-2 text-xs text-gray-500 italic">No subjects available</div>
+                        </div>
+                    </div>
+                    <!-- Set Selection -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Map Exam Sets</label>
+                        <div id="setList"
+                            class="grid grid-cols-1 gap-1 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 max-h-40 overflow-y-auto">
+                            <div class="text-center py-2 text-xs text-gray-500 italic">No sets available</div>
                         </div>
                     </div>
                 </div>
@@ -297,12 +297,6 @@
                 <div class="p-6 space-y-5 overflow-y-auto flex-1">
                     <input type="hidden" id="editCourseDbId" />
                     <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course ID <span
-                                class="text-red-500">*</span></label>
-                        <input type="text" id="editCourseIdInput" required
-                            class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                    </div>
-                    <div class="space-y-2">
                         <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course Name <span
                                 class="text-red-500">*</span></label>
                         <input type="text" id="editCourseNameInput" required
@@ -317,7 +311,7 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Batch Description <span
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Course Description <span
                                 class="text-red-500">*</span></label>
                         <input type="text" id="editBatchDescriptionInput" required
                             class="w-full h-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 text-gray-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
@@ -354,6 +348,14 @@
                         <div id="editSubjectList"
                             class="grid grid-cols-1 gap-1 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 max-h-40 overflow-y-auto">
                             <div class="text-center py-2 text-xs text-gray-500 italic">No subjects available</div>
+                        </div>
+                    </div>
+                    <!-- Edit Set Selection -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Map Exam Sets</label>
+                        <div id="editSetList"
+                            class="grid grid-cols-1 gap-1 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 max-h-40 overflow-y-auto">
+                            <div class="text-center py-2 text-xs text-gray-500 italic">No sets available</div>
                         </div>
                     </div>
                 </div>
@@ -466,7 +468,7 @@
                                 title="Edit Course">
                                 <span class="material-symbols-outlined text-lg">edit</span>
                             </button>
-                            <button onclick="deleteCourse('${course.courseId}', '${course.courseName}')" 
+                            <button onclick="deleteCourse(${course.id}, '${course.courseName}')" 
                                 class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-gray-500 hover:text-red-500 transition-colors"
                                 title="Delete Course">
                                 <span class="material-symbols-outlined text-lg">delete</span>
@@ -515,7 +517,6 @@
         // Modal functions
         async function openAddModal() {
             document.getElementById('addCourseModal').classList.remove('hidden');
-            document.getElementById('courseIdInput').value = '';
             document.getElementById('courseNameInput').value = '';
             document.getElementById('batchDescriptionInput').value = '';
             document.getElementById('courseTypeSelect').value = '';
@@ -523,6 +524,38 @@
             document.querySelectorAll('input[name="selectedQuestionTypes"]').forEach(cb => cb.checked = false);
             await loadClassesIntoDropdowns();
             await loadAvailableSubjects();
+            await loadAvailableSets();
+        }
+
+        async function loadAvailableSets() {
+            const setList = document.getElementById('setList');
+            setList.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">Loading sets...</div>';
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/api/exam-set`);
+                if (response.ok) {
+                    const sets = await response.json();
+                    if (sets.length > 0) {
+                        setList.innerHTML = sets.map(s => `
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors group">
+                                <input type="checkbox" name="selectedSets" value="${s.id}" 
+                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700" />
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">${s.setName}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${s.setId}</span>
+                                </div>
+                            </label>
+                        `).join('');
+                    } else {
+                        setList.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">No sets found. Create some first!</div>';
+                    }
+                } else {
+                    setList.innerHTML = '<div class="text-xs text-red-500 text-center py-2">Error loading sets</div>';
+                }
+            } catch (error) {
+                console.error('Error fetching sets:', error);
+                setList.innerHTML = '<div class="text-xs text-red-500 text-center py-2">Network error</div>';
+            }
         }
 
         async function loadAvailableSubjects() {
@@ -575,14 +608,14 @@
         document.getElementById('addCourseForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const courseId = document.getElementById('courseIdInput').value.trim();
             const courseName = document.getElementById('courseNameInput').value.trim();
             const studentClass = document.getElementById('courseClassSelect').value;
             const courseType = document.getElementById('courseTypeSelect').value;
             const selectedSubjectIds = Array.from(document.querySelectorAll('input[name="selectedSubjects"]:checked')).map(cb => parseInt(cb.value));
+            const selectedSetIds = Array.from(document.querySelectorAll('input[name="selectedSets"]:checked')).map(cb => parseInt(cb.value));
             const selectedQuestionTypes = Array.from(document.querySelectorAll('input[name="selectedQuestionTypes"]:checked')).map(cb => cb.value);
 
-            if (!courseId || !courseName || !studentClass || !courseType) {
+            if (!courseName || !studentClass || !courseType) {
                 showNotification('Please fill in all required fields', 'error');
                 return;
             }
@@ -594,13 +627,13 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        courseId: courseId,
                         courseName: courseName,
                         studentClass: studentClass,
                         batchDescription: document.getElementById('batchDescriptionInput').value.trim(),
                         courseType: courseType,
                         questionTypes: selectedQuestionTypes,
-                        subjectIds: selectedSubjectIds
+                        subjectIds: selectedSubjectIds,
+                        setIds: selectedSetIds
                     })
                 });
 
@@ -621,7 +654,6 @@
         // Edit Course Modal and Logic
         async function openEditModal(course) {
             document.getElementById('editCourseDbId').value = course.id;
-            document.getElementById('editCourseIdInput').value = course.courseId;
             document.getElementById('editCourseNameInput').value = course.courseName;
             document.getElementById('editBatchDescriptionInput').value = course.batchDescription || '';
             document.getElementById('editCourseTypeSelect').value = course.courseType || '';
@@ -643,6 +675,38 @@
 
             document.getElementById('editCourseModal').classList.remove('hidden');
             await loadEditSubjects(course.subjects || []);
+            await loadEditSets(course.examSets || []);
+        }
+
+        async function loadEditSets(selectedSets) {
+            const setList = document.getElementById('editSetList');
+            setList.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">Loading sets...</div>';
+
+            const selectedIds = selectedSets.map(s => s.id);
+
+            try {
+                const response = await fetch(`${BASE_URL}/admin/api/exam-set`);
+                if (response.ok) {
+                    const sets = await response.json();
+                    if (sets.length > 0) {
+                        setList.innerHTML = sets.map(s => `
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 cursor-pointer transition-colors group">
+                                <input type="checkbox" name="editSelectedSets" value="${s.id}" 
+                                    ${selectedIds.includes(s.id) ? 'checked' : ''}
+                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700" />
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">${s.setName}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">${s.setId}</span>
+                                </div>
+                            </label>
+                        `).join('');
+                    } else {
+                        setList.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">No sets found.</div>';
+                    }
+                }
+            } catch (e) {
+                setList.innerHTML = '<div class="text-xs text-red-500 text-center py-2">Error loading sets</div>';
+            }
         }
 
         async function loadEditSubjects(selectedSubjects) {
@@ -683,15 +747,15 @@
         document.getElementById('editCourseForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const id = document.getElementById('editCourseDbId').value;
-            const courseId = document.getElementById('editCourseIdInput').value;
             const name = document.getElementById('editCourseNameInput').value;
             const studentClass = document.getElementById('editCourseClassSelect').value;
             const courseType = document.getElementById('editCourseTypeSelect').value;
             const active = document.querySelector('input[name="courseStatus"]:checked').value === 'true';
             const subjectIds = Array.from(document.querySelectorAll('input[name="editSelectedSubjects"]:checked')).map(cb => parseInt(cb.value));
+            const setIds = Array.from(document.querySelectorAll('input[name="editSelectedSets"]:checked')).map(cb => parseInt(cb.value));
             const questionTypes = Array.from(document.querySelectorAll('input[name="editSelectedQuestionTypes"]:checked')).map(cb => cb.value);
 
-            if (!courseId || !name || !studentClass || !courseType) {
+            if (!name || !studentClass || !courseType) {
                 showNotification('Please fill in all required fields', 'error');
                 return;
             }
@@ -701,14 +765,14 @@
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        courseId: courseId,
                         courseName: name,
                         studentClass: studentClass,
                         batchDescription: document.getElementById('editBatchDescriptionInput').value.trim(),
                         active: active,
                         courseType: courseType,
                         questionTypes: questionTypes,
-                        subjectIds: subjectIds
+                        subjectIds: subjectIds,
+                        setIds: setIds
                     })
                 });
 

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Support Tickets - ExamPortal</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f766e",
+                        secondary: "#6366f1",
+                        "background-light": "#f0fdfa",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #ededed;
+            background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='support', expandItem='')}">
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <!-- Previous Tickets Content -->
+            <div class="p-8 max-w-[1000px] mx-auto w-full flex flex-col gap-6">
+                <!-- Page Header -->
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-4">
+                        <a href="/support-ticket/form"
+                            class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                        </a>
+                        <div>
+                            <h1 class="text-slate-900 dark:text-white text-2xl font-bold">My Support Tickets</h1>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">View and track your previous support
+                                requests</p>
+                        </div>
+                    </div>
+                    <a href="/support-ticket/form"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40">
+                        <span class="material-symbols-outlined text-lg">add</span>
+                        New Ticket
+                    </a>
+                </div>
+
+                <!-- Tickets List -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div th:if="${#lists.isEmpty(tickets)}" class="p-12 text-center">
+                        <div
+                            class="size-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 mx-auto mb-4">
+                            <span class="material-symbols-outlined text-3xl">confirmation_number</span>
+                        </div>
+                        <h3 class="text-slate-900 dark:text-white font-bold text-lg">No tickets found</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">You haven't raised any support
+                            tickets yet.</p>
+                    </div>
+
+                    <div th:if="${tickets != null and !#lists.isEmpty(tickets)}" class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-800/50">
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Support Type</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Subject</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Status</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Date</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-right">Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr th:each="ticket : ${tickets}"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white"
+                                        th:text="'#' + ${ticket.ticketId}"></td>
+                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"
+                                        th:text="${ticket.ticketType}"></td>
+                                    <td class="px-6 py-4">
+                                        <p class="text-sm font-semibold text-slate-900 dark:text-white"
+                                            th:text="${ticket.subject}"></p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]"
+                                            th:text="${ticket.description}"></p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            th:class="${ticket.status == 'OPEN' ? 'bg-blue-500/10 text-blue-500' : 
+                                                       (ticket.status == 'RESOLVED' ? 'bg-green-500/10 text-green-500' : 'bg-slate-500/10 text-slate-500')}"
+                                            class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                                            th:text="${ticket.status}"></span>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-slate-500 dark:text-slate-400"
+                                        th:text="${#temporals.format(ticket.createdDate, 'dd MMM yyyy')}"></td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button th:onclick="'toggleDetails(' + ${ticket.ticketId} + ')'"
+                                            class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-all"
+                                            title="View Details">
+                                            <span class="material-symbols-outlined text-xl">visibility</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- Detailed Rows (Hidden by default) -->
+                                <tr th:each="ticket : ${tickets}" th:id="'details-' + ${ticket.ticketId}"
+                                    class="hidden bg-slate-50/50 dark:bg-slate-800/20">
+                                    <td colspan="6" class="px-8 py-6">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <h4
+                                                        class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                                        Issue Description</h4>
+                                                    <p class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line"
+                                                        th:text="${ticket.description}"></p>
+                                                </div>
+                                                <div th:if="${ticket.screenshotPath}">
+                                                    <h4
+                                                        class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                                                        Screenshot</h4>
+                                                    <a th:href="'/' + ${ticket.screenshotPath}" target="_blank"
+                                                        class="inline-block rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 hover:ring-2 hover:ring-primary transition-all">
+                                                        <img th:src="'/' + ${ticket.screenshotPath}" alt="Screenshot"
+                                                            class="max-h-40 w-auto object-contain bg-white">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-4">
+                                                <div th:if="${ticket.adminResponse}"
+                                                    class="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                                                    <div class="flex items-center gap-2 mb-2 text-primary">
+                                                        <span class="material-symbols-outlined text-lg">reply</span>
+                                                        <h4 class="text-xs font-bold uppercase tracking-widest">Support
+                                                            Response</h4>
+                                                    </div>
+                                                    <p class="text-sm text-slate-700 dark:text-slate-300"
+                                                        th:text="${ticket.adminResponse}"></p>
+                                                    <p class="text-[10px] text-slate-500 mt-2 italic"
+                                                        th:text="'Responded on: ' + ${#temporals.format(ticket.adminResponseDate, 'dd MMM yyyy, hh:mm a')}">
+                                                    </p>
+                                                </div>
+                                                <div th:unless="${ticket.adminResponse}"
+                                                    class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                                                    <p class="text-sm text-slate-500 italic">Awaiting response from our
+                                                        support team...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <footer th:replace="~{fragments/student-sidebar-fragment :: Footer}"></footer>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        function toggleDetails(ticketId) {
+            const row = document.getElementById('details-' + ticketId);
+            if (row.classList.contains('hidden')) {
+                // Close other details first
+                document.querySelectorAll('[id^="details-"]').forEach(el => el.classList.add('hidden'));
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        }
+
+        // Submenu toggle function (re-declared for safety if needed, though usually in Scripts fragment)
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const icon = document.getElementById(submenuId + 'Icon');
+
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                submenu.classList.add('flex');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                submenu.classList.add('hidden');
+                submenu.classList.remove('flex');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleProfileMenu() {
+            document.getElementById("profileMenu").classList.toggle("hidden");
+        }
+
+        document.addEventListener("click", function (e) {
+            const menu = document.getElementById("profileMenu");
+            const avatar = e.target.closest(".rounded-full");
+
+            if (menu && !menu.contains(e.target) && !avatar) {
+                menu.classList.add("hidden");
+            }
+        });
+
+        // Auto-open support submenu if on this page
+        window.onload = function () {
+            const supportSubmenu = document.getElementById('supportSubmenu');
+            const supportSubmenuIcon = document.getElementById('supportSubmenuIcon');
+            if (supportSubmenu) {
+                supportSubmenu.classList.remove('hidden');
+                supportSubmenu.classList.add('flex');
+                if (supportSubmenuIcon) supportSubmenuIcon.style.transform = 'rotate(180deg)';
+            }
+        };
+    </script>
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

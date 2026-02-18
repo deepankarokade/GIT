@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Syllabus Management Dashboard</title>
+    <!-- Tailwind CSS v3 CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Manrope & Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Noto+Sans:wght@400;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <!-- BEGIN: Tailwind Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1f8aad",
+                        "background-light": "#f8fbfb",
+                        "background-dark": "#121d20",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- END: Tailwind Configuration -->
+    <!-- BEGIN: Custom Styles -->
+    <style data-purpose="layout-typography">
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1f8aad;
+            border-radius: 10px;
+        }
+
+        @layer components {
+            .btn-action {
+                @apply p-2 rounded-lg transition-colors flex items-center justify-center;
+            }
+        }
+    </style>
+    <!-- END: Custom Styles -->
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#0f171a] dark:text-white transition-colors duration-200">
+    <div class="min-h-screen flex flex-col">
+        <!-- BEGIN: MainHeader -->
+        <header
+            class="border-b border-[#e8f0f2] dark:border-slate-800 bg-white dark:bg-background-dark sticky top-0 z-10">
+            <div class="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="/materials/list"
+                        class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
+                        title="Back to Hub">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </a>
+                    <div class="flex items-center gap-3">
+                        <div class="bg-primary size-8 rounded-lg flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined text-xl">menu_book</span>
+                        </div>
+                        <h1 class="text-xl font-extrabold tracking-tight">Syllabus Repository</h1>
+                    </div>
+                </div>
+                <div class="relative min-w-[280px]">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#538393] text-lg">search</span>
+                    <input
+                        class="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-[#e8f0f2] dark:border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                        id="searchInput" placeholder="Search by title, subject or course..." type="text" />
+                </div>
+            </div>
+        </header>
+        <!-- END: MainHeader -->
+        <!-- BEGIN: MainContent -->
+        <main class="flex-1 w-full">
+            <div class="max-w-[1440px] mx-auto p-8 space-y-8">
+                <!-- BEGIN: PageTitleArea -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h3 class="text-3xl font-black text-[#0f171a] dark:text-white">Syllabus Management</h3>
+                        <p class="text-[#538393] dark:text-slate-400 mt-1">Manage and upload course syllabus records.
+                        </p>
+                    </div>
+                </div>
+                <!-- END: PageTitleArea -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- BEGIN: SidebarForm -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-xl border border-[#e8f0f2] dark:border-slate-800 shadow-sm p-6 relative overflow-hidden">
+                            <h4 class="text-lg font-bold mb-6 flex items-center gap-2" id="formTitle">
+                                <span class="material-symbols-outlined text-primary">cloud_upload</span>
+                                <span id="formTitleText">Upload New Syllabus</span>
+                            </h4>
+                            <form th:action="@{/materials/upload}" method="post" enctype="multipart/form-data"
+                                class="space-y-4" id="syllabusForm">
+                                <input id="syllabusId" name="id" type="hidden" />
+                                <input name="category" type="hidden" value="SYLLABUS" />
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Subject
+                                        Name</label>
+                                    <input
+                                        class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-3"
+                                        th:classappend="${professorSubject != null && !professorSubject.isEmpty()} ? 'bg-slate-100 cursor-not-allowed' : ''"
+                                        name="subject" th:value="${professorSubject}"
+                                        th:readonly="${professorSubject != null && !professorSubject.isEmpty()}"
+                                        placeholder="e.g. Data Structures & Algorithms" required="" type="text" />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Title</label>
+                                    <input
+                                        class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-3"
+                                        name="title" placeholder="e.g. CS101 Syllabus 2024" required="" type="text" />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Course
+                                        ID</label>
+                                    <input
+                                        class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-3"
+                                        th:classappend="${professorCourse != null && !professorCourse.isEmpty()} ? 'bg-slate-100 cursor-not-allowed' : ''"
+                                        name="course" th:value="${professorCourse}"
+                                        th:readonly="${professorCourse != null && !professorCourse.isEmpty()}"
+                                        placeholder="e.g. CS101" required="" type="text" />
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">File
+                                        Attachment (PDF only)</label>
+                                    <label
+                                        class="border-2 border-dashed border-[#d1e0e5] dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-primary/5 transition-colors cursor-pointer group">
+                                        <span
+                                            class="material-symbols-outlined text-4xl text-[#538393] group-hover:text-primary mb-2 transition-colors">upload_file</span>
+                                        <p class="text-xs font-bold text-center">Click to <span
+                                                class="text-primary underline">browse</span> or drag &amp; drop</p>
+                                        <input class="sr-only" id="fileInput" name="file" required="" type="file"
+                                            accept="application/pdf" />
+                                    </label>
+                                </div>
+                                <div class="pt-4 flex items-center gap-3">
+                                    <button
+                                        class="flex-1 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all shadow-md"
+                                        id="submitBtn" type="submit">Submit Syllabus</button>
+                                    <button
+                                        class="px-6 py-3 border border-[#d1e0e5] dark:border-slate-700 text-[#538393] rounded-lg font-bold text-sm hover:bg-slate-50 transition-all"
+                                        onclick="resetForm()" type="button">Reset</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- END: SidebarForm -->
+                    <!-- BEGIN: ManagementSection -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xl font-bold text-slate-800">Manage Files</h4>
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="bg-[#e0f2f7] text-[#538393] px-4 py-1.5 rounded-full text-xs font-bold border border-primary/10">
+                                    Total Files: <span id="fileCount" th:text="${materials.size()}">0</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Grid Cards View (Paginated) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="syllabusGrid">
+                            <!-- Dynamic Items -->
+                            <div th:each="m, iter : ${materials}" th:class="'grid-card-item bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-2xl overflow-hidden group hover:shadow-xl transition-all border-l-[6px] flex flex-col ' + 
+                                         (${iter.index % 3 == 0} ? 'border-l-[#e13c3c]' : 
+                                         (${iter.index % 3 == 1} ? 'border-l-[#3c7ee1]' : 'border-l-[#3ce16b]'))">
+
+                                <div class="p-6 flex-1">
+                                    <div class="mb-5">
+                                        <div th:class="'w-12 h-12 rounded-xl flex items-center justify-center ' + 
+                                                     (${iter.index % 3 == 0} ? 'bg-[#fff1f1]' : 
+                                                     (${iter.index % 3 == 1} ? 'bg-[#f1f6ff]' : 'bg-[#f1fff6]'))">
+                                            <span
+                                                th:class="'material-symbols-outlined text-2xl ' + 
+                                                          (${iter.index % 3 == 0} ? 'text-[#e13c3c]' : 
+                                                          (${iter.index % 3 == 1} ? 'text-[#3c7ee1]' : 'text-[#3ce16b]'))"
+                                                th:text="${iter.index % 3 == 0} ? 'picture_as_pdf' : (${iter.index % 3 == 1} ? 'description' : 'grid_view')">
+                                                description
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="text-sm font-bold text-slate-800 dark:text-white mb-2 leading-tight"
+                                        th:text="${m.title}">Mathematics_2023_Final.pdf</h5>
+                                    <p class="text-[11px] text-[#538393] font-bold">
+                                        <span th:text="${m.subject}">Algebra</span> • <span
+                                            th:text="${m.course}">2023</span>
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="bg-slate-50/50 dark:bg-slate-800/50 px-6 py-4 flex items-center justify-between border-t border-[#e8f0f2] dark:border-slate-800">
+                                    <div class="flex gap-2">
+                                        <a th:href="${'/' + m.filePath}" target="_blank"
+                                            class="w-10 h-10 flex items-center justify-center border border-[#e8f0f2] rounded-xl text-blue-600 bg-white hover:bg-blue-50 transition-colors shadow-sm">
+                                            <span class="material-symbols-outlined text-xl">visibility</span>
+                                        </a>
+                                        <a th:href="@{'/materials/download/' + ${m.id}}"
+                                            class="w-10 h-10 flex items-center justify-center border border-[#e8f0f2] rounded-xl text-amber-500 bg-white hover:bg-amber-50 transition-colors shadow-sm">
+                                            <span class="material-symbols-outlined text-xl">download</span>
+                                        </a>
+                                    </div>
+                                    <a th:href="@{'/materials/delete/' + ${m.id}}"
+                                        class="w-10 h-10 flex items-center justify-center border border-[#e8f0f2] rounded-xl text-red-500 bg-white hover:bg-red-50 transition-colors shadow-sm"
+                                        onclick="return confirm('Delete this file?')">
+                                        <span class="material-symbols-outlined text-xl">delete</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table View with Pagination -->
+                        <div
+                            class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                            <div
+                                class="p-6 border-b border-[#e8f0f2] dark:border-slate-800 flex justify-between items-center bg-slate-50/30">
+                                <h5 class="text-xs font-bold uppercase tracking-wider text-[#538393]">Detailed Records
+                                    List</h5>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left" id="syllabusTable">
+                                    <thead
+                                        class="bg-slate-50/50 dark:bg-slate-800/50 text-[#538393] text-[10px] font-bold uppercase tracking-wider">
+                                        <tr>
+                                            <th class="px-8 py-4">File Description</th>
+                                            <th class="px-6 py-4">Course/Subject</th>
+                                            <th class="px-6 py-4 text-center">Year</th>
+                                            <th class="px-8 py-4 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-[#e8f0f2] dark:divide-slate-800">
+                                        <tr th:each="m : ${materials}"
+                                            class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors table-row-item">
+                                            <td class="px-8 py-5">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shadow-sm">
+                                                        <span
+                                                            class="material-symbols-outlined text-xl">description</span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-bold text-slate-800 dark:text-white"
+                                                            th:text="${m.title}">Syllabus Title</p>
+                                                        <p class="text-[10px] text-[#538393] font-semibold"
+                                                            th:text="${m.fileType}">PDF File</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span
+                                                    class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 uppercase"
+                                                    th:text="${m.course}">COURSE</span>
+                                                <span class="text-xs font-semibold text-slate-500 ml-1"
+                                                    th:text="${m.subject}">Subject</span>
+                                            </td>
+                                            <td class="px-6 py-5 text-sm text-center font-bold text-slate-600"
+                                                th:text="${#temporals.format(m.uploadDate, 'yyyy')}">2024</td>
+                                            <td class="px-8 py-5 text-right">
+                                                <div class="flex justify-end gap-2">
+                                                    <a th:href="${'/' + m.filePath}" target="_blank"
+                                                        class="w-9 h-9 flex items-center justify-center border border-[#e8f0f2] rounded-lg text-blue-500 hover:bg-blue-50 transition-colors">
+                                                        <span
+                                                            class="material-symbols-outlined text-lg">visibility</span>
+                                                    </a>
+                                                    <a th:href="@{'/materials/download/' + ${m.id}}"
+                                                        class="w-9 h-9 flex items-center justify-center border border-[#e8f0f2] rounded-lg text-green-500 hover:bg-green-50 transition-colors">
+                                                        <span class="material-symbols-outlined text-lg">download</span>
+                                                    </a>
+                                                    <a th:href="@{'/materials/delete/' + ${m.id}}"
+                                                        class="w-9 h-9 flex items-center justify-center border border-[#e8f0f2] rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                                                        onclick="return confirm('Delete this file?')">
+                                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- BEGIN: Pagination Controls -->
+                        <div class="flex items-center justify-between pt-4 pb-12" id="paginationControls">
+                            <p class="text-xs font-semibold text-[#538393]" id="pageInfo">
+                                Showing page 1 of 1
+                            </p>
+                            <div class="flex gap-2">
+                                <button onclick="changePage(-1)" id="prevBtn"
+                                    class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <span id="currentPageDisplay"
+                                    class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
+                                <button onclick="changePage(1)" id="nextBtn"
+                                    class="w-8 h-8 rounded-lg border flex items-center justify-center hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- END: Pagination -->
+                    </div>
+                    <!-- END: ManagementSection -->
+                </div>
+            </div>
+        </main>
+        <!-- END: MainContent -->
+    </div>
+    <!-- BEGIN: Interactive Scripts -->
+    <script data-purpose="form-logic">
+        let currentPage = 1;
+        const itemsPerPage = 3;
+
+        function resetForm() {
+            document.getElementById('syllabusForm').reset();
+            document.getElementById('syllabusId').value = '';
+            document.getElementById('formTitleText').innerText = 'Upload New Syllabus';
+            document.getElementById('submitBtn').innerText = 'Submit Syllabus';
+            document.getElementById('fileInput').setAttribute('required', 'required');
+        }
+
+        // Search Functionality
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            currentPage = 1;
+            applyPagination();
+        });
+
+        function applyPagination() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const allGridCards = Array.from(document.querySelectorAll('.grid-card-item'));
+            const allTableRows = Array.from(document.querySelectorAll('.table-row-item'));
+
+            const filteredGrid = allGridCards.filter(card => card.textContent.toLowerCase().includes(searchTerm));
+            const filteredTable = allTableRows.filter(row => row.textContent.toLowerCase().includes(searchTerm));
+
+            const totalItems = Math.max(filteredGrid.length, filteredTable.length);
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            // Hide all first
+            allGridCards.forEach(card => card.style.display = 'none');
+            allTableRows.forEach(row => row.style.display = 'none');
+
+            // Show current page items for both
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+
+            filteredGrid.slice(start, end).forEach(card => card.style.display = 'flex');
+            filteredTable.slice(start, end).forEach(row => row.style.display = '');
+
+            // Update UI
+            document.getElementById('fileCount').textContent = filteredGrid.length;
+            document.getElementById('currentPageDisplay').innerText = currentPage;
+            document.getElementById('pageInfo').innerText = `Showing page ${currentPage} of ${totalPages}`;
+
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            applyPagination();
+        }
+
+        // Initialize pagination on load
+        window.addEventListener('DOMContentLoaded', () => {
+            applyPagination();
+        });
+    </script>
+    <!-- END: FormScripts -->
+</body>
+
+</html>

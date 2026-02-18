@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>Minimalist Exam Paper Manager</title>
+<script
+	src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link
+	href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Noto+Sans:wght@400;700&amp;display=swap"
+	rel="stylesheet" />
+<link
+	href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+	rel="stylesheet" />
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1f8aad",
+                        "background-light": "#f8fbfb",
+                        "background-dark": "#121d20",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body { font-family: 'Manrope', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1e0e5; border-radius: 10px; }
+        @layer components {
+            .btn-action {
+                @apply p-2 rounded-lg transition-colors flex items-center justify-center;
+            }
+        }
+    </style>
+</head>
+<body
+	class="bg-background-light dark:bg-background-dark text-[#0f171a] dark:text-white transition-colors duration-200">
+	<div class="min-h-screen flex flex-col">
+		<header
+			class="border-b border-[#e8f0f2] dark:border-slate-800 bg-white dark:bg-background-dark sticky top-0 z-10">
+			<div
+				class="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<div
+						class="bg-primary size-8 rounded-lg flex items-center justify-center text-white">
+						<span class="material-symbols-outlined text-xl">quiz</span>
+					</div>
+					<h1 class="text-xl font-extrabold tracking-tight">Paper
+						Repository</h1>
+				</div>
+				<div class="flex items-center gap-6">
+					<form th:action="@{/exam-preparation/dashboard}" method="get"
+						class="relative w-96">
+						<span
+							class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#538393] text-lg">search</span>
+						<input name="search"
+							class="w-full bg-[#f0f4f5] dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50"
+							placeholder="Search academic records..." />
+					</form>
+				</div>
+			</div>
+		</header>
+
+		<main class="flex-1 w-full">
+			<div class="max-w-[1440px] mx-auto p-8 space-y-8">
+				<div
+					class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+					<div>
+						<h3 class="text-3xl font-black text-[#0f171a] dark:text-white">Exam
+							Paper Management</h3>
+						<p class="text-[#538393] dark:text-slate-400 mt-1">Manage and
+							upload academic examination records.</p>
+					</div>
+					<div class="flex gap-2">
+						<a href="/exam-preparation/export"
+							class="px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg hover:brightness-110 transition-all">
+							<span class="material-symbols-outlined text-lg">download_for_offline</span>
+							Export Records
+						</a>
+					</div>
+
+				</div>
+
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+					<div class="lg:col-span-4 space-y-6">
+						<div
+							class="bg-white dark:bg-slate-900 rounded-xl border border-[#e8f0f2] dark:border-slate-800 shadow-sm p-6 relative overflow-hidden">
+
+							<h4 id="formTitle"
+								class="text-lg font-bold mb-6 flex items-center gap-2">
+								<span class="material-symbols-outlined text-primary">cloud_upload</span>
+								<span id="formTitleText">Upload New Paper</span>
+							</h4>
+
+							<form id="paperForm" th:action="@{/exam-preparation/upload}"
+								method="post" enctype="multipart/form-data" class="space-y-4">
+
+								<input type="hidden" id="paperId" name="id">
+
+								<div>
+									<label
+										class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Subject
+										Name</label> <input name="subjectName"
+										class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-3"
+										placeholder="e.g. Quantum Physics" type="text" required />
+								</div>
+
+								<div class="grid grid-cols-2 gap-4">
+									<div>
+										<label
+											class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Academic
+											Year</label> <select name="academicYear"
+											class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-2.5">
+											<option
+												th:each="year : ${#numbers.sequence(#dates.year(#dates.createNow()), #dates.year(#dates.createNow()) - 5)}"
+												th:value="${year}" th:text="${year}"></option>
+										</select>
+									</div>
+									<div>
+										<label
+											class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">File
+											Format</label> <select name="fileFormat"
+											class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-2.5">
+											<option value="PDF">PDF</option>
+											<option value="DOCX">DOCX</option>
+											<option value="XLSX">XLSX</option>
+										</select>
+									</div>
+								</div>
+
+								<div>
+									<label
+										class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">File
+										Attachment</label> <label
+										class="border-2 border-dashed border-[#d1e0e5] dark:border-slate-700 rounded-xl p-10 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-primary/5 transition-colors cursor-pointer group">
+										<span
+										class="material-symbols-outlined text-4xl text-[#538393] group-hover:text-primary mb-2 transition-colors">upload_file</span>
+										<p class="text-xs font-bold text-center">
+											Click to <span class="text-primary underline">browse</span>
+											or drag & drop
+										</p> <input type="file" name="file" id="fileInput" class="sr-only"
+										required />
+									</label>
+								</div>
+
+								<div class="pt-4 flex items-center gap-3">
+									<button id="submitBtn"
+										class="flex-1 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all shadow-md"
+										type="submit">Submit Paper</button>
+									<button
+										class="px-6 py-3 border border-[#d1e0e5] dark:border-slate-700 text-[#538393] rounded-lg font-bold text-sm hover:bg-slate-50 transition-all"
+										type="button" onclick="resetForm()">Reset</button>
+								</div>
+							</form>
+						</div>
+					</div>
+
+					<div class="lg:col-span-8 space-y-6">
+						<div class="flex items-center justify-between">
+							<h4 class="text-xl font-bold">Manage Files</h4>
+							<span
+								class="bg-[#e0f2f7] text-primary px-4 py-1.5 rounded-full text-xs font-bold border border-primary/20">
+								Total Files: <span th:text="${totalFiles}">0</span>
+							</span>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div th:each="paper : ${papers}"
+								class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-xl overflow-hidden group hover:shadow-lg transition-all border-l-4 flex flex-col"
+								th:classappend="${paper.fileFormat == 'PDF' ? 'border-l-red-500' : (paper.fileFormat == 'XLSX' ? 'border-l-green-500' : 'border-l-blue-500')}">
+								<div class="p-5 flex-1">
+									<div class="flex justify-between items-start mb-4">
+										<div class="p-2.5 rounded-lg"
+											th:classappend="${paper.fileFormat == 'PDF' ? 'bg-red-50 text-red-600' : (paper.fileFormat == 'XLSX' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600')}">
+											<span class="material-symbols-outlined text-2xl"
+												th:text="${paper.fileFormat == 'PDF' ? 'picture_as_pdf' : (paper.fileFormat == 'XLSX' ? 'table_chart' : 'description')}"></span>
+										</div>
+									</div>
+									<h5 class="text-sm font-bold truncate mb-2"
+										th:title="${paper.fileName}" th:text="${paper.fileName}">File
+										Name</h5>
+									<p class="text-[11px] text-[#538393] font-semibold">
+										<span th:text="${paper.subjectName}">Subject</span> • <span
+											th:text="${paper.academicYear}">Year</span>
+									</p>
+								</div>
+								<div
+									class="bg-slate-50/50 dark:bg-slate-800/50 px-5 py-3 flex items-center justify-between border-t border-[#e8f0f2] dark:border-slate-800">
+									<div class="flex gap-2">
+										<a th:href="@{'/exam-preparation/view/' + ${paper.id}}"
+											target="_blank"
+											class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-blue-600 hover:bg-white transition-colors">
+											<span class="material-symbols-outlined text-lg">visibility</span>
+										</a> <a th:href="@{'/exam-preparation/download/' + ${paper.id}}"
+											class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-green-600 hover:bg-white transition-colors">
+											<span class="material-symbols-outlined text-lg">download</span>
+										</a> <a href="javascript:void(0)"
+											th:onclick="'editPaper(' + ${paper.id} + ')'"
+											class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-orange-500 hover:bg-white transition-colors">
+											<span class="material-symbols-outlined text-lg">edit</span>
+										</a>
+									</div>
+									<a th:href="@{'/exam-preparation/delete/' + ${paper.id}}"
+										onclick="return confirm('Are you sure you want to delete this paper?')"
+										class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-red-500 hover:bg-white transition-colors">
+										<span class="material-symbols-outlined text-lg">delete</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<div
+							class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+							<div
+								class="p-5 border-b border-[#e8f0f2] dark:border-slate-800 flex justify-between items-center">
+								<h5
+									class="text-xs font-bold uppercase tracking-wider text-[#538393]">Bulk
+									Management View</h5>
+							</div>
+							<div class="overflow-x-auto">
+								<table class="w-full text-left">
+									<thead
+										class="bg-slate-50 dark:bg-slate-800/50 text-[#538393] text-[10px] font-bold uppercase tracking-wider">
+										<tr>
+											<th class="px-6 py-4">Paper Title</th>
+											<th class="px-6 py-4 text-center">Year</th>
+											<th class="px-6 py-4">Subject</th>
+											<th class="px-6 py-4">Format</th>
+											<th class="px-6 py-4 text-right">Actions</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-[#e8f0f2] dark:divide-slate-800">
+										<tr th:each="paper : ${papers}"
+											class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+											<td class="px-6 py-4">
+												<div class="flex items-center gap-3">
+													<span class="material-symbols-outlined text-xl"
+														th:classappend="${paper.fileFormat == 'PDF' ? 'text-red-500' : (paper.fileFormat == 'XLSX' ? 'text-green-500' : 'text-blue-500')}"
+														th:text="${paper.fileFormat == 'PDF' ? 'picture_as_pdf' : (paper.fileFormat == 'XLSX' ? 'table_chart' : 'description')}"></span>
+													<span class="text-sm font-bold" th:text="${paper.fileName}">Title</span>
+												</div>
+											</td>
+											<td class="px-6 py-4 text-sm text-center"
+												th:text="${paper.academicYear}">Year</td>
+											<td class="px-6 py-4"><span
+												class="px-2.5 py-1 rounded bg-blue-50 text-blue-600 text-[10px] font-bold border border-blue-100 uppercase"
+												th:text="${paper.subjectName}">Subject</span></td>
+											<td class="px-6 py-4 text-xs font-bold text-[#538393]"
+												th:text="${paper.fileFormat}">Format</td>
+											<td class="px-6 py-4 text-right">
+												<div class="flex justify-end gap-3">
+													<a th:href="@{'/exam-preparation/view/' + ${paper.id}}"
+														target="_blank"
+														class="text-[#538393] hover:text-blue-600 transition-colors">
+														<span class="material-symbols-outlined text-lg">visibility</span>
+													</a> <a
+														th:href="@{'/exam-preparation/download/' + ${paper.id}}"
+														class="text-[#538393] hover:text-green-600 transition-colors">
+														<span class="material-symbols-outlined text-lg">download</span>
+													</a> <a th:href="@{'/exam-preparation/delete/' + ${paper.id}}"
+														onclick="return confirm('Are you sure you want to delete this paper?')"
+														class="text-[#538393] hover:text-red-500 transition-colors">
+														<span class="material-symbols-outlined text-lg">delete</span>
+													</a> <a href="javascript:void(0)"
+														th:onclick="'editPaper(' + ${paper.id} + ')'"
+														class="text-[#538393] hover:text-orange-500 transition-colors">
+														<span class="material-symbols-outlined text-lg">edit</span>
+													</a>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<div class="flex items-center justify-between pt-4 pb-12">
+							<p class="text-xs font-semibold text-[#538393]">
+								Total Records: <span th:text="${totalFiles}">0</span>
+							</p>
+							<div class="flex gap-2">
+								<div class="flex gap-2">
+									<a th:if="${currentPage > 0}"
+										th:href="@{/exam-preparation/dashboard(page=${currentPage - 1})}"
+										class="w-8 h-8 rounded-lg border flex items-center justify-center">
+										<span class="material-symbols-outlined">chevron_left</span>
+									</a> <span
+										class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold"
+										th:text="${currentPage + 1}"> </span> <a
+										th:if="${currentPage + 1 < totalPages}"
+										th:href="@{/exam-preparation/dashboard(page=${currentPage + 1})}"
+										class="w-8 h-8 rounded-lg border flex items-center justify-center">
+										<span class="material-symbols-outlined">chevron_right</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<script>
+        function editPaper(id) {
+            fetch('/exam-preparation/edit/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    // Fill hidden ID
+                    document.getElementById('paperId').value = data.id;
+
+                    // Autofill fields
+                    document.querySelector('input[name="subjectName"]').value = data.subjectName;
+                    document.querySelector('select[name="academicYear"]').value = data.academicYear;
+                    document.querySelector('select[name="fileFormat"]').value = data.fileFormat;
+
+                    // Update Form Actions for Editing
+                    const form = document.getElementById('paperForm');
+                    // Ensure the action points to an Update endpoint, not upload
+                    form.action = '/exam-preparation/update'; 
+                    
+                    // UI Updates to indicate Edit Mode
+                    document.getElementById('formTitleText').innerText = 'Edit Paper Details';
+                    document.getElementById('submitBtn').innerText = 'Update Paper';
+
+                    // File is optional during edit
+                    document.getElementById('fileInput').removeAttribute('required');
+
+                    // Smooth scroll to form
+                    form.scrollIntoView({ behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Edit error:', error);
+                    alert('Failed to load paper details for editing.');
+                });
+        }
+
+        function resetForm() {
+            // Standard form reset (clears visual inputs)
+            document.getElementById('paperForm').reset();
+            
+            // Clear hidden ID to prevent overwriting existing entries
+            document.getElementById('paperId').value = '';
+
+            // Restore Form Actions for New Upload
+            const form = document.getElementById('paperForm');
+            form.action = '/exam-preparation/upload';
+
+            // UI Updates to indicate Upload Mode
+            document.getElementById('formTitleText').innerText = 'Upload New Paper';
+            document.getElementById('submitBtn').innerText = 'Submit Paper';
+
+            // File is required for new uploads
+            document.getElementById('fileInput').setAttribute('required', 'required');
+        }
+    </script>
+</body>
+</html>

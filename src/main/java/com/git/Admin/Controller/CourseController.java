@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.git.Admin.DTO.CourseRequest;
 import com.git.Admin.Entity.Course;
 import com.git.Admin.Service.CourseService;
-import com.git.CourseType;
 import com.git.QuestionType;
 
 @RestController
@@ -39,18 +39,27 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCoursesByClass(className));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+        Course course = courseService.getCourseById(id);
+        if (course != null) {
+            return ResponseEntity.ok(course);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     // ADD New Course
     @PostMapping
     public ResponseEntity<?> addNewCourse(@RequestBody CourseRequest request) {
         try {
             Course savedCourse = courseService.addNewCourse(
                     request.getCourseName(),
-                    request.getCourseId(),
                     request.getStudentClass(),
                     request.getBatchDescription(),
                     request.getCourseType(),
                     request.getQuestionTypes(),
-                    request.getSubjectIds());
+                    request.getSubjectIds(),
+                    request.getSetIds());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -70,94 +79,19 @@ public class CourseController {
                     request.isActive(),
                     request.getCourseType(),
                     request.getQuestionTypes(),
-                    request.getSubjectIds());
+                    request.getSubjectIds(),
+                    request.getSetIds());
             return ResponseEntity.ok(updatedCourse);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    // DTO for adding course with subjects
-    public static class CourseRequest {
-        private String courseName;
-        private String courseId;
-        private String studentClass;
-        private String batchDescription;
-        private boolean active;
-        private CourseType courseType;
-        private Set<QuestionType> questionTypes;
-        private List<Long> subjectIds;
-
-        public String getCourseName() {
-            return courseName;
-        }
-
-        public void setCourseName(String courseName) {
-            this.courseName = courseName;
-        }
-
-        public String getCourseId() {
-            return courseId;
-        }
-
-        public void setCourseId(String courseId) {
-            this.courseId = courseId;
-        }
-
-        public String getStudentClass() {
-            return studentClass;
-        }
-
-        public void setStudentClass(String studentClass) {
-            this.studentClass = studentClass;
-        }
-
-        public String getBatchDescription() {
-            return batchDescription;
-        }
-
-        public void setBatchDescription(String batchDescription) {
-            this.batchDescription = batchDescription;
-        }
-
-        public boolean isActive() {
-            return active;
-        }
-
-        public void setActive(boolean active) {
-            this.active = active;
-        }
-
-        public List<Long> getSubjectIds() {
-            return subjectIds;
-        }
-
-        public void setSubjectIds(List<Long> subjectIds) {
-            this.subjectIds = subjectIds;
-        }
-
-        public CourseType getCourseType() {
-            return courseType;
-        }
-
-        public void setCourseType(CourseType courseType) {
-            this.courseType = courseType;
-        }
-
-        public Set<QuestionType> getQuestionTypes() {
-            return questionTypes;
-        }
-
-        public void setQuestionTypes(Set<QuestionType> questionTypes) {
-            this.questionTypes = questionTypes;
-        }
-    }
-
-    // DELETE Course by courseId
-    @DeleteMapping("/{courseId}")
-    public ResponseEntity<?> deleteCourse(@PathVariable String courseId) {
+    // DELETE Course by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         try {
-            courseService.deleteCourse(courseId);
+            courseService.deleteCourse(id);
             return ResponseEntity.ok("Course deleted successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

@@ -173,6 +173,9 @@
                             <span id="totalRecords" class="font-semibold text-gray-700 dark:text-gray-300">0</span>
                             results
                         </p>
+                        <div id="paginationControls" class="flex items-center gap-2">
+                            <!-- Pagination buttons will be generated here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,6 +207,8 @@
 
         let allPayments = [];
         let filteredPayments = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         // Fetch all payments on page load
         document.addEventListener('DOMContentLoaded', function () {
@@ -231,11 +236,20 @@
             }
         }
 
-        // Render payments table
+        // Render payments table with pagination
         function renderPaymentsTable(payments) {
             const tbody = document.getElementById('paymentsTableBody');
+            const totalItems = payments.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-            if (!payments || payments.length === 0) {
+            // Bounds check
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const paginatedPayments = payments.slice(startIndex, endIndex);
+
+            if (!paginatedPayments || paginatedPayments.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" class="px-6 py-12 text-center text-gray-500">
@@ -247,14 +261,16 @@
                         </td>
                     </tr>
                 `;
-                updatePagination(0);
+                updatePaginationControls(0);
                 return;
             }
 
-            tbody.innerHTML = payments.map((payment, index) => `
+            tbody.innerHTML = paginatedPayments.map((payment, index) => {
+                const globalIndex = startIndex + index + 1;
+                return `
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                     <td class="px-6 py-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-                        ${index + 1}
+                        ${globalIndex}
                     </td>
                     <td class="px-6 py-4">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white">${payment.studentName || 'Unknown'}</p>
@@ -293,9 +309,64 @@
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
 
-            updatePagination(payments.length);
+            updatePaginationControls(totalItems);
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(totalItems) {
+            const paginationControls = document.getElementById('paginationControls');
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            // Update range text
+            const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(currentPage * itemsPerPage, totalItems);
+            document.getElementById('showingFrom').textContent = start;
+            document.getElementById('showingTo').textContent = end;
+            document.getElementById('totalRecords').textContent = totalItems;
+
+            if (!paginationControls) return;
+
+            // Generate buttons
+            let buttonsHtml = `
+                <button onclick="changePage(${currentPage - 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+            `;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                buttonsHtml += `
+                    <button onclick="changePage(${i})" 
+                        class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${i === currentPage ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage + 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+            `;
+
+            paginationControls.innerHTML = buttonsHtml;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderPaymentsTable(filteredPayments);
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Get status badge HTML
@@ -390,12 +461,6 @@
             }
         }
 
-        // Update pagination info
-        function updatePagination(count) {
-            document.getElementById('showingFrom').textContent = count > 0 ? '1' : '0';
-            document.getElementById('showingTo').textContent = count;
-            document.getElementById('totalRecords').textContent = count;
-        }
 
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', applyFilters);
@@ -420,6 +485,7 @@
                 return matchesSearch && matchesStatus;
             });
 
+            currentPage = 1; // Reset to page 1 on filter
             renderPaymentsTable(filteredPayments);
         }
 

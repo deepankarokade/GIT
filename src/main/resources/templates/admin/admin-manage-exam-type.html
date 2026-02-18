@@ -215,12 +215,6 @@
             <form id="examTypeForm" class="p-6 flex flex-col gap-5">
                 <input type="hidden" id="editId" value="">
                 <div class="flex flex-col gap-2">
-                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Exam Type ID <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" id="examTypeId" required placeholder="e.g., MID_TERM, FINAL, QUIZ"
-                        class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
-                </div>
-                <div class="flex flex-col gap-2">
                     <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Exam Name <span
                             class="text-red-500">*</span></label>
                     <input type="text" id="examName" required placeholder="e.g., Mid Term Examination"
@@ -383,11 +377,9 @@
         function openAddModal() {
             document.getElementById('modalTitle').textContent = 'Add Exam Type';
             document.getElementById('editId').value = '';
-            document.getElementById('examTypeId').value = '';
             document.getElementById('examName').value = '';
             document.getElementById('examDescription').value = '';
             document.getElementById('courseId').value = '';
-            document.getElementById('examTypeId').disabled = false;
             document.getElementById('examTypeModal').classList.remove('hidden');
             document.getElementById('examTypeModal').classList.add('flex');
         }
@@ -398,11 +390,9 @@
 
             document.getElementById('modalTitle').textContent = 'Edit Exam Type';
             document.getElementById('editId').value = examType.id;
-            document.getElementById('examTypeId').value = examType.examTypeId;
             document.getElementById('examName').value = examType.examName;
             document.getElementById('examDescription').value = examType.examDescription || '';
             document.getElementById('courseId').value = examType.course ? examType.course.id : '';
-            document.getElementById('examTypeId').disabled = true; // Don't allow editing ID
             document.getElementById('examTypeModal').classList.remove('hidden');
             document.getElementById('examTypeModal').classList.add('flex');
         }
@@ -417,13 +407,11 @@
             e.preventDefault();
 
             const editId = document.getElementById('editId').value;
-            const examTypeId = document.getElementById('examTypeId').value.trim();
             const examName = document.getElementById('examName').value.trim();
             const examDescription = document.getElementById('examDescription').value.trim();
             const courseId = document.getElementById('courseId').value;
 
             const payload = {
-                examTypeId: examTypeId,
                 examName: examName,
                 examDescription: examDescription
             };

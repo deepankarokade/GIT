@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Professor | Question Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background-color: #f4f7f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-section {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .sticky-top-custom {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+        }
+
+        .question-block {
+            border-left: 5px solid #667eea !important;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #dc3545;
+            cursor: pointer;
+        }
+
+        .mcq-input-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-section">
+        <div class="container text-center">
+            <h2><i class="fas fa-graduation-cap"></i> Question Bank Management</h2>
+            <p>Create, Manage and View Set-wise Question Papers</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <form th:action="@{/professor/question-bank/save}" method="post" th:object="${wrapper}" id="mainForm">
+
+            <div class="card mb-4 sticky-top-custom shadow">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Course</label>
+                            <select id="courseId" class="form-select" required
+                                onchange="handleCourseChange(this.value)">
+                                <option value="">Select Course</option>
+                                <option th:each="c : ${courseList}" th:value="${c.id}" th:text="${c.courseName}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Class</label>
+                            <input type="text" id="classId" class="form-control" placeholder="Class" readonly required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Division</label>
+                            <select id="divisionId" class="form-select" required>
+                                <option value="">Select Division</option>
+                                <option th:each="d : ${divisionList}" th:value="${d.sectionName}"
+                                    th:text="${d.sectionName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Subject</label>
+                            <select id="subjectId" class="form-select" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Target Set</label>
+                            <select id="difficultySet" class="form-select border-primary" required>
+                                <option value="">Set</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="questionsWrapper">
+                <div th:each="q,iter : *{questions}" class="card question-block mb-4 p-4 bg-white">
+
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].course}" class="h-course">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].className}" class="h-class">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].division}" class="h-div">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].subject}" class="h-sub">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].difficultySet}" class="h-set">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].matchPairs}" class="h-match">
+                    <input type="hidden" th:field="*{questions[__${iter.index}__].fillInTheBlanks}" class="h-fill">
+
+                    <span class="remove-btn" onclick="removeQuestion(this)"><i class="fas fa-trash-alt"></i></span>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Question Type</label>
+                            <select class="form-select q-type-select"
+                                th:field="*{questions[__${iter.index}__].questionType}" onchange="toggleMCQ(this)"
+                                required>
+                                <option value="">Select Type</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Marks</label>
+                            <input type="number" class="form-control" th:field="*{questions[__${iter.index}__].marks}"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Question Content</label>
+                        <textarea class="form-control" th:field="*{questions[__${iter.index}__].questionText}" rows="3"
+                            required></textarea>
+                    </div>
+
+                    <div class="mcqSection" style="display:none;">
+                        <div class="mcq-input-group shadow-sm">
+                            <div class="row g-3">
+                                <div class="col-md-6"><input class="form-control" placeholder="Option A"
+                                        th:field="*{questions[__${iter.index}__].optionA}"></div>
+                                <div class="col-md-6"><input class="form-control" placeholder="Option B"
+                                        th:field="*{questions[__${iter.index}__].optionB}"></div>
+                                <div class="col-md-6"><input class="form-control" placeholder="Option C"
+                                        th:field="*{questions[__${iter.index}__].optionC}"></div>
+                                <div class="col-md-6"><input class="form-control" placeholder="Option D"
+                                        th:field="*{questions[__${iter.index}__].optionD}"></div>
+                                <div class="col-md-4">
+                                    <label class="text-success fw-bold">Correct Answer</label>
+                                    <select class="form-select"
+                                        th:field="*{questions[__${iter.index}__].correctAnswer}">
+                                        <option value="">Select</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Match the Pairs Section -->
+                    <div class="matchPairsSection mt-3" style="display:none;">
+                        <div class="card p-3 bg-light border-0 shadow-sm rounded-4">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-link"></i> Match the Pairs</h6>
+                            <div class="row mb-2">
+                                <div class="col-md-5"><label class="form-label small fw-bold">Column A</label></div>
+                                <div class="col-md-5"><label class="form-label small fw-bold">Column B (Answer)</label>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="pairs-container">
+                                <div class="row g-2 mb-2 pair-row">
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control col-a" placeholder="Item in Column A">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control col-b"
+                                            placeholder="Matching Item in Column B">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                            onclick="removePairRow(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                    onclick="addPairRow(this)">
+                                    <i class="fas fa-plus-circle"></i> Add Row
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fill in the Blanks Section -->
+                    <div class="fillSection mt-3" style="display:none;">
+                        <div class="card p-3 bg-light border-0 shadow-sm rounded-4">
+                            <h6 class="fw-bold text-info mb-3"><i class="fas fa-edit"></i> Fill in the Blanks Answers
+                            </h6>
+                            <p class="small text-muted mb-2">Use <code>___</code> (three underscores) in the question
+                                text to indicate a blank.</p>
+                            <div class="fill-answers-container">
+                                <div class="row g-2 mb-2 answer-row">
+                                    <div class="col-md-10">
+                                        <input type="text" class="form-control blank-answer"
+                                            placeholder="Answer for blank 1">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0"
+                                            onclick="removeAnswerRow(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <button type="button" class="btn btn-sm btn-outline-info rounded-pill px-3"
+                                    onclick="addAnswerRow(this)">
+                                    <i class="fas fa-plus-circle"></i> Add Answer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mb-5 mt-4">
+                <button type="button" class="btn btn-primary" onclick="addNewQuestion()"><i class="fas fa-plus"></i> Add
+                    Question</button>
+                <button type="submit" class="btn btn-success px-5"><i class="fas fa-save"></i> Save All</button>
+            </div>
+
+
+            <div class="card view-set-card mb-5">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4 text-center">
+                        <i class="fas fa-eye text-primary"></i> Preview Set-wise Paper
+                    </h5>
+
+                    <div class="row text-center g-3">
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-primary w-100 btn-action"
+                                onclick="viewPaper('A')">View SET A</button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-success w-100 btn-action"
+                                onclick="viewPaper('B')">View SET B</button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-warning w-100 btn-action"
+                                onclick="viewPaper('C')">View SET C</button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-danger w-100 btn-action"
+                                onclick="viewPaper('D')">View SET D</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        let currentCourseName = "";
+        let currentQuestionTypes = [];
+
+        // 0. Course Change Handler
+        async function handleCourseChange(courseId) {
+            if (!courseId) {
+                clearFields();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/course/${courseId}`);
+                if (!response.ok) throw new Error("Course not found");
+
+                const course = await response.json();
+                currentCourseName = course.courseName; // Store name for submission
+                currentQuestionTypes = course.questionTypes || [];
+
+                // Update Class (string)
+                document.getElementById("classId").value = course.studentClass || "";
+
+                // Update Subjects (List<Subject>)
+                const subjectSelect = document.getElementById("subjectId");
+                subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+                if (course.subjects) {
+                    course.subjects.forEach(sub => {
+                        const opt = document.createElement("option");
+                        opt.value = sub.subjectName;
+                        opt.textContent = sub.subjectName;
+                        subjectSelect.appendChild(opt);
+                    });
+                }
+
+                // Update Exam Sets (List<ExamSet>)
+                const setSelect = document.getElementById("difficultySet");
+                setSelect.innerHTML = '<option value="">Set</option>';
+                if (course.examSets) {
+                    course.examSets.forEach(set => {
+                        const opt = document.createElement("option");
+                        let cleanName = (set.setName || "").trim().toUpperCase();
+                        opt.value = cleanName;
+                        opt.textContent = `Set ${cleanName}`;
+                        setSelect.appendChild(opt);
+                    });
+                }
+
+                // Update existing Question Type selects
+                document.querySelectorAll(".q-type-select").forEach(select => {
+                    populateQuestionTypeSelect(select);
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert("Error fetching course details");
+            }
+        }
+
+        function populateQuestionTypeSelect(select) {
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select Type</option>';
+            currentQuestionTypes.forEach(type => {
+                const opt = document.createElement("option");
+                opt.value = type;
+                opt.textContent = type.replace(/_/g, ' '); // Beautify name
+                select.appendChild(opt);
+            });
+            // Restore value if still valid
+            if (currentQuestionTypes.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function clearFields() {
+            currentCourseName = "";
+            currentQuestionTypes = [];
+            document.getElementById("classId").value = "";
+            document.getElementById("subjectId").innerHTML = '<option value="">Select Subject</option>';
+            document.getElementById("difficultySet").innerHTML = '<option value="">Set</option>';
+            document.querySelectorAll(".q-type-select").forEach(select => {
+                select.innerHTML = '<option value="">Select Type</option>';
+            });
+        }
+
+        // १. नवीन प्रश्न जोडताना इंडेक्स अपडेट करणे
+        function addNewQuestion() {
+            const wrapper = document.getElementById("questionsWrapper");
+            const blocks = document.querySelectorAll(".question-block");
+            const index = blocks.length;
+            const clone = blocks[0].cloneNode(true);
+
+            clone.querySelectorAll("input, textarea, select").forEach(el => {
+                if (el.name) el.name = el.name.replace(/\[\d+\]/, "[" + index + "]");
+                if (el.type !== "hidden") el.value = "";
+            });
+            // नवीन ब्लॉक मध्ये सेक्शन लपवा
+            clone.querySelector(".mcqSection").style.display = "none";
+            clone.querySelector(".matchPairsSection").style.display = "none";
+            clone.querySelector(".fillSection").style.display = "none";
+
+            // Populate the new Question Type select
+            const newSelect = clone.querySelector(".q-type-select");
+            if (newSelect) populateQuestionTypeSelect(newSelect);
+
+            wrapper.appendChild(clone);
+        }
+
+        // २. प्रश्न डिलीट करणे
+        function removeQuestion(btn) {
+            const blocks = document.querySelectorAll(".question-block");
+            if (blocks.length > 1) btn.closest('.question-block').remove();
+            else alert("किमान एक प्रश्न असणे आवश्यक आहे!");
+        }
+
+        // ३. MCQ सेक्शन दाखवणे/लपवणे
+        function toggleMCQ(select) {
+            const block = select.closest('.question-block');
+            const mcqSection = block.querySelector('.mcqSection');
+            const matchSection = block.querySelector('.matchPairsSection');
+            const fillSection = block.querySelector('.fillSection');
+
+            mcqSection.style.display = (select.value === 'MCQ') ? 'block' : 'none';
+            matchSection.style.display = (select.value === 'MATCH_THE_PAIRS') ? 'block' : 'none';
+            fillSection.style.display = (select.value === 'FILL_IN_THE_BLANKS') ? 'block' : 'none';
+        }
+
+        function addPairRow(btn) {
+            const container = btn.closest('.matchPairsSection').querySelector('.pairs-container');
+            const rows = container.querySelectorAll('.pair-row');
+            const clone = rows[0].cloneNode(true);
+            clone.querySelectorAll('input').forEach(input => input.value = "");
+            container.appendChild(clone);
+        }
+
+        function removePairRow(btn) {
+            const container = btn.closest('.pairs-container');
+            const rows = container.querySelectorAll('.pair-row');
+            if (rows.length > 1) {
+                btn.closest('.pair-row').remove();
+            } else {
+                alert("At least one pair is required.");
+            }
+        }
+
+        function addAnswerRow(btn) {
+            const container = btn.closest('.fillSection').querySelector('.fill-answers-container');
+            const rows = container.querySelectorAll('.answer-row');
+            const clone = rows[0].cloneNode(true);
+            const index = rows.length + 1;
+            clone.querySelectorAll('input').forEach(input => {
+                input.value = "";
+                input.placeholder = "Answer for blank " + index;
+            });
+            container.appendChild(clone);
+        }
+
+        function removeAnswerRow(btn) {
+            const container = btn.closest('.fill-answers-container');
+            const rows = container.querySelectorAll('.answer-row');
+            if (rows.length > 1) {
+                btn.closest('.answer-row').remove();
+                // Update placeholders
+                container.querySelectorAll('.answer-row').forEach((row, i) => {
+                    row.querySelector('input').placeholder = "Answer for blank " + (i + 1);
+                });
+            } else {
+                alert("At least one answer is required.");
+            }
+        }
+
+        // ४. सर्वात महत्त्वाचे: सबमिट करण्यापूर्वी डेटा सिंक करणे (NULL टाळण्यासाठी)
+        document.getElementById("mainForm").addEventListener("submit", function (e) {
+            const classIdValue = document.getElementById("classId").value;
+            const divisionIdValue = document.getElementById("divisionId").value;
+            const subjectIdValue = document.getElementById("subjectId").value;
+            const difficultySetValue = document.getElementById("difficultySet").value;
+
+            document.querySelectorAll(".question-block").forEach((block, index) => {
+                block.querySelector(`input[name="questions[${index}].course"]`).value = currentCourseName;
+                block.querySelector(`input[name="questions[${index}].className"]`).value = classIdValue;
+                block.querySelector(`input[name="questions[${index}].division"]`).value = divisionIdValue;
+                block.querySelector(`input[name="questions[${index}].subject"]`).value = subjectIdValue;
+                block.querySelector(`input[name="questions[${index}].difficultySet"]`).value = difficultySetValue;
+
+                // Serialize Match Pairs if question type is MATCH_THE_PAIRS
+                const typeSelect = block.querySelector(".q-type-select");
+                if (typeSelect && typeSelect.value === 'MATCH_THE_PAIRS') {
+                    const rows = block.querySelectorAll('.pair-row');
+                    const pairs = [];
+                    rows.forEach(row => {
+                        const colA = row.querySelector('.col-a').value;
+                        const colB = row.querySelector('.col-b').value;
+                        if (colA || colB) {
+                            pairs.push(`${colA}|${colB}`);
+                        }
+                    });
+                    block.querySelector(`input[name="questions[${index}].matchPairs"]`).value = pairs.join(';;');
+                }
+
+                // Serialize Fill in the Blanks if question type is FILL_IN_THE_BLANKS
+                if (typeSelect && typeSelect.value === 'FILL_IN_THE_BLANKS') {
+                    const rows = block.querySelectorAll('.answer-row');
+                    const answers = [];
+                    rows.forEach(row => {
+                        const val = row.querySelector('.blank-answer').value;
+                        if (val) {
+                            answers.push(val);
+                        }
+                    });
+                    block.querySelector(`input[name="questions[${index}].fillInTheBlanks"]`).value = answers.join(';;');
+                }
+            });
+        });
+
+        // ५. पेपर पाहण्यासाठी
+        function viewPaper(setName) {
+            const classIdValue = document.getElementById("classId").value || "";
+            const divisionIdValue = document.getElementById("divisionId").value || "";
+            const subjectIdValue = document.getElementById("subjectId").value || "";
+
+            const url = `/professor/question-bank/view-set-questionpaper`
+                + `?course=${encodeURIComponent(currentCourseName)}`
+                + `&className=${encodeURIComponent(classIdValue)}`
+                + `&division=${encodeURIComponent(divisionIdValue)}`
+                + `&subject=${encodeURIComponent(subjectIdValue)}`
+                + `&set=${setName}`;
+
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+
+</html>

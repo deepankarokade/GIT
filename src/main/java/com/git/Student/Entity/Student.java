@@ -1,8 +1,15 @@
 package com.git.Student.Entity;
 
 import java.util.Arrays;
+import java.time.LocalDateTime;
 
 import com.git.Student.enumactivity.ActivityStudent;
+import com.git.Professor.Entity.Certificate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,6 +59,8 @@ public class Student {
     // Password for student login (set after payment approval)
     private String password;
 
+    private boolean mustResetPassword = true;
+
     public ActivityStudent getActivityStudent() {
         return activityStudent;
     }
@@ -66,6 +75,14 @@ public class Student {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isMustResetPassword() {
+        return mustResetPassword;
+    }
+
+    public void setMustResetPassword(boolean mustResetPassword) {
+        this.mustResetPassword = mustResetPassword;
     }
 
     public Long getId() {
@@ -204,6 +221,16 @@ public class Student {
         this.subjects = subjects;
     }
 
+    private String section;
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
     @Column(unique = true)
     private String uid;
 
@@ -213,14 +240,6 @@ public class Student {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    public String getSection() {
-        return section;
-    }
-
-    public void setSection(String section) {
-        this.section = section;
     }
 
     // Gender
@@ -265,8 +284,51 @@ public class Student {
     // Subjects / Courses
     private String subjects;
 
-    // Section
-    private String section;
+    // This ensures that when a student is deleted, all their
+    // associated support tickets and certificates are automatically
+    // removed by the system, maintaining database integrity.
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SupportTicket> supportTickets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Certificate> certificates = new ArrayList<>();
+
+    public List<SupportTicket> getSupportTickets() {
+        return supportTickets;
+    }
+
+    public void setSupportTickets(List<SupportTicket> supportTickets) {
+        this.supportTickets = supportTickets;
+    }
+
+    public List<Certificate> getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(List<Certificate> certificates) {
+        this.certificates = certificates;
+    }
+
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
 
     @Override
     public String toString() {

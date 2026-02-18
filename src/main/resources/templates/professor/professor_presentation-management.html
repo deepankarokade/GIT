@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Minimalist Presentation Manager</title>
+    <!-- BEGIN: External Resources -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Noto+Sans:wght@400;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700" rel="stylesheet" />
+    <!-- END: External Resources -->
+    <!-- BEGIN: Tailwind Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1f8aad",
+                        "background-light": "#f8fbfb",
+                        "background-dark": "#121d20",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- END: Tailwind Configuration -->
+    <!-- BEGIN: Custom Styles -->
+    <style data-purpose="custom-styling" type="text/tailwindcss">
+        body { font-family: 'Manrope', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1e0e5; border-radius: 10px; }
+    @layer components {
+      .btn-action {
+        @apply p-2 rounded-lg transition-colors flex items-center justify-center;
+      }
+    }
+  </style>
+    <!-- END: Custom Styles -->
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#0f171a] dark:text-white transition-colors duration-200">
+    <div class="min-h-screen flex flex-col">
+        <!-- BEGIN: MainHeader -->
+        <header
+            class="border-b border-[#e8f0f2] dark:border-slate-800 bg-white dark:bg-background-dark sticky top-0 z-10">
+            <div class="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-primary size-8 rounded-lg flex items-center justify-center text-white">
+                        <!-- Icon changed to presentation focused -->
+                        <span class="material-symbols-outlined text-xl">present_to_all</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight">Presentation Repository</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <form action="#" class="relative w-96" method="get">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#538393] text-lg">search</span>
+                        <input
+                            class="w-full bg-[#f0f4f5] dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50"
+                            name="search" placeholder="Search presentations..." />
+                    </form>
+                </div>
+            </div>
+        </header>
+        <!-- END: MainHeader -->
+        <main class="flex-1 w-full">
+            <div class="max-w-[1440px] mx-auto p-8 space-y-8">
+                <!-- BEGIN: PageTitleArea -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h3 class="text-3xl font-black text-[#0f171a] dark:text-white">Presentation Management</h3>
+                        <p class="text-[#538393] dark:text-slate-400 mt-1">Manage and upload your presentation slides
+                            and documents.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a class="px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg hover:brightness-110 transition-all"
+                            href="#">
+                            <span class="material-symbols-outlined text-lg">download_for_offline</span>
+                            Export List
+                        </a>
+                    </div>
+                </div>
+                <!-- END: PageTitleArea -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- BEGIN: UploadFormSection -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-xl border border-[#e8f0f2] dark:border-slate-800 shadow-sm p-6 relative overflow-hidden">
+                            <h4 class="text-lg font-bold mb-6 flex items-center gap-2" id="formTitle">
+                                <span class="material-symbols-outlined text-primary">cloud_upload</span>
+                                <span id="formTitleText">Upload New Presentation</span>
+                            </h4>
+                            <form action="#" class="space-y-4" enctype="multipart/form-data" id="presentationForm"
+                                method="post">
+                                <input id="presentationId" name="id" type="hidden" />
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Presentation
+                                        Title</label>
+                                    <input
+                                        class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-3"
+                                        name="presentationTitle" placeholder="e.g. AI in Modern Education" required=""
+                                        type="text" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">Event/Year</label>
+                                        <select
+                                            class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-2.5"
+                                            name="academicYear">
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2022">2022</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">File
+                                            Format</label>
+                                        <select
+                                            class="w-full rounded-lg border-[#d1e0e5] dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-sm py-2.5"
+                                            name="fileFormat">
+                                            <option value="PPTX">PPTX</option>
+                                            <option value="PDF">PDF</option>
+                                            <option value="KEY">KEYNOTE</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-[#0f171a] dark:text-slate-300 mb-2 uppercase tracking-wide">File
+                                        Attachment</label>
+                                    <label
+                                        class="border-2 border-dashed border-[#d1e0e5] dark:border-slate-700 rounded-xl p-10 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 hover:bg-primary/5 transition-colors cursor-pointer group">
+                                        <span
+                                            class="material-symbols-outlined text-4xl text-[#538393] group-hover:text-primary mb-2 transition-colors">slideshow</span>
+                                        <p class="text-xs font-bold text-center">
+                                            Click to <span class="text-primary underline">browse</span> or drag &amp;
+                                            drop
+                                        </p>
+                                        <input class="sr-only" id="fileInput" name="file" required="" type="file" />
+                                    </label>
+                                </div>
+                                <div class="pt-4 flex items-center gap-3">
+                                    <button
+                                        class="flex-1 py-3 bg-primary text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all shadow-md"
+                                        id="submitBtn" type="submit">Submit Presentation</button>
+                                    <button
+                                        class="px-6 py-3 border border-[#d1e0e5] dark:border-slate-700 text-[#538393] rounded-lg font-bold text-sm hover:bg-slate-50 transition-all"
+                                        onclick="resetForm()" type="button">Reset</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- END: UploadFormSection -->
+                    <!-- BEGIN: FilesGridSection -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xl font-bold">Manage Slides</h4>
+                            <span
+                                class="bg-[#e0f2f7] text-primary px-4 py-1.5 rounded-full text-xs font-bold border border-primary/20">
+                                Total Presentations: <span>3</span>
+                            </span>
+                        </div>
+                        <!-- Grid Display -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- PPTX Card -->
+                            <div
+                                class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-xl overflow-hidden group hover:shadow-lg transition-all border-l-4 border-l-orange-500 flex flex-col">
+                                <div class="p-5 flex-1">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="p-2.5 rounded-lg bg-orange-50 text-orange-600">
+                                            <span class="material-symbols-outlined text-2xl">slideshow</span>
+                                        </div>
+                                    </div>
+                                    <h5 class="text-sm font-bold truncate mb-2">Quarterly Review 2024.pptx</h5>
+                                    <p class="text-[11px] text-[#538393] font-semibold">Business Ops • 2024</p>
+                                </div>
+                                <div
+                                    class="bg-slate-50/50 dark:bg-slate-800/50 px-5 py-3 flex items-center justify-between border-t border-[#e8f0f2] dark:border-slate-800">
+                                    <div class="flex gap-2">
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-blue-600 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
+                                        </button>
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-green-600 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">download</span>
+                                        </button>
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-orange-500 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">edit</span>
+                                        </button>
+                                    </div>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-red-500 hover:bg-white transition-colors">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- PDF Card -->
+                            <div
+                                class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-xl overflow-hidden group hover:shadow-lg transition-all border-l-4 border-l-red-500 flex flex-col">
+                                <div class="p-5 flex-1">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="p-2.5 rounded-lg bg-red-50 text-red-600">
+                                            <span class="material-symbols-outlined text-2xl">picture_as_pdf</span>
+                                        </div>
+                                    </div>
+                                    <h5 class="text-sm font-bold truncate mb-2">Brand Guidelines.pdf</h5>
+                                    <p class="text-[11px] text-[#538393] font-semibold">Design Dept • 2023</p>
+                                </div>
+                                <div
+                                    class="bg-slate-50/50 dark:bg-slate-800/50 px-5 py-3 flex items-center justify-between border-t border-[#e8f0f2] dark:border-slate-800">
+                                    <div class="flex gap-2">
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-blue-600 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
+                                        </button>
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-green-600 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">download</span>
+                                        </button>
+                                        <button
+                                            class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-orange-500 hover:bg-white transition-colors">
+                                            <span class="material-symbols-outlined text-lg">edit</span>
+                                        </button>
+                                    </div>
+                                    <button
+                                        class="w-8 h-8 flex items-center justify-center border border-[#d1e0e5] rounded-lg text-red-500 hover:bg-white transition-colors">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- BEGIN: BulkTableView -->
+                        <div
+                            class="bg-white dark:bg-slate-900 border border-[#e8f0f2] dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                            <div
+                                class="p-5 border-b border-[#e8f0f2] dark:border-slate-800 flex justify-between items-center">
+                                <h5 class="text-xs font-bold uppercase tracking-wider text-[#538393]">Bulk Management
+                                    View</h5>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead
+                                        class="bg-slate-50 dark:bg-slate-800/50 text-[#538393] text-[10px] font-bold uppercase tracking-wider">
+                                        <tr>
+                                            <th class="px-6 py-4">Presentation Title</th>
+                                            <th class="px-6 py-4 text-center">Event/Year</th>
+                                            <th class="px-6 py-4">Format</th>
+                                            <th class="px-6 py-4 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-[#e8f0f2] dark:divide-slate-800">
+                                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <span
+                                                        class="material-symbols-outlined text-xl text-orange-500">slideshow</span>
+                                                    <span class="text-sm font-bold">Annual Tech Summit 2024</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-center">2024</td>
+                                            <td class="px-6 py-4 text-xs font-bold text-[#538393]">PPTX</td>
+                                            <td class="px-6 py-4 text-right">
+                                                <div class="flex justify-end gap-3">
+                                                    <button
+                                                        class="text-[#538393] hover:text-blue-600 transition-colors">
+                                                        <span
+                                                            class="material-symbols-outlined text-lg">visibility</span>
+                                                    </button>
+                                                    <button
+                                                        class="text-[#538393] hover:text-green-600 transition-colors">
+                                                        <span class="material-symbols-outlined text-lg">download</span>
+                                                    </button>
+                                                    <button
+                                                        class="text-[#538393] hover:text-orange-500 transition-colors">
+                                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                                    </button>
+                                                    <button class="text-[#538393] hover:text-red-500 transition-colors">
+                                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- END: BulkTableView -->
+                        <!-- Pagination -->
+                        <div class="flex items-center justify-between pt-4 pb-12">
+                            <p class="text-xs font-semibold text-[#538393]">Total Records: <span>3</span></p>
+                            <div class="flex gap-2">
+                                <button
+                                    class="w-8 h-8 rounded-lg border flex items-center justify-center disabled:opacity-50">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-bold">1</span>
+                                <button
+                                    class="w-8 h-8 rounded-lg border flex items-center justify-center disabled:opacity-50">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: FilesGridSection -->
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- BEGIN: InteractiveScripts -->
+    <script data-purpose="form-logic">
+        function editPresentation(id) {
+            // Logic would go here to fetch and populate
+            document.getElementById('formTitleText').innerText = 'Edit Presentation Details';
+            document.getElementById('submitBtn').innerText = 'Update Presentation';
+            document.getElementById('fileInput').removeAttribute('required');
+            document.getElementById('presentationForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('presentationForm').reset();
+            document.getElementById('presentationId').value = '';
+            document.getElementById('formTitleText').innerText = 'Upload New Presentation';
+            document.getElementById('submitBtn').innerText = 'Submit Presentation';
+            document.getElementById('fileInput').setAttribute('required', 'required');
+        }
+    </script>
+    <!-- END: InteractiveScripts -->
+</body>
+
+</html>

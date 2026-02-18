@@ -117,4 +117,69 @@ public class EmailService {
             throw new RuntimeException("Failed to send reset link email");
         }
     }
+
+    public void sendRegistrationPaymentEmail(com.git.Student.Entity.Student student) {
+        if (student.getEmail() == null || student.getEmail().trim().isEmpty()) {
+            System.err.println("Failed to send payment email: Email address is empty.");
+            return;
+        }
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(student.getEmail());
+            helper.setSubject("Complete Your Registration - Payment Required");
+
+            String encodedName = java.net.URLEncoder.encode(student.getFullName(), "UTF-8");
+            String encodedEmail = java.net.URLEncoder.encode(student.getEmail(), "UTF-8");
+            String encodedPhone = java.net.URLEncoder.encode(student.getContactNumber(), "UTF-8");
+            String encodedUid = java.net.URLEncoder.encode(student.getUid(), "UTF-8");
+
+            String paymentLink = String.format("%s/payment?name=%s&email=%s&phone=%s&uid=%s",
+                    baseUrl, encodedName, encodedEmail, encodedPhone, encodedUid);
+
+            String htmlContent = String.format(
+                    "<div style='font-family: \"Lexend\", sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;'>"
+                            +
+                            "<div style='background: linear-gradient(135deg, #135bec 0%%, #6366f1 100%%); padding: 30px; text-align: center; color: white;'>"
+                            +
+                            "<h2 style='margin: 0; font-size: 24px;'>Welcome to ExamPortal</h2>" +
+                            "<p style='margin: 10px 0 0; opacity: 0.9;'>One more step to complete your registration</p>"
+                            +
+                            "</div>" +
+                            "<div style='padding: 30px; color: #1e293b; line-height: 1.6;'>" +
+                            "<p>Hello <strong>%s</strong>,</p>" +
+                            "<p>Thank you for registering. Your profile has been created successfully with UID: <strong>%s</strong>.</p>"
+                            +
+                            "<p>To activate your account and gain access to the examination portal, please complete the registration fee payment.</p>"
+                            +
+                            "<div style='text-align: center; margin: 30px 0;'>" +
+                            "<a href='%s' style='background-color: #135bec; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);'>Proceed to Payment</a>"
+                            +
+                            "</div>" +
+                            "<p style='font-size: 14px; color: #64748b; background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #135bec;'>"
+                            +
+                            "<strong>Note:</strong> Once your payment is verified, you will receive another email with your login credentials."
+                            +
+                            "</p>" +
+                            "<p style='margin-top: 20px;'>If the button above doesn't work, copy and paste this link into your browser:</p>"
+                            +
+                            "<p style='word-break: break-all; font-size: 12px; color: #135bec;'>%s</p>" +
+                            "</div>" +
+                            "<div style='padding: 20px; background: #f1f5f9; text-align: center; font-size: 12px; color: #94a3b8;'>"
+                            +
+                            "&copy; 2026 ExamPortal. All rights reserved." +
+                            "</div>" +
+                            "</div>",
+                    student.getFullName(), student.getUid(), paymentLink, paymentLink);
+
+            helper.setText(htmlContent, true);
+            javaMailSender.send(message);
+            System.out.println("Successfully sent registration payment email to: " + student.getEmail());
+        } catch (Exception e) {
+            System.err.println("Failed to send registration payment email to: " + student.getEmail());
+            e.printStackTrace();
+        }
+    }
 }

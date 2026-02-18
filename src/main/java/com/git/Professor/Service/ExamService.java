@@ -1,6 +1,7 @@
 package com.git.Professor.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,20 +60,55 @@ public class ExamService {
 
     public void updateExamStatus(Exam exam) {
 
+        // Admin approval check
+        if (!exam.isEnabled()) {
+            exam.setStatus("PENDING");
+            examRepo.save(exam);
+            return;
+        }
+
         LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
 
         if (exam.getExamDate() == null)
             return;
 
+        // FUTURE
         if (exam.getExamDate().isAfter(today)) {
             exam.setStatus("UPCOMING");
-        } else if (exam.getExamDate().isEqual(today)) {
-            exam.setStatus("LIVE");
-        } else {
+        }
+
+        // TODAY
+        else if (exam.getExamDate().isEqual(today)) {
+
+            if (exam.getStartTime() != null && exam.getEndTime() != null) {
+
+                if (now.isBefore(exam.getStartTime())) {
+                    exam.setStatus("UPCOMING");
+                } else if (now.isAfter(exam.getEndTime())) {
+                    exam.setStatus("COMPLETED");
+                } else {
+                    exam.setStatus("LIVE");
+                }
+
+            } else {
+                exam.setStatus("LIVE");
+            }
+        }
+
+        // PAST
+        else {
             exam.setStatus("COMPLETED");
         }
 
         examRepo.save(exam);
+    }
+
+    public void refreshAllExamStatus() {
+        List<Exam> exams = examRepo.findAll();
+        for (Exam exam : exams) {
+            updateExamStatus(exam);
+        }
     }
 
 }

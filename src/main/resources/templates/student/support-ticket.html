@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Ticket - ExamPortal</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0f766e",
+                        secondary: "#6366f1",
+                        "background-light": "#f0fdfa",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #ededed;
+            background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='support', expandItem='')}">
+        </aside>
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <!-- Support Ticket Content -->
+            <div class="p-8 max-w-[800px] mx-auto w-full flex flex-col gap-6">
+                <!-- Page Header -->
+                <div class="flex items-center gap-4 mb-2">
+                    <a href="/support-ticket/previous"
+                        class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </a>
+                    <div class="flex items-center justify-between w-full">
+                        <div>
+                            <h1 class="text-slate-900 dark:text-white text-2xl font-bold">Support Ticket</h1>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">Submit a support request and we'll get
+                                back to you</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div th:if="${successMessage}"
+                    class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+                    <span class="material-symbols-outlined text-green-500">check_circle</span>
+                    <p class="text-green-600 dark:text-green-400 text-sm font-medium" th:text="${successMessage}"></p>
+                </div>
+
+                <!-- Ticket Form Card -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <form th:action="@{/support-ticket/submit}" method="post" enctype="multipart/form-data"
+                        class="space-y-6">
+
+                        <!-- Student UID (Read-only) -->
+                        <div class="space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-primary">person</span>
+                                Student UID
+                            </label>
+                            <input type="text" name="studentUid" th:value="${student.uid}" readonly
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed transition-all">
+                            <p class="text-[10px] text-slate-400 italic">This ticket will be associated with your
+                                Student UID</p>
+                        </div>
+
+                        <!-- Ticket Type -->
+                        <div class="space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-primary">category</span>
+                                Support Ticket Type
+                            </label>
+                            <select name="ticketType" id="ticketType" required onchange="handleTicketTypeChange()"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                <option value="">-- Select Type --</option>
+                                <option value="Payment Issue">Payment Issue</option>
+                                <option value="Registration problem">Registration Problem</option>
+                                <option value="Login Issue">Login Issue</option>
+                                <option value="Password Issue">Password Issue</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Other Issue (Hidden) -->
+                        <div id="otherIssueDiv" class="hidden space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-amber-500">edit</span>
+                                Please specify your issue
+                            </label>
+                            <input type="text" name="otherIssue" placeholder="Enter your issue"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        </div>
+
+                        <!-- Subject -->
+                        <div class="space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-purple-500">subject</span>
+                                Subject
+                            </label>
+                            <input type="text" name="subject" required placeholder="Brief subject of your issue"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-cyan-500">description</span>
+                                Description
+                            </label>
+                            <textarea name="description" rows="5" required
+                                placeholder="Describe your issue in detail..."
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"></textarea>
+                        </div>
+
+                        <!-- Screenshot Upload -->
+                        <div class="space-y-2">
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-emerald-500">image</span>
+                                Upload Screenshot (Optional)
+                            </label>
+                            <div class="relative">
+                                <input type="file" name="screenshot" id="screenshot" accept="image/*" class="hidden"
+                                    onchange="updateFileName()">
+                                <label for="screenshot"
+                                    class="flex items-center justify-center gap-3 w-full px-4 py-4 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all">
+                                    <span class="material-symbols-outlined">cloud_upload</span>
+                                    <span id="fileNameDisplay">Click to upload or drag and drop</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end gap-4 pt-4">
+                            <a href="/student/dashboard"
+                                class="px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                                Cancel
+                            </a>
+                            <button type="submit"
+                                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white rounded-xl font-semibold transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40">
+                                <span class="material-symbols-outlined">send</span>
+                                Submit Ticket
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <footer th:replace="~{fragments/student-sidebar-fragment :: Footer}"></footer>
+        </main>
+    </div>
+
+    <script>
+        // Handle ticket type change
+        function handleTicketTypeChange() {
+            const type = document.getElementById("ticketType").value;
+            const otherDiv = document.getElementById("otherIssueDiv");
+
+            if (type === "Other") {
+                otherDiv.classList.remove("hidden");
+            } else {
+                otherDiv.classList.add("hidden");
+            }
+        }
+
+        // Update file name display
+        function updateFileName() {
+            const input = document.getElementById("screenshot");
+            const display = document.getElementById("fileNameDisplay");
+
+            if (input.files && input.files[0]) {
+                display.textContent = input.files[0].name;
+            } else {
+                display.textContent = "Click to upload or drag and drop";
+            }
+        }
+
+        // Submenu toggle function
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const icon = document.getElementById(submenuId + 'Icon');
+
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                submenu.classList.add('flex');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                submenu.classList.add('hidden');
+                submenu.classList.remove('flex');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Profile menu toggle
+        function toggleProfileMenu() {
+            document.getElementById("profileMenu").classList.toggle("hidden");
+        }
+
+        // Close profile menu when clicking outside
+        document.addEventListener("click", function (e) {
+            const menu = document.getElementById("profileMenu");
+            const avatar = e.target.closest(".rounded-full");
+
+            if (!menu.contains(e.target) && !avatar) {
+                menu.classList.add("hidden");
+            }
+        });
+    </script>
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

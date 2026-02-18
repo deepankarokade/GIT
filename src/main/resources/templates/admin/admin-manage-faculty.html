@@ -39,7 +39,7 @@
                         <h2 class="text-[#111318] dark:text-white text-3xl font-bold tracking-tight">Manage
                             Professors</h2>
                         <p class="text-[#616f89] dark:text-gray-400 text-base font-normal">Oversee and
-                            manage academic staff records across all departments.</p>
+                            manage academic staff records across all courses.</p>
                     </div>
                     <button onclick="window.location.href='/admin/dashboard/professor/add'"
                         class="flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold transition-transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">
@@ -84,30 +84,49 @@
                 </div>
                 <!-- Search and Filters -->
                 <div
-                    class="bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 rounded-xl mb-6">
-                    <div class="p-4 flex flex-col md:flex-row gap-4 items-center">
-                        <div class="w-full md:flex-1">
-                            <label class="relative flex w-full">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                    <span class="material-symbols-outlined text-gray-400">search</span>
+                    class="bg-white dark:bg-background-dark border border-[#dbdfe6] dark:border-gray-800 rounded-xl mb-6 overflow-hidden shadow-sm">
+                    <div class="p-4 flex flex-col lg:flex-row gap-4">
+                        <!-- Search Box -->
+                        <div class="flex-1 lg:max-w-md xl:max-w-xl">
+                            <label class="relative flex w-full group">
+                                <div
+                                    class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none transition-colors group-focus-within:text-primary">
+                                    <span
+                                        class="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">search</span>
                                 </div>
-                                <input
-                                    class="w-full h-12 rounded-lg border-none bg-background-light dark:bg-gray-800 pl-12 pr-4 text-[#111318] dark:text-white placeholder:text-[#616f89] focus:ring-2 focus:ring-primary transition-all"
-                                    placeholder="Search by name, UID, department or course..." />
+                                <input id="facultySearchInput"
+                                    class="w-full h-12 rounded-lg border-none bg-background-light dark:bg-gray-800/50 pl-12 pr-4 text-[#111318] dark:text-white placeholder:text-[#616f89] focus:ring-2 focus:ring-primary transition-all text-sm"
+                                    placeholder="Search by name, UID, or subject..." />
                             </label>
                         </div>
-                        <div class="flex gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                            <select id="departmentFilter" onchange="applyFilters()"
-                                class="h-12 shrink-0 rounded-lg bg-background-light dark:bg-gray-800 px-4 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary">
-                                <option value="">All Departments</option>
-                                <!-- Courses loaded dynamically -->
-                            </select>
-                            <select id="statusFilter" onchange="applyFilters()"
-                                class="h-12 shrink-0 rounded-lg bg-background-light dark:bg-gray-800 px-4 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary">
-                                <option value="">All Status</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="INACTIVE">Inactive</option>
-                            </select>
+
+                        <!-- Responsive Filters Grid -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-3 w-full lg:w-auto items-center">
+                            <div class="relative w-full lg:w-48 xl:w-56">
+                                <select id="departmentFilter" onchange="applyFilters()"
+                                    class="w-full h-12 rounded-lg bg-background-light dark:bg-gray-800/50 px-4 pr-10 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="">All Courses</option>
+                                    <!-- Courses loaded dynamically -->
+                                </select>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <span class="material-symbols-outlined text-xl">expand_more</span>
+                                </div>
+                            </div>
+
+                            <div class="relative w-full lg:w-40">
+                                <select id="statusFilter" onchange="applyFilters()"
+                                    class="w-full h-12 rounded-lg bg-background-light dark:bg-gray-800/50 px-4 pr-10 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 text-sm font-medium transition-all focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="">All Status</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                </select>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <span class="material-symbols-outlined text-xl">expand_more</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -157,6 +176,9 @@
                                 id="totalRecords" class="font-semibold text-gray-700 dark:text-gray-300">0</span>
                             results
                         </p>
+                        <div id="paginationControls" class="flex items-center gap-2">
+                            <!-- Pagination buttons will be generated here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,6 +194,8 @@
 
         let allFaculties = [];
         let filteredFaculties = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
         // Load courses for department filter dropdown
         async function loadCoursesForFilter() {
@@ -236,26 +260,35 @@
             }
         }
 
-        // Render faculty table
+        // Render faculty table with pagination
         function renderFacultyTable(faculties) {
             const tbody = document.querySelector('tbody');
+            const totalItems = faculties.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-            if (!faculties || faculties.length === 0) {
+            // Bounds check
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const paginatedFaculty = faculties.slice(startIndex, endIndex);
+
+            if (!paginatedFaculty || paginatedFaculty.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-3">
-                                <span class="material-symbols-outlined text-5xl">person_off</span>
+                                <span class="material-symbols-outlined text-5xl text-gray-300">person_off</span>
                                 <p class="text-lg font-medium">No faculty members found</p>
                             </div>
                         </td>
                     </tr>
                 `;
-                updatePagination(0);
+                updatePaginationControls(0);
                 return;
             }
 
-            tbody.innerHTML = faculties.map(faculty => {
+            tbody.innerHTML = paginatedFaculty.map(faculty => {
                 const initials = getInitials(faculty.fullName);
                 const avatarColor = getAvatarColor(faculty.fullName);
 
@@ -347,7 +380,62 @@
                 `;
             }).join('');
 
-            updatePagination(faculties.length);
+            updatePaginationControls(totalItems);
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(totalItems) {
+            const paginationControls = document.getElementById('paginationControls');
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            // Update range text
+            const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(currentPage * itemsPerPage, totalItems);
+            document.getElementById('showingFrom').textContent = start;
+            document.getElementById('showingTo').textContent = end;
+            document.getElementById('totalRecords').textContent = totalItems;
+
+            if (!paginationControls) return;
+
+            // Generate buttons
+            let buttonsHtml = `
+                <button onclick="changePage(${currentPage - 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === 1 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+            `;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                buttonsHtml += `
+                    <button onclick="changePage(${i})" 
+                        class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${i === currentPage ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-primary hover:text-primary'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage + 1})" 
+                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors'}"
+                    ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+            `;
+
+            paginationControls.innerHTML = buttonsHtml;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredFaculties.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderFacultyTable(filteredFaculties);
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Update statistics
@@ -362,12 +450,6 @@
             document.getElementById('departmentCount').textContent = departments;
         }
 
-        // Update pagination info
-        function updatePagination(count) {
-            document.getElementById('showingFrom').textContent = count > 0 ? '1' : '0';
-            document.getElementById('showingTo').textContent = count;
-            document.getElementById('totalRecords').textContent = count;
-        }
 
         // Get initials from name
         function getInitials(name) {
@@ -395,7 +477,7 @@
 
         // Apply filters function (search, department, status)
         function applyFilters() {
-            const searchInput = document.querySelector('input[placeholder*="Search"]');
+            const searchInput = document.getElementById('facultySearchInput');
             const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const departmentFilter = document.getElementById('departmentFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
@@ -420,15 +502,18 @@
                 return matchesSearch && matchesDepartment && matchesStatus;
             });
 
+            currentPage = 1; // Reset to page 1 on filter
             renderFacultyTable(filteredFaculties);
             updateStats(filteredFaculties);
         }
 
         // Search input listener
-        const searchInput = document.querySelector('input[placeholder*="Search"]');
-        if (searchInput) {
-            searchInput.addEventListener('input', applyFilters);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('facultySearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', applyFilters);
+            }
+        });
 
         // Edit faculty
         function editFaculty(username) {

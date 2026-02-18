@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Final Question Paper - Print View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background: #f0f2f5; 
+            font-family: 'Times New Roman', Times, serif; 
+        }
+        
+        /* A4 Size Paper Look */
+        .paper-container {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .exam-header {
+            border-bottom: 3px double #000;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+
+        .institution-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .section-title {
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-left: 5px solid #000;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .question-row {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .q-text {
+            font-size: 1.15rem;
+            line-height: 1.4;
+        }
+
+        .marks-val {
+            font-weight: bold;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .mcq-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding-left: 25px;
+            margin-top: 5px;
+        }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .no-print { display: none !important; }
+            .paper-container { 
+                margin: 0; 
+                box-shadow: none; 
+                width: 100%;
+                padding: 10mm; 
+            }
+            .section-title { background: transparent !important; border-bottom: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container no-print mt-4 text-center">
+        <div class="alert alert-info d-inline-block">
+            <i class="fas fa-info-circle me-2"></i> Review your question paper below and click print.
+        </div>
+        <br>
+        <button onclick="window.print()" class="btn btn-primary btn-lg px-5 shadow">
+            <i class="fas fa-print me-2"></i> Print Question Paper / Save PDF
+        </button>
+        <a th:href="@{/professor/question-bank}" class="btn btn-outline-secondary btn-lg ms-2">Back</a>
+        <hr>
+    </div>
+
+    <div class="paper-container">
+        <div class="exam-header text-center">
+            <div class="institution-name">NAME OF THE INSTITUTION</div>
+            <h4 class="text-uppercase mb-3" th:text="${course} + ' SEMESTER EXAMINATION'">EXAMINATION</h4>
+            
+            <div class="row mt-4 text-start font-monospace small">
+                <div class="col-6">
+                    <strong>SUBJECT:</strong> <span th:text="${subject}">Subject</span><br>
+                    <strong>CLASS:</strong> <span th:text="${className}">Class</span>
+                </div>
+                <div class="col-6 text-end">
+                    <strong>MAX MARKS:</strong> <span id="totalMarksDisplay" class="fw-bold">0</span><br>
+                    <strong>TIME:</strong> 3 Hours
+                </div>
+            </div>
+        </div>
+
+        <div th:with="types=${ {'MCQ', 'TRUE_FALSE', 'MATCH_THE_PAIRS', 'FILL_IN_THE_BLANKS', 'SHORT_ANSWER', 'LONG_ANSWER', 'ESSAY'} }">
+            <th:block th:each="currentType : ${types}">
+                
+                <div th:with="filteredQuestions=${questions.?[questionType.name() == '__${currentType}__']}">
+                    
+                    <div th:if="${not #lists.isEmpty(filteredQuestions)}">
+                        <div class="section-title">
+                            [[${currentType.replace('_', ' ')}]]
+                        </div>
+
+                        <div th:each="q, stat : ${filteredQuestions}" class="question-row">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="q-text">
+                                    <strong>Q.[[${stat.count}]]</strong> [[${q.questionText}]]
+                                </div>
+                                <div class="marks-val">[[${q.marks}]]</div>
+                            </div>
+
+                            <div th:if="${q.questionType.name() == 'MCQ'}" class="mcq-options">
+                                <span>(A) [[${q.optionA}]]</span>
+                                <span>(B) [[${q.optionB}]]</span>
+                                <span>(C) [[${q.optionC}]]</span>
+                                <span>(D) [[${q.optionD}]]</span>
+                            </div>
+
+                            <div th:if="${q.questionType.name() == 'MATCH_THE_PAIRS'}" class="mt-2 ps-4">
+                                <table class="table table-sm table-borderless w-75">
+                                    <tr th:each="pair : ${#strings.arraySplit(q.matchPairs, ';;')}">
+                                        <td th:text="${#strings.arraySplit(pair, '|')[0]}"></td>
+                                        <td class="text-center">----------</td>
+                                        <td th:text="${#strings.arraySplit(pair, '|')[1]}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div th:if="${q.questionType.name() == 'FILL_IN_THE_BLANKS'}" class="ps-4 mt-1">
+                                <div class="text-muted small italic">__________________________________________________</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="mt-5 pt-4 text-end">
+            <p class="mb-0">__________________________</p>
+            <p class="me-4 text-uppercase small fw-bold">Controller of Examination</p>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Thymeleaf variables are passed as JSON objects in th:inline="javascript"
+                /*[# th:if="${questions != null}"]*/
+                    const allQuestions = /*[[${questions}]]*/ [];
+                    let total = 0;
+                    
+                    allQuestions.forEach(q => {
+                        if (q.marks) {
+                            total += parseFloat(q.marks);
+                        }
+                    });
+                    
+                    document.getElementById('totalMarksDisplay').innerText = total;
+                /*[/]*/
+            } catch (err) {
+                console.error("Error calculating marks:", err);
+            }
+        });
+    </script>
+</body>
+</html>

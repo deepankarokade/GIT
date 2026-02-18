@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Options - ExamPortal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#135bec",
+                        "background-light": "#f6f6f8",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-display bg-background-light min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 text-center">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                <span class="material-symbols-outlined text-3xl text-primary">security</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">Security Recommendation</h2>
+            <p class="text-gray-500 text-sm mt-2">To keep your account secure, we recommend changing your password.</p>
+        </div>
+
+        <!-- Options -->
+        <div class="space-y-4">
+            <!-- Continue Option -->
+            <a th:href="@{/student/change-password-page}"
+                class="w-full h-14 bg-primary hover:bg-blue-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-200">
+                <span class="material-symbols-outlined">lock_reset</span>
+                Do you want to reset Password
+            </a>
+
+            <!-- Skip Option -->
+            <a th:href="@{/student/dashboard}"
+                class="w-full h-14 bg-white border-2 border-gray-100 hover:border-gray-200 hover:bg-gray-50 text-gray-600 rounded-xl font-bold transition-all flex items-center justify-center gap-3">
+                <span class="material-symbols-outlined">skip_next</span>
+                Skip for Now
+            </a>
+        </div>
+
+        <p class="text-xs text-gray-400 mt-8">
+            You can also change your password anytime from your dashboard settings.
+        </p>
+
+    </div>
+
+</body>
+
+</html>

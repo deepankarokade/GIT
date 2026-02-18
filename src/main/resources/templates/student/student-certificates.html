@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>My Certificates - ExamPortal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f766e",
+                        "secondary": "#6366f1",
+                        "background-light": "#f0fdfa",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #ededed;
+            background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='certificates')}"></aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <!-- Dashboard Content -->
+            <div class="p-8 max-w-[1200px] mx-auto w-full flex flex-col gap-8">
+                <!-- Header Section -->
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">My Certificates</h1>
+                    <p class="text-slate-500 dark:text-slate-400">View and download your earned certificates for exams
+                        and courses.</p>
+                </div>
+
+                <!-- Certificates Table Section -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Issued Certificates</h2>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Course / Exam</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Issue Date</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        Grade</th>
+                                    <th
+                                        class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                                <tr th:each="cert : ${certificates}"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-primary/10 rounded-xl text-primary">
+                                                <span class="material-symbols-outlined">workspace_premium</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-slate-900 dark:text-white"
+                                                    th:text="${cert.courseName}">Course Name</div>
+                                                <div class="text-xs text-slate-500 dark:text-slate-400 font-medium"
+                                                    th:text="${cert.exam.title}">Exam Title</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium"
+                                        th:text="${#temporals.format(cert.issueDate, 'dd MMM yyyy')}">Date</td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                                            th:text="${cert.grade}">A</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <a th:href="@{/certificate/view/{id}(id=${cert.id})}" target="_blank"
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl hover:bg-teal-700 transition-all text-sm font-bold shadow-sm shadow-primary/20">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                            View Certificate
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(certificates)}">
+                                    <td colspan="4" class="px-6 py-16 text-center text-slate-500 dark:text-slate-400">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div
+                                                class="size-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                                <span class="material-symbols-outlined text-4xl">description_off</span>
+                                            </div>
+                                            <p class="font-medium text-lg">No certificates issued yet.</p>
+                                            <p class="text-sm max-w-xs mx-auto">Complete your exams and achieve passing
+                                                grades to earn your official certificates.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <footer th:replace="~{fragments/student-sidebar-fragment :: Footer}"></footer>
+        </main>
+    </div>
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

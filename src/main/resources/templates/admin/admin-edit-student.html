@@ -151,7 +151,10 @@
                                                         Name</span>
                                                     <input name="fullName" id="fullName" required
                                                         class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
-                                                        placeholder="e.g. Johnathan Doe" type="text" />
+                                                        placeholder="e.g. Johnathan Doe" type="text"
+                                                        pattern="^[A-Za-z]+\s+[A-Za-z]+(\s+[A-Za-z]+)*$" minlength="3"
+                                                        maxlength="100"
+                                                        title="Please enter at least two names (First and Last Name)" />
                                                 </label>
                                                 <div class="flex flex-col gap-1.5">
                                                     <span
@@ -231,9 +234,14 @@
                                                 <div class="relative">
                                                     <span
                                                         class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">phone</span>
+                                                    <span
+                                                        class="absolute left-11 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
                                                     <input id="contactNumber" name="contactNumber"
-                                                        class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-11 pr-4"
-                                                        placeholder="+1 (555) 000-0000" type="tel" />
+                                                        class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-[5.5rem] pr-4"
+                                                        placeholder="9876543210" type="tel" minlength="10"
+                                                        maxlength="10" pattern="[0-9]{10}"
+                                                        title="Please enter exactly 10 digits"
+                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)" />
                                                 </div>
                                             </label>
                                             <label class="flex flex-col gap-1.5 md:col-span-2">
@@ -246,13 +254,40 @@
                                             </label>
                                             <label class="flex flex-col gap-1.5">
                                                 <span
-                                                    class="text-slate-700 dark:text-slate-300 text-sm font-medium">State/Province</span>
+                                                    class="text-slate-700 dark:text-slate-300 text-sm font-medium">State
+                                                    <span class="text-red-500">*</span></span>
                                                 <select id="state" name="state"
-                                                    class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
+                                                    class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3"
+                                                    required>
                                                     <option disabled value="">Select State</option>
+                                                    <option>Andhra Pradesh</option>
+                                                    <option>Arunachal Pradesh</option>
+                                                    <option>Assam</option>
+                                                    <option>Bihar</option>
+                                                    <option>Chhattisgarh</option>
+                                                    <option>Goa</option>
+                                                    <option>Gujarat</option>
+                                                    <option>Haryana</option>
+                                                    <option>Himachal Pradesh</option>
+                                                    <option>Jharkhand</option>
+                                                    <option>Karnataka</option>
+                                                    <option>Kerala</option>
+                                                    <option>Madhya Pradesh</option>
                                                     <option>Maharashtra</option>
-                                                    <option>Gujrat</option>
-                                                    <option>Tamilnaudu</option>
+                                                    <option>Manipur</option>
+                                                    <option>Meghalaya</option>
+                                                    <option>Mizoram</option>
+                                                    <option>Nagaland</option>
+                                                    <option>Odisha</option>
+                                                    <option>Punjab</option>
+                                                    <option>Rajasthan</option>
+                                                    <option>Sikkim</option>
+                                                    <option>Tamil Nadu</option>
+                                                    <option>Telangana</option>
+                                                    <option>Tripura</option>
+                                                    <option>Uttar Pradesh</option>
+                                                    <option>Uttarakhand</option>
+                                                    <option>West Bengal</option>
                                                 </select>
                                             </label>
                                             <label class="flex flex-col gap-1.5">
@@ -291,9 +326,13 @@
                                                     class="text-slate-700 dark:text-slate-300 text-sm font-medium">Guardian
                                                     /
                                                     Parent Contact</span>
-                                                <input id="parentContact" name="parentContact"
-                                                    class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
-                                                    placeholder="Phone Number" type="tel" />
+                                                <div class="relative">
+                                                    <span
+                                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
+                                                    <input id="parentContact" name="parentContact"
+                                                        class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-16 pr-4"
+                                                        placeholder="Phone Number" type="tel" />
+                                                </div>
                                             </label>
                                         </div>
                                     </section>
@@ -720,12 +759,32 @@
 
             const formData = new FormData();
 
-            // Append all form data (except photo)
-            formData.append('fullName', document.getElementById('fullName').value);
+            // Validation: Full Name check
+            const fullName = document.getElementById('fullName').value;
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!fullName || fullName.length < 2 || fullName.length > 100 || !nameRegex.test(fullName)) {
+                alert('❌ Please enter a valid Full Name (2-100 characters, letters and spaces only)');
+                return;
+            }
+
+            // Validation: Full Name must have at least two words
+            if (!fullName || fullName.trim().split(/\s+/).length < 2) {
+                alert('❌ Please enter both first and last name');
+                return;
+            }
+
+            // Contact Number validation
+            const contactNumber = document.getElementById('contactNumber').value;
+            if (!contactNumber || contactNumber.length !== 10) {
+                alert('❌ Contact Number is required and must be exactly 10 digits');
+                return;
+            }
+
+            formData.append('fullName', fullName);
             formData.append('dob', document.getElementById('dob').value);
             formData.append('gender', document.querySelector('input[name="gender"]:checked')?.value || '');
             formData.append('email', document.getElementById('email').value);
-            formData.append('contactNumber', document.getElementById('contactNumber').value);
+            formData.append('contactNumber', contactNumber);
             formData.append('address', document.getElementById('address').value);
             formData.append('state', document.getElementById('state').value);
             formData.append('city', document.getElementById('city').value);
@@ -893,32 +952,27 @@
             });
         }
 
-        // Delete Account (Mark as deleted)
+        // Delete Account (Hard delete)
         if (deleteBtn) {
             deleteBtn.addEventListener('click', async function () {
-                if (!confirm('⚠️ Are you sure you want to DELETE this student account? This action marks the account as deleted and cannot be easily undone.')) return;
+                if (!confirm('⚠️ Are you sure you want to PERMANENTLY DELETE this student account? This action cannot be undone!')) return;
 
                 try {
-                    const response = await fetch(`${BASE_URL}/admin/student/${studentUid}/delete`, {
-                        method: 'PUT'
+                    const response = await fetch(`${BASE_URL}/admin/student/${studentUid}`, {
+                        method: 'DELETE'
                     });
 
                     if (response.ok) {
-                        alert('✅ Student account marked as deleted!');
-                        updateStatusDisplay('DELETED');
-
-                        // Optionally redirect after a delay
-                        setTimeout(() => {
-                            if (confirm('Return to student list?')) {
-                                window.location.href = `${BASE_URL}/admin/dashboard/student`;
-                            }
-                        }, 2000);
+                        alert('✅ Student account deleted successfully!');
+                        // Redirect back to student management page
+                        window.location.href = `${BASE_URL}/admin/dashboard/student`;
                     } else {
-                        throw new Error('Failed to delete');
+                        const errorMsg = await response.text();
+                        throw new Error(errorMsg || 'Failed to delete');
                     }
                 } catch (error) {
                     console.error('Error deleting account:', error);
-                    alert('❌ Failed to delete account');
+                    alert('❌ Failed to delete account: ' + error.message);
                 }
             });
         }

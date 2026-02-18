@@ -130,24 +130,27 @@
                                                 Name</span>
                                             <input name="fullName" required
                                                 class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
-                                                placeholder="e.g. Johnathan Doe" type="text" />
+                                                placeholder="e.g. John Doe" type="text"
+                                                pattern="^[A-Za-z]+\s+[A-Za-z]+(\s+[A-Za-z]+)*$" minlength="3"
+                                                maxlength="100"
+                                                title="Please enter at least two names (First and Last Name)" />
                                         </label>
                                         <div class="flex flex-col gap-1.5 md:col-span-2">
                                             <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Date of
-                                                Birth</span>
-                                            <input name="dob"
+                                                Birth <span class="text-red-500">*</span></span>
+                                            <input name="dob" required
                                                 class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
                                                 type="date" />
                                         </div>
                                         <div class="flex flex-col gap-2 md:col-span-2">
-                                            <span
-                                                class="text-slate-700 dark:text-slate-300 text-sm font-medium">Gender</span>
+                                            <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Gender
+                                                <span class="text-red-500">*</span></span>
                                             <div class="flex flex-wrap gap-4">
                                                 <label
                                                     class="flex items-center gap-2 cursor-pointer p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors flex-1 min-w-[120px]">
                                                     <input
                                                         class="size-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
-                                                        name="gender" value="Male" type="radio" />
+                                                        name="gender" value="Male" type="radio" required />
                                                     <span
                                                         class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
                                                 </label>
@@ -155,7 +158,7 @@
                                                     class="flex items-center gap-2 cursor-pointer p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-colors flex-1 min-w-[120px]">
                                                     <input
                                                         class="size-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700"
-                                                        name="gender" value="Female" type="radio" />
+                                                        name="gender" value="Female" type="radio" required />
                                                     <span
                                                         class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>
                                                 </label>
@@ -175,24 +178,28 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <label class="flex flex-col gap-1.5">
                                         <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Email
-                                            Address</span>
+                                            Address <span class="text-red-500">*</span></span>
                                         <div class="relative">
                                             <span
                                                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">mail</span>
-                                            <input name="email"
+                                            <input name="email" required
                                                 class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-11 pr-4"
                                                 placeholder="student@example.com" type="email" />
                                         </div>
                                     </label>
                                     <label class="flex flex-col gap-1.5">
                                         <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Contact
-                                            Number</span>
+                                            Number <span class="text-red-500">*</span></span>
                                         <div class="relative">
                                             <span
                                                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">phone</span>
+                                            <span
+                                                class="absolute left-11 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
                                             <input name="contactNumber" required
-                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-11 pr-4"
-                                                placeholder="+1 (555) 000-0000" type="tel" />
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-[5.5rem] pr-4"
+                                                placeholder="9876543210" type="tel" minlength="10" maxlength="10"
+                                                pattern="[0-9]{10}" title="Please enter exactly 10 digits"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)" />
                                         </div>
                                     </label>
                                     <label class="flex flex-col gap-1.5 md:col-span-2">
@@ -203,14 +210,40 @@
                                             placeholder="Apartment, Street, Area" type="text" />
                                     </label>
                                     <label class="flex flex-col gap-1.5">
-                                        <span
-                                            class="text-slate-700 dark:text-slate-300 text-sm font-medium">State/Province</span>
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">State
+                                            <span class="text-red-500">*</span></span>
                                         <select name="state"
-                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
-                                            <option disabled="" selected="" value="">Select State</option>
+                                            class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3"
+                                            required>
+                                            <option disabled selected value="">Select State</option>
+                                            <option>Andhra Pradesh</option>
+                                            <option>Arunachal Pradesh</option>
+                                            <option>Assam</option>
+                                            <option>Bihar</option>
+                                            <option>Chhattisgarh</option>
+                                            <option>Goa</option>
+                                            <option>Gujarat</option>
+                                            <option>Haryana</option>
+                                            <option>Himachal Pradesh</option>
+                                            <option>Jharkhand</option>
+                                            <option>Karnataka</option>
+                                            <option>Kerala</option>
+                                            <option>Madhya Pradesh</option>
                                             <option>Maharashtra</option>
-                                            <option>Gujrat</option>
-                                            <option>Tamilnaudu</option>
+                                            <option>Manipur</option>
+                                            <option>Meghalaya</option>
+                                            <option>Mizoram</option>
+                                            <option>Nagaland</option>
+                                            <option>Odisha</option>
+                                            <option>Punjab</option>
+                                            <option>Rajasthan</option>
+                                            <option>Sikkim</option>
+                                            <option>Tamil Nadu</option>
+                                            <option>Telangana</option>
+                                            <option>Tripura</option>
+                                            <option>Uttar Pradesh</option>
+                                            <option>Uttarakhand</option>
+                                            <option>West Bengal</option>
                                         </select>
                                     </label>
                                     <label class="flex flex-col gap-1.5">
@@ -242,9 +275,15 @@
                                     <label class="flex flex-col gap-1.5">
                                         <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Guardian /
                                             Parent Contact</span>
-                                        <input name="parentContact"
-                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
-                                            placeholder="Phone Number" type="tel" />
+                                        <div class="relative">
+                                            <span
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium border-r border-slate-200 dark:border-slate-700 pr-2">+91</span>
+                                            <input name="parentContact"
+                                                class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 pl-16 pr-4"
+                                                placeholder="9876543210" type="tel" minlength="10" maxlength="10"
+                                                pattern="[0-9]{10}" title="Please enter exactly 10 digits"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)" />
+                                        </div>
                                     </label>
                                 </div>
                             </section>
@@ -260,8 +299,8 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <label class="flex flex-col gap-1.5 md:col-span-2">
                                         <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">College
-                                            Name</span>
-                                        <input name="schoolCollegeName"
+                                            Name <span class="text-red-500">*</span></span>
+                                        <input name="schoolCollegeName" required
                                             class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
                                             placeholder="Enter institution name" type="text" />
                                     </label>
@@ -291,15 +330,8 @@
                                             placeholder="Enter ID if available" type="text" />
                                     </label>
                                     <label class="flex flex-col gap-1.5 md:col-span-2">
-                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Preferred
-                                            Exam Date <span class="text-slate-400 font-normal">(Optional)</span></span>
-                                        <input name="preferredExamDate"
-                                            class="form-input w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary placeholder:text-slate-400 h-12 px-4"
-                                            type="date" />
-                                    </label>
-                                    <label class="flex flex-col gap-1.5 md:col-span-2">
-                                        <span
-                                            class="text-slate-700 dark:text-slate-300 text-sm font-medium">Subjects</span>
+                                        <span class="text-slate-700 dark:text-slate-300 text-sm font-medium">Course
+                                            <span class="text-red-500">*</span></span>
                                         <select name="subjects" id="subjectsDropdown" required
                                             class="form-select w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-primary h-12 px-3">
                                             <option disabled="" selected="" value="">Please select a class first
@@ -312,11 +344,11 @@
                                 class="flex flex-col-reverse md:flex-row items-center justify-end gap-4 border-t border-slate-100 dark:border-slate-800 pt-6 mt-2">
                                 <button
                                     class="w-full md:w-auto px-6 py-3 rounded-lg text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                                    type="button">
+                                    type="button" onclick="formReset()">
                                     Reset Form
                                 </button>
                                 <div class="flex w-full md:w-auto gap-4">
-                                    <a th:href="@{/student/login}">
+                                    <a th:href="@{/admin/dashboard/student}">
                                         <button
                                             class="flex-1 md:flex-none md:w-32 justify-center px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                             type="button">
@@ -372,6 +404,29 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // Reset form functionality
+        function formReset() {
+            if (confirm('Are you sure you want to reset the form? All unsaved changes will be lost.')) {
+                form.reset();
+                // Reset photo preview to default state
+                photoPreviewContainer.innerHTML = `
+                    <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-500 group-hover:hidden">add_a_photo</span>
+                    <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white font-medium text-sm">Change</div>
+                `;
+                photoInput.value = '';
+
+                // Clear subjects dropdown (as it depends on class selection)
+                const subjectsDropdown = document.getElementById('subjectsDropdown');
+                if (subjectsDropdown) {
+                    subjectsDropdown.innerHTML = '<option disabled selected value="">Please select a class first</option>';
+                }
+
+                // Refresh class and section dropdowns to default state
+                loadClassesForDropdown();
+                loadSectionsForDropdown();
+            }
+        }
 
         const form = document.getElementById('studentRegistrationForm');
         // BASE_URL comes from /js/config.js
@@ -498,9 +553,29 @@
             const preferredExamDate = form.querySelector('input[name="preferredExamDate"]')?.value || '';
             const subjects = form.querySelector('select[name="subjects"]')?.value || '';
 
+            // Validation: Full Name check
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!fullName || fullName.length < 2 || fullName.length > 100 || !nameRegex.test(fullName)) {
+                alert('❌ Please enter a valid Full Name (2-100 characters, letters and spaces only)');
+                return;
+            }
+
+            // Validation: Full Name must have at least two words
+            if (!fullName || fullName.trim().split(/\s+/).length < 2) {
+                alert('❌ Please enter both first and last name');
+                return;
+            }
+
+            // Validation: Gender is required
             // Validation: Contact Number is required for UID generation
-            if (!contactNumber || contactNumber.length < 5) {
-                alert('❌ Contact Number is required and must have at least 5 digits');
+            if (!contactNumber || contactNumber.length !== 10) {
+                alert('❌ Contact Number is required and must be exactly 10 digits');
+                return;
+            }
+
+            // Validation: Parent Contact (if provided) must be 10 digits
+            if (parentContact && parentContact.length !== 10) {
+                alert('❌ Parent/Guardian Contact must be exactly 10 digits');
                 return;
             }
 
@@ -527,6 +602,9 @@
                 formData.append('photo', photoInput.files[0]);
             }
 
+            // Always send registration email when added by admin
+            formData.append('sendEmail', 'true');
+
             // Show loading state
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalBtnContent = submitBtn.innerHTML;
@@ -550,8 +628,8 @@
                     // Redirect back to student list instead of immediate payment
                     window.location.href = `${BASE_URL}/admin/dashboard/student`;
                 } else {
-                    const error = await response.text();
-                    alert('❌ Error: ' + error);
+                    const errorObj = await response.json();
+                    alert('❌ Error: ' + (errorObj.message || 'Registration failed'));
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnContent;
                 }

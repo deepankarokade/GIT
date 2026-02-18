@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Finalize Question Paper - ExamPortal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: { "display": ["Lexend", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Lexend', sans-serif; }
+        .geometric-bg {
+            background-color: #f6f6f8;
+            background-image: radial-gradient(#135bec11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#135bec22 1px, transparent 1px);
+        }
+        @media print { .d-print-none { display: none !important; } }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <header class="flex items-center justify-between sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4 d-print-none">
+                <div class="flex items-center gap-4">
+                    <div class="text-primary"><span class="material-symbols-outlined text-3xl">task</span></div>
+                    <div>
+                        <h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Question Selection</h2>
+                        <p class="text-xs text-slate-500">Select questions to finalize the paper</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="finalizeSelection()" class="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        Finalize Paper
+                    </button>
+                    <button onclick="window.print()" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-all">
+                        <span class="material-symbols-outlined">print</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="p-8 max-w-[1000px] mx-auto w-full flex flex-col gap-6">
+                <section class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Course</p>
+                            <p class="font-semibold text-sm" th:text="${course ?: 'N/A'}">PCM</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Subject</p>
+                            <p class="font-semibold text-sm" th:text="${subject ?: 'N/A'}">Physics</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Set</p>
+                            <p class="font-semibold text-sm text-red-500" th:text="${set}">A</p>
+                        </div>
+                        <div class="p-3 bg-primary/10 rounded-xl">
+                            <p class="text-[10px] uppercase tracking-wider text-primary font-bold">Selected</p>
+                            <p id="selectedCount" class="font-bold text-sm text-primary">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div th:if="${#lists.isEmpty(questions)}" class="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300">
+                    <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
+                    <p class="mt-2 text-slate-500 font-medium">No questions found for this set.</p>
+                </div>
+
+                <div th:with="types=${ {'MCQ', 'TRUE_FALSE', 'SHORT_ANSWER', 'LONG_ANSWER'} }">
+                    <th:block th:each="currentType : ${types}">
+                        <div class="flex items-center gap-3 mt-6 mb-4 px-2">
+                            <span class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></span>
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400" th:text="${currentType.replace('_', ' ')}">MCQ</h3>
+                            <span class="h-px flex-1 bg-slate-200 dark:bg-slate-800"></span>
+                        </div>
+
+                        <div th:each="q, stat : ${questions}" th:if="${q.questionType.name() == currentType}" 
+                             class="group bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 mb-4 hover:border-primary transition-all shadow-sm">
+                            <div class="flex gap-4">
+                                <div class="d-print-none">
+                                    <input type="checkbox" th:value="${q.id}" onchange="updateCounter()" 
+                                           class="q-checkbox size-5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer transition-all">
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h4 class="font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
+                                            <span class="text-slate-400 mr-2 font-bold" th:text="${stat.count} + '.'">1.</span>
+                                            <span th:text="${q.questionText}">What is Newton's First Law?</span>
+                                        </h4>
+                                        <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-primary text-[10px] font-bold rounded-full border border-primary/10">
+                                            [[${q.marks}]] MARKS
+                                        </span>
+                                    </div>
+
+                                    <div th:if="${q.questionType.name() == 'MCQ'}" class="grid grid-cols-1 md:grid-cols-2 gap-3 ml-6">
+                                        <div class="flex items-center gap-2 text-sm text-slate-500">
+                                            <span class="size-6 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-[10px] font-bold border border-slate-200 dark:border-slate-700">A</span>
+                                            <span th:text="${q.optionA}">Option A</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm text-slate-500">
+                                            <span class="size-6 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-[10px] font-bold border border-slate-200 dark:border-slate-700">B</span>
+                                            <span th:text="${q.optionB}">Option B</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm text-slate-500">
+                                            <span class="size-6 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-[10px] font-bold border border-slate-200 dark:border-slate-700">C</span>
+                                            <span th:text="${q.optionC}">Option C</span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm text-slate-500">
+                                            <span class="size-6 flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-[10px] font-bold border border-slate-200 dark:border-slate-700">D</span>
+                                            <span th:text="${q.optionD}">Option D</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500 d-print-none">
+                                        <span class="material-symbols-outlined text-sm">verified</span>
+                                        CORRECT ANSWER: [[${q.correctAnswer}]]
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+
+                <div class="mt-8 flex justify-center gap-4 d-print-none">
+                    <a th:href="@{/professor/question-bank}" class="px-8 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-300 transition-all">Back</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-900 text-white rounded-2xl shadow-2xl opacity-0 transition-all duration-300 pointer-events-none z-50">
+        Message here
+    </div>
+
+    <script th:inline="javascript">
+        // Selected Count Update
+        function updateCounter() {
+            const checked = document.querySelectorAll('.q-checkbox:checked').length;
+            document.getElementById('selectedCount').innerText = checked;
+        }
+
+        // Finalize Logic
+		function finalizeSelection() {
+		    const selectedCheckboxes = document.querySelectorAll('.q-checkbox:checked');
+		    
+		    if (selectedCheckboxes.length === 0) {
+		        alert("Please select at least one question!");
+		        return;
+		    }
+
+		  
+		    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+		    
+		    const form = document.createElement('form');
+		    form.method = 'POST';
+		    form.action = '/professor/generate-paper';
+
+		    const input = document.createElement('input');
+		    input.type = 'hidden';
+		    input.name = 'questionIds';
+		    input.value = selectedIds.join(','); // उदा. "1,4,10"
+
+		    form.appendChild(input);
+		    document.body.appendChild(form);
+		    form.submit();
+		}
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            toast.classList.add('opacity-100', '-translate-y-5');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-10');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

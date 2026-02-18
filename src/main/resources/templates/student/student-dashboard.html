@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Student Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f766e",
+                        "secondary": "#6366f1",
+                        "background-light": "#f0fdfa",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #ededed;
+            background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+        }
+
+        /* --- New ExamBot Styles --- */
+        .chatbot-container {
+            width: 320px;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .dark .chatbot-container {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .chat-header {
+            padding: 12px 15px;
+            background: linear-gradient(135deg, #6a5cff, #ff5fa2);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bot-icon {
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            color: #6a5cff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            font-size: 11px;
+            color: #dfffe2;
+        }
+
+        .chat-body {
+            padding: 12px;
+            background: #f8f9fd;
+            height: 320px;
+            overflow-y: auto;
+        }
+
+        .dark .chat-body {
+            background: #0f172a;
+        }
+
+        .bot-msg-bubble {
+            background: #fff;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .dark .bot-msg-bubble {
+            background: #1e293b;
+            color: #f1f5f9;
+            box-shadow: none;
+        }
+
+        .chat-option {
+            background: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+            font-size: 14px;
+            transition: .2s;
+            color: #334155;
+        }
+
+        .dark .chat-option {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        .chat-option:hover {
+            background: #f0f3ff;
+            border-color: #6a5cff;
+        }
+
+        .dark .chat-option:hover {
+            background: #334155;
+        }
+
+        .chat-option.active {
+            background: #6a5cff;
+            color: #fff;
+            border-color: #6a5cff;
+        }
+
+        .chat-arrow {
+            color: #aaa;
+        }
+
+        .chat-answer {
+            background: #eaeaff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #475569;
+            border-left: 4px solid #6a5cff;
+        }
+
+        .dark .chat-answer {
+            background: #1e293b;
+            color: #cbd5e1;
+            border-left-color: #6a5cff;
+        }
+
+        .user-msg-row {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .user-msg-bubble {
+            background: #6a5cff;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 12px 12px 0 12px;
+            display: inline-block;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(106, 92, 255, 0.2);
+        }
+
+        .bot-reply-bubble {
+            background: #eaeaff;
+            color: #475569;
+            padding: 8px 12px;
+            border-radius: 12px 12px 12px 0;
+            display: inline-block;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .dark .bot-reply-bubble {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .dark .chat-footer {
+            background: #1e293b;
+            border-top-color: #334155;
+        }
+
+        .chat-input {
+            flex: 1;
+            height: 40px;
+            /* 🔴 height compulsory */
+            padding: 0 18px;
+            border-radius: 9999px !important;
+            /* 🔴 force round */
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 14px;
+            line-height: 40px;
+            /* 🔴 vertical center */
+            appearance: none;
+            /* 🔴 Tailwind override */
+            -webkit-appearance: none;
+        }
+
+        .dark .chat-input {
+            background: #0f172a;
+            border-color: #334155;
+            color: #fff;
+            border-radius: 9999px !important;
+        }
+
+
+        .chat-input:focus {
+            border-color: #6a5cff;
+            box-shadow: 0 0 0 2px rgba(106, 92, 255, 0.2);
+        }
+
+        .chat-send-btn {
+            margin-left: 8px;
+            background: #6a5cff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+            background: #5a4ee0;
+        }
+
+        .chat-back-btn {
+            margin-bottom: 10px;
+            background: #6a5cff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-back-btn:hover {
+            background: #5a4ee0;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+    <script th:if="${success}">
+        alert("[[${success}]]");
+    </script>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='dashboard', expandItem='')}">
+        </aside>
+        <!--Side bar Fragment-->
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header> <!--Header-->
+
+            <!-- Dashboard Content -->
+            <div class="p-8 max-w-[1200px] mx-auto w-full flex flex-col gap-8">
+                <!-- Stats Section -->
+                <section>
+                    <div class="flex items-end justify-between mb-6">
+                        <div>
+                            <h3 class="text-slate-900 dark:text-white text-2xl font-bold">Welcome <span
+                                    th:text="${student.fullName}"></span>👋</h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">Track your exams, results, and
+                                learning progress.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Total Courses Card -->
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Courses
+                                    </p>
+                                    <h4 class="text-slate-900 dark:text-white text-3xl font-bold">08</h4>
+                                    <div class="mt-2 flex items-center gap-1 text-sm font-medium">
+                                        <span class="text-slate-400">Enrolled</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="size-12 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center text-cyan-600">
+                                    <span class="material-symbols-outlined">book</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Upcoming Exams Card -->
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Upcoming
+                                        Exams</p>
+                                    <h4 class="text-slate-900 dark:text-white text-3xl font-bold">03</h4>
+                                    <div class="mt-2 flex items-center gap-1 text-emerald-600 text-sm font-medium">
+                                        <span class="material-symbols-outlined text-sm">schedule</span>
+                                        <span class="text-slate-400">This week</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="size-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600">
+                                    <span class="material-symbols-outlined">event</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Certificates Card -->
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Certificates
+                                    </p>
+                                    <h4 class="text-slate-900 dark:text-white text-3xl font-bold">04</h4>
+                                    <div class="mt-2 flex items-center gap-1 text-sm font-medium">
+                                        <span class="text-slate-400">Earned</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="size-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600">
+                                    <span class="material-symbols-outlined">workspace_premium</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Study Material Card -->
+                        <a href="/student/materials/syllabus"
+                            class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow block">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Study
+                                        Material
+                                    </p>
+                                    <h4 class="text-slate-900 dark:text-white text-xl font-bold">Access Resources</h4>
+                                    <div class="mt-2 flex items-center gap-1 text-primary text-sm font-medium">
+                                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                        <span>View Materials</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="size-12 rounded-xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">menu_book</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+            </div>
+            <footer th:replace="~{fragments/student-sidebar-fragment :: Footer}"></footer> <!--Footer-->
+        </main>
+    </div>
+    <!-- Chatbot Button -->
+    <!--<div onclick="toggleChat()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-secondary to-cyan-400
+            text-white rounded-full flex items-center justify-center shadow-lg
+            cursor-pointer hover:scale-110 transition-transform z-50">
+        🤖
+    </div>-->
+
+    <!-- Chatbot Modal -->
+    <!-- <div id="chatbot" class="fixed bottom-24 right-6 z-50 hidden">
+        <div class="chatbot-container">-->
+    <!-- HEADER -->
+    <!--<div class="chat-header">
+                <div class="bot-icon">🤖</div>
+                <div class="flex-1">
+                    <div class="header-title">ExamBot</div>
+                    <div class="status-dot">● Online</div>
+                </div>
+                <button onclick="toggleChat()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>-->
+
+    <!-- BODY -->
+    <!--   <div class="chat-body" id="chatBody">-->
+    <!-- Content injected via JS -->
+    <!-- </div>-->
+
+    <!-- FOOTER -->
+    <!--  <div class="chat-footer">
+                <input type="text" id="msg" placeholder="Type a message..." maxlength="100"
+                    onkeydown="handleEnter(event)" class="chat-input">
+                <button onclick="send()" class="chat-send-btn">
+                    <span class="material-symbols-outlined text-lg">send</span>
+                </button>
+            </div>
+        </div>
+    </div>-->
+
+    <script>
+        const chat = document.getElementById("chatBody");
+
+        /* ---------------- TOGGLE ---------------- */
+        function toggleChat() {
+            document.getElementById("chatbot").classList.toggle("hidden");
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') send();
+        }
+
+        /* ---------------- DASHBOARD ---------------- */
+        function showDashboard() {
+            chat.innerHTML = `
+                <div class="bot-msg-bubble">
+                    Hi 👋 I’m here to help with your exams and results.  
+                    What would you like to know?
+                </div>
+
+                <div class="chat-option" onclick="loadFaqs()">
+                    <span>📌 FAQs</span>
+                    <span class="chat-arrow">›</span>
+                </div>
+            `;
+        }
+
+        /* ---------------- BACK BUTTON ---------------- */
+        function addBackButton() {
+            if (document.querySelector(".chat-back-btn")) return;
+
+            const backBtn = document.createElement("button");
+            backBtn.className = "chat-back-btn";
+            backBtn.innerHTML = `<span class="material-symbols-outlined text-sm">arrow_back</span> Back to Dashboard`;
+            backBtn.onclick = showDashboard;
+            chat.prepend(backBtn);
+        }
+
+        /* ---------------- LOAD FAQ ---------------- */
+        function loadFaqs() {
+            chat.innerHTML = "";
+            addBackButton();
+
+            fetch("/chatbot/questions")
+                .then(res => res.json())
+                .then(faqs => {
+                    if (faqs.length === 0) {
+                        chat.innerHTML += `<div class="bot-reply-bubble"><span>No FAQs found!</span></div>`;
+                        return;
+                    }
+
+                    faqs.forEach(q => {
+                        const d = document.createElement("div");
+                        d.className = "chat-option";
+                        d.innerHTML = `${q}<span class="chat-arrow">›</span>`;
+                        d.onclick = () => showAnswer(q, d);
+                        chat.appendChild(d);
+                    });
+                });
+        }
+
+        /* ---------------- SHOW ANSWER ---------------- */
+        function showAnswer(question, optionDiv) {
+            // remove previous answers
+            document.querySelectorAll(".chat-answer").forEach(a => a.remove());
+
+            // remove highlight from all questions
+            document.querySelectorAll(".chat-option").forEach(o => o.classList.remove("active"));
+
+            // highlight clicked question
+            optionDiv.classList.add("active");
+
+            fetch(`/chatbot/ask?message=${encodeURIComponent(question)}`, {
+                method: "POST"
+            })
+                .then(res => res.text())
+                .then(answer => {
+                    const ans = document.createElement("div");
+                    ans.className = "chat-answer";
+                    ans.innerText = answer;
+
+                    // show answer just below the same question
+                    optionDiv.after(ans);
+                    chat.scrollTop = optionDiv.offsetTop - 50;
+                });
+        }
+
+        /* ---------------- USER MESSAGE ---------------- */
+        function showUser(msg) {
+            addBackButton();
+
+            const userDiv = document.createElement("div");
+            userDiv.className = "user-msg-row";
+            userDiv.innerHTML = `<span class="user-msg-bubble">${msg}</span>`;
+
+            chat.appendChild(userDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        /* ---------------- SEND MESSAGE ---------------- */
+        function send() {
+            const i = document.getElementById("msg");
+            const text = i.value.trim();
+
+            if (!text) {
+                alert("❌ Please enter a question");
+                return;
+            }
+
+            fetch(`/chatbot/validate?message=${encodeURIComponent(text)}`, {
+                method: "POST"
+            })
+                .then(res => res.json())
+                .then(isValid => {
+                    if (!isValid) {
+                        alert("❌ Invalid question! Please type a proper question (e.g., 'Exam Result').");
+                        return;
+                    }
+
+                    showUser(text);
+
+                    fetch(`/chatbot/ask?message=${encodeURIComponent(text)}`, {
+                        method: "POST"
+                    })
+                        .then(res => res.text())
+                        .then(reply => {
+                            const botDiv = document.createElement("div");
+                            botDiv.className = "bot-reply-bubble";
+                            botDiv.innerHTML = `<span>${reply}</span>`;
+                            chat.appendChild(botDiv);
+                            chat.scrollTop = chat.scrollHeight;
+                        });
+
+                    i.value = "";
+                });
+        }
+
+        /* ---------------- INIT ---------------- */
+        showDashboard();
+    </script>
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>

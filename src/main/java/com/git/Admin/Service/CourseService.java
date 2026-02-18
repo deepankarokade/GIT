@@ -5,10 +5,15 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.git.Admin.Entity.Course;
+import com.git.Admin.Entity.Section;
 import com.git.Admin.Entity.Subject;
 import com.git.Admin.Repository.CourseRepository;
+import com.git.Admin.Repository.ExamSetRepository;
+import com.git.Admin.Repository.ManageExamTypeRepository;
+import com.git.Admin.Repository.SectionRepository;
 import com.git.Admin.Repository.SubjectRepository;
 import com.git.CourseType;
 import com.git.QuestionType;
@@ -22,6 +27,35 @@ public class CourseService {
     @Autowired
     private SubjectRepository subjectRepository;
 
+    @Autowired
+    private ExamSetRepository examSetRepository;
+
+    @Autowired
+    private ManageExamTypeRepository manageExamTypeRepository;
+
+    @Autowired
+    private SectionRepository sectionRepository;
+
+    // Generate Course UID
+    private String generateCourseUid() {
+        return courseRepository.findTopByOrderByIdDesc()
+                .map(lastCourse -> {
+                    String lastUid = lastCourse.getCourseId();
+                    if (lastUid != null && lastUid.startsWith("COU_")) {
+                        try {
+                            int lastNumber = Integer.parseInt(lastUid.substring(4));
+                            return String.format("COU_%04d", lastNumber + 1);
+                        } catch (NumberFormatException e) {
+                            // Fallback if parsing fails
+                            return String.format("COU_%04d", lastCourse.getId() + 1);
+                        }
+                    }
+                    // Fallback if UID format is unexpected
+                    return String.format("COU_%04d", lastCourse.getId() + 1);
+                })
+                .orElse("COU_0001"); // First course
+    }
+
     // GET all Course
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
@@ -31,13 +65,18 @@ public class CourseService {
         return courseRepository.findByStudentClass(studentClass);
     }
 
-    // ADD new Course
-    public Course addNewCourse(String courseName, String courseId, String studentClass, String batchDescription,
-            CourseType courseType, Set<QuestionType> questionTypes, List<Long> subjectIds) {
-
-        if (courseRepository.existsByCourseId(courseId)) {
-            throw new RuntimeException("CourseId Exists");
+    public Course getCourseById(Long id) {
+        if (id == null) {
+            return null;
         }
+        return courseRepository.findById(id).orElse(null);
+    }
+
+    // ADD new Course
+    public Course addNewCourse(String courseName, String studentClass, String batchDescription,
+            CourseType courseType, Set<QuestionType> questionTypes, List<Long> subjectIds, List<Long> setIds) {
+
+        String courseId = generateCourseUid();
 
         Course course = new Course();
         course.setCourseName(courseName);
@@ -54,13 +93,28 @@ public class CourseService {
             course.setSubjects(selectedSubjects);
         }
 
+        if (setIds != null && !setIds.isEmpty()) {
+            course.setExamSets(examSetRepository.findAllById(setIds));
+        }
+
         return courseRepository.save(course);
     }
 
     // DELETE Course
-    public void deleteCourse(String courseId) {
-        Course course = courseRepository.findByCourseId(courseId)
+    @Transactional
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course Not found"));
+
+        // Remove course reference from all sections
+        List<Section> sections = sectionRepository.findByCourse(course);
+        for (Section section : sections) {
+            section.setCourse(null);
+            sectionRepository.save(section);
+        }
+
+        // Delete related records first
+        manageExamTypeRepository.deleteByCourse(course);
 
         courseRepository.delete(course);
     }
@@ -72,7 +126,7 @@ public class CourseService {
 
     public Course updateCourse(long id, String courseName, String courseId, String studentClass,
             String batchDescription, boolean active, CourseType courseType, Set<QuestionType> questionTypes,
-            List<Long> subjectIds) {
+            List<Long> subjectIds, List<Long> setIds) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course Not found"));
 
@@ -94,6 +148,10 @@ public class CourseService {
         if (subjectIds != null) {
             List<Subject> selectedSubjects = subjectRepository.findAllById(subjectIds);
             course.setSubjects(selectedSubjects);
+        }
+
+        if (setIds != null) {
+            course.setExamSets(examSetRepository.findAllById(setIds));
         }
 
         return courseRepository.save(course);

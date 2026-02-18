@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="Head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f766e",
+                        "secondary": "#6366f1",
+                        "background-light": "#f0fdfa",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .geometric-bg {
+            background-color: #ededed;
+            background-image: radial-gradient(#0f766e11 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .dark .geometric-bg {
+            background-color: #101622;
+            background-image: radial-gradient(#0f766e22 1px, transparent 1px);
+        }
+    </style>
+</head>
+
+<body>
+    <aside th:fragment="Sidebar"
+        class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between py-6">
+        <div class="flex flex-col gap-8 px-6">
+            <!-- Profile Section -->
+            <div class="flex gap-3 items-center">
+                <div class="flex flex-col">
+                    <h5 class="text-slate-700 dark:text-slate-400 text-sm font-bold leading-tight">Student Dashboard
+                    </h5>
+                </div>
+            </div>
+            <!-- Nav Links -->
+            <nav class="flex flex-col gap-1">
+                <!-- Dashboard -->
+                <a th:classappend="${activeItem == 'dashboard' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="/student/dashboard">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <p class="text-sm font-medium">Dashboard</p>
+                </a>
+
+                <!-- View Exam -->
+                <div class="flex flex-col">
+                    <button onclick="toggleSubmenu('examPortalSubmenu')"
+                        class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined">quiz</span>
+                            <p class="text-sm font-medium">View Exam</p>
+                        </div>
+                        <span class="material-symbols-outlined text-sm transition-transform" id="examPortalSubmenuIcon"
+                            th:style="${expandItem == 'exam' ? 'transform: rotate(180deg)' : ''}">expand_more</span>
+                    </button>
+                    <div id="examPortalSubmenu" th:classappend="${expandItem == 'exam' ? 'flex' : 'hidden'}"
+                        class="flex-col gap-1 ml-8 mt-1">
+                        <a href="/student/exams/past"
+                            th:classappend="${activeItem == 'past-exam' ? 'text-primary bg-slate-50 dark:bg-slate-800 font-bold' : ''}"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">
+                            Previous Exam
+                        </a>
+                        <a href="/student/exams/current"
+                            th:classappend="${activeItem == 'current-exam' ? 'text-primary bg-slate-50 dark:bg-slate-800 font-bold' : ''}"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">
+                            Current Exam
+                        </a>
+                        <a href="/student/exams/future"
+                            th:classappend="${activeItem == 'future-exam' ? 'text-primary bg-slate-50 dark:bg-slate-800 font-bold' : ''}"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">
+                            Upcoming Exam
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Live Test -->
+                <a th:classappend="${activeItem == 'live-test' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="#">
+                    <span class="material-symbols-outlined">sensors</span>
+                    <p class="text-sm font-medium">Live Test</p>
+                </a>
+
+                <!-- Study Material -->
+                <div class="flex flex-col">
+                    <button onclick="toggleSubmenu('studySubmenu')"
+                        class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined">menu_book</span>
+                            <p class="text-sm font-medium">Study Material</p>
+                        </div>
+                        <span class="material-symbols-outlined text-sm transition-transform" id="studySubmenuIcon"
+                            th:style="${expandItem == 'study' ? 'transform: rotate(180deg)' : ''}">expand_more</span>
+                    </button>
+                    <div id="studySubmenu" th:classappend="${expandItem == 'study' ? 'flex' : 'hidden'}"
+                        class="flex-col gap-1 ml-8 mt-1">
+                        <a th:href="@{/student/materials/syllabus}"
+                            th:classappend="${activeItem == 'syllabus' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="px-4 py-2 text-sm hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Syllabus</a>
+                        <a th:href="@{/student/materials/video}"
+                            th:classappend="${activeItem == 'video' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="px-4 py-2 text-sm hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Video</a>
+                        <a th:href="@{/student/materials/pdf}"
+                            th:classappend="${activeItem == 'pdf' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="px-4 py-2 text-sm hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Notes</a>
+                        <a th:href="@{/student/materials/presentation}"
+                            th:classappend="${activeItem == 'presentation' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}"
+                            class="px-4 py-2 text-sm hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Presentation
+                            Files</a>
+                    </div>
+                </div>
+
+                <!-- Exam Preparation -->
+                <div class="flex flex-col">
+                    <button onclick="toggleSubmenu('prepSubmenu')"
+                        class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined">edit_note</span>
+                            <p class="text-sm font-medium">Exam Preparation</p>
+                        </div>
+                        <span class="material-symbols-outlined text-sm transition-transform"
+                            id="prepSubmenuIcon">expand_more</span>
+                    </button>
+                    <div id="prepSubmenu" class="hidden flex-col gap-1 ml-8 mt-1">
+                        <a href="/student/exam-preparation"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Previous
+                            Year Papers</a>
+                    </div>
+                </div>
+
+                <!-- Demo Test -->
+                <a th:classappend="${activeItem == 'demo-test' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="#">
+                    <span class="material-symbols-outlined">assignment</span>
+                    <p class="text-sm font-medium">Demo Test</p>
+                </a>
+
+                <!-- Results -->
+                <div class="flex flex-col">
+                    <button onclick="toggleSubmenu('resultSubmenu')"
+                        class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined">leaderboard</span>
+                            <p class="text-sm font-medium">Results</p>
+                        </div>
+                        <span class="material-symbols-outlined text-sm transition-transform"
+                            id="resultSubmenuIcon">expand_more</span>
+                    </button>
+                    <div id="resultSubmenu" class="hidden flex-col gap-1 ml-8 mt-1">
+                        <a href="#"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Previous</a>
+                        <a href="#"
+                            class="px-4 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">Current</a>
+                    </div>
+                </div>
+
+                <!-- Certificates -->
+                <a th:classappend="${activeItem == 'certificates' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="/student/certificates">
+                    <span class="material-symbols-outlined">workspace_premium</span>
+                    <p class="text-sm font-medium">Certificates</p>
+                </a>
+
+                <!-- Support Ticket -->
+                <a th:classappend="${activeItem == 'support' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="/support-ticket/previous">
+                    <span class="material-symbols-outlined">support_agent</span>
+                    <p class="text-sm font-medium">Support Ticket</p>
+                </a>
+
+                <!-- Payment -->
+                <a th:classappend="${activeItem == 'payment' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all" href="/student/payments">
+                    <span class="material-symbols-outlined">payments</span>
+                    <p class="text-sm font-medium">Payment</p>
+                </a>
+            </nav>
+        </div>
+        <!-- Footer Sidebar -->
+        <div class="flex flex-col gap-1 px-6">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <p class="text-sm font-medium">Settings</p>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Header Fragment -->
+    <header th:fragment="Header"
+        class="flex items-center justify-between sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="text-primary">
+                    <span class="material-symbols-outlined text-3xl">school</span>
+                </div>
+                <h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">ExamPortal</h2>
+            </div>
+            <div class="hidden md:flex relative group">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                <input
+                    class="form-input w-80 pl-10 pr-4 py-2 rounded-xl border-none bg-slate-100 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary transition-all"
+                    placeholder="Search exams, materials..." />
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="absolute top-1 right-1 size-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div onclick="toggleProfileMenu()"
+                class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-primary cursor-pointer"
+                th:style="|background-image:url('https://ui-avatars.com/api/?name=${student.fullName}&background=0f766e&color=fff&bold=true')|">
+            </div>
+
+            <!-- Dropdown -->
+            <div id="profileMenu" class="absolute right-0 top-12 w-48 hidden z-50
+                            bg-white dark:bg-slate-900
+                            rounded-xl shadow-lg
+                            border border-slate-200 dark:border-slate-700
+                            py-2">
+
+                <a th:href="@{/student/edit-profile}" class="flex items-center gap-2 px-4 py-2 text-sm
+                                      text-slate-600 dark:text-slate-400
+                                      hover:bg-slate-50 dark:hover:bg-slate-800">
+                    <span class="material-symbols-outlined text-lg">person</span>
+                    Edit Profile
+                </a>
+
+                <a th:href="@{/student/change-password-page}" class="flex items-center gap-2 px-4 py-2 text-sm
+                                  text-slate-600 dark:text-slate-400
+                                  hover:bg-slate-50 dark:hover:bg-slate-800">
+                    <span class="material-symbols-outlined text-lg">lock</span>
+                    Change Password
+                </a>
+
+
+                <hr class="my-2 border-slate-200 dark:border-slate-700">
+
+                <a th:href="@{/student/logout}" class="flex items-center gap-2 px-4 py-2 text-sm
+                                  text-red-500
+                                  hover:bg-red-50 dark:hover:bg-red-900/20">
+                    <span class="material-symbols-outlined text-lg">logout</span>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Footer Fragment -->
+    <footer th:fragment="Footer"
+        class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+        <div class="max-w-[1400px] mx-auto px-8 py-4
+                        flex flex-col items-center justify-center gap-2 text-center">
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                © 2026 <span class="font-semibold text-slate-700 dark:text-slate-300">ExamPortal</span>Your
+                Company All Rights Reserved
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts Fragment -->
+    <div th:fragment="Scripts">
+        <script>
+            // Submenu toggle function
+            function toggleSubmenu(submenuId) {
+                const submenu = document.getElementById(submenuId);
+                const icon = document.getElementById(submenuId + 'Icon');
+
+                if (submenu.classList.contains('hidden')) {
+                    submenu.classList.remove('hidden');
+                    submenu.classList.add('flex');
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                } else {
+                    submenu.classList.add('hidden');
+                    submenu.classList.remove('flex');
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                }
+            }
+
+            function toggleProfileMenu() {
+                document.getElementById("profileMenu").classList.toggle("hidden");
+            }
+
+            /* Close when clicking outside */
+            document.addEventListener("click", function (e) {
+                const menu = document.getElementById("profileMenu");
+                const avatar = e.target.closest(".rounded-full");
+
+                if (menu && !menu.contains(e.target) && !avatar) {
+                    menu.classList.add("hidden");
+                }
+            });
+        </script>
+    </div>
+
+</body>
+
+</html>

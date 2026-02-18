@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Create Exam Rule</title>
+
+<style>
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: "Inter", "Segoe UI", sans-serif;
+	background: linear-gradient(135deg, #eef2ff, #f8fafc);
+	min-height: 100vh;
+	padding: 40px 16px;
+}
+
+.container {
+	max-width: 900px;
+	margin: auto;
+}
+
+.header {
+	text-align: center;
+	margin-bottom: 28px;
+}
+
+.header h1 {
+	font-size: 26px;
+	margin: 0;
+	color: #1e293b;
+}
+
+.header p {
+	font-size: 14px;
+	color: #64748b;
+	margin-top: 6px;
+}
+
+.card {
+	background: #ffffff;
+	border-radius: 16px;
+	padding: 30px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+}
+
+.section {
+	background: #f8fafc;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 20px;
+}
+
+.section h3 {
+	font-size: 15px;
+	margin-bottom: 14px;
+	color: #2563eb;
+}
+
+label {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: #334155;
+	margin-top: 12px;
+}
+
+input, textarea {
+	width: 100%;
+	margin-top: 6px;
+	padding: 11px 12px;
+	font-size: 14px;
+	border-radius: 8px;
+	border: 1px solid #cbd5f5;
+	background: #ffffff;
+	transition: all 0.2s ease;
+}
+
+input:focus, textarea:focus {
+	outline: none;
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+textarea {
+	min-height: 90px;
+	resize: vertical;
+}
+
+.full {
+	grid-column: span 2;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 14px;
+	margin-top: 30px;
+}
+
+.btn {
+	padding: 12px 22px;
+	border-radius: 10px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	border: none;
+}
+
+.btn-reset {
+	background: #e5e7eb;
+	color: #334155;
+}
+
+.btn-reset:hover {
+	background: #d1d5db;
+}
+
+.btn-submit {
+	background: linear-gradient(135deg, #2563eb, #1e40af);
+	color: #ffffff;
+}
+
+.btn-submit:hover {
+	opacity: 0.9;
+}
+
+@media ( max-width : 768px) {
+	.grid {
+		grid-template-columns: 1fr;
+	}
+	.full {
+		grid-column: span 1;
+	}
+}
+
+select {
+	width: 100%;
+	margin-top: 6px;
+	padding: 11px 12px;
+	font-size: 14px;
+	border-radius: 8px;
+	border: 1px solid #cbd5f5;
+	background: #ffffff;
+	transition: all 0.2s ease;
+}
+
+select:focus {
+	outline: none;
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+</style>
+</head>
+
+<body>
+
+	<div class="container">
+
+		<div class="header">
+			<h1>Create Exam Rule</h1>
+			<p>Configure exam guidelines, restrictions and validation rules</p>
+		</div>
+
+		<div class="card">
+			<form th:action="@{/professor/save-exam-rule}" method="post">
+
+				<div class="grid">
+
+					<div class="section">
+						<h3>Exam Details</h3>
+
+						<label>Exam Name</label> <select name="examName" required>
+							<option value="">-- Select Exam --</option>
+							<option value="CET">CET</option>
+							<option value="JEE">JEE</option>
+							<option value="NEET">NEET</option>
+							
+						</select> <label>Exam Date</label> <input type="date" name="examDate" id="examDate">
+
+
+						<label>Duration (minutes)</label> 
+						<input type="number" name="examDuration" placeholder="120" min="1" required>
+
+							 <label>Reporting
+							Time</label> <input type="time" name="reportingTime" id="reportingTime">
+
+					</div>
+
+					<div class="section">
+						<h3>Guidelines</h3>
+
+						<label>Behavior Rules</label>
+						<textarea name="behavioralGuidelines"
+							placeholder="Maintain silence, no malpractice..."></textarea>
+
+						<label>Additional Notes</label>
+						<textarea name="additionalInformation"
+							placeholder="Any extra information..."></textarea>
+					</div>
+
+					<div class="section">
+						<h3>Allowed Materials</h3>
+						<textarea name="allowedMaterials"
+							placeholder="Calculator, Rough Sheet"></textarea>
+					</div>
+
+					<div class="section">
+						<h3>Prohibited Items</h3>
+						<textarea name="prohibitedItems"
+							placeholder="Mobile Phones, Smart Watches"></textarea>
+					</div>
+
+					<div class="section full">
+						<h3>Validation Rules</h3>
+						<textarea name="validationRules"
+							placeholder="ID check, attendance verification..."></textarea>
+					</div>
+
+					<div class="section full">
+						<h3>Special Accommodations</h3>
+						<textarea name="accommodations"
+							placeholder="Extra time, special seating..."></textarea>
+					</div>
+
+				</div>
+
+				<div class="actions">
+					<button type="reset" class="btn btn-reset">Cancel</button>
+					<button type="submit" class="btn btn-submit">Save Exam
+						Rule</button>
+				</div>
+
+			</form>
+		</div>
+
+	</div>
+	<script>
+    // DATE restriction (no past date)
+    const examDateInput = document.getElementById("examDate");
+    const reportingTimeInput = document.getElementById("reportingTime");
+    const form = document.querySelector("form");
+
+    const today = new Date().toISOString().split("T")[0];
+    examDateInput.setAttribute("min", today);
+
+    // TIME restriction (no past time for today)
+    function restrictPastTime() {
+        const selectedDate = examDateInput.value;
+        if (!selectedDate) return;
+
+        const now = new Date();
+        const todayDate = now.toISOString().split("T")[0];
+
+        if (selectedDate === todayDate) {
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            reportingTimeInput.min = `${hours}:${minutes}`;
+        } else {
+            reportingTimeInput.removeAttribute("min");
+        }
+    }
+
+    examDateInput.addEventListener("change", restrictPastTime);
+    window.addEventListener("load", restrictPastTime);
+
+    // FORM validation
+    form.addEventListener("submit", function (e) {
+        let isValid = true;
+        let firstError = null;
+
+        document.querySelectorAll("input, textarea").forEach(el => {
+            el.style.borderColor = "#cbd5f5";
+        });
+
+        function showError(field, message) {
+            field.style.borderColor = "red";
+            alert(message);
+            if (!firstError) firstError = field;
+            isValid = false;
+        }
+
+        if (!form.examName.value) {
+            showError(form.examName, "Please select Exam Name.");
+        }
+
+        if (!form.examDate.value) {
+            showError(form.examDate, "Please select Exam Date.");
+        }
+
+        if (!form.reportingTime.value) {
+            showError(form.reportingTime, "Please select Reporting Time.");
+        }
+
+        if (form.examDuration.value <= 0) {
+            showError(form.examDuration, "Duration must be greater than 0.");
+        }
+
+        if (form.behavioralGuidelines.value.trim().length < 10) {
+            showError(form.behavioralGuidelines, "Behavior Rules must be at least 10 characters.");
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            firstError.focus();
+        }
+    });
+</script>
+
+</body>
+</html>

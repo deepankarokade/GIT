@@ -1,0 +1,290 @@
+4# GIT Forum Database Schema Reference
+
+This document provides a comprehensive list of all database tables, their descriptions, and their fields within the project, based on the project's JPA entity mappings and requirements.
+
+---
+
+## 1. admin
+**Description:** Stores administrator account details.
+- `id` (BIGINT): Primary Key.
+- `uid` (VARCHAR): Unique identifier for the admin.
+- `name` (VARCHAR): Name of the administrator.
+- `password` (VARCHAR): Encrypted password.
+- `profileImage` (LONGBLOB): Binary data of the profile picture.
+- `address` (VARCHAR): Contact address.
+- `phoneNumber` (BIGINT): Contact phone number.
+- `email` (VARCHAR): Administrator email address.
+
+## 2. admin_notifications
+**Description:** Stores notifications intended for the administrator system.
+- `id` (BIGINT): Primary Key.
+- `message` (VARCHAR): The notification message content.
+- `type` (VARCHAR): Type of notification (e.g., SUPPORT_TICKET, PAYMENT).
+- `isRead` (BOOLEAN): Status indicating if the notification has been read.
+- `link` (VARCHAR): Associated action link.
+- `createdAt` (DATETIME): Timestamp when the notification was created.
+
+## 3. certificates
+**Description:** Stores details of certificates issued to students upon exam completion.
+- `id` (BIGINT): Primary Key.
+- `student_uid` (VARCHAR): Reference to the student's UID.
+- `exam_id` (BIGINT): Reference to the exam.
+- `courseName` (VARCHAR): Name of the course for which the certificate is issued.
+- `issueDate` (DATE): Date of issuance.
+- `grade` (VARCHAR): Grade achieved by the student.
+- `professorName` (VARCHAR): Name of the issuing professor.
+- `professor_signature` (LONGBLOB): Binary data of the professor's signature.
+
+## 4. chatbot_faq
+**Description:** Stores frequently asked questions and answers for the student chatbot.
+- `id` (BIGINT): Primary Key.
+- `question` (VARCHAR): The FAQ question.
+- `answer` (VARCHAR(1000)): The answer to the question.
+- `status` (BOOLEAN): Activity status of the FAQ entry.
+
+## 5. course
+**Description:** Stores details of available educational courses.
+- `id` (BIGINT): Primary Key.
+- `courseName` (VARCHAR): Name of the course.
+- `courseId` (VARCHAR): Unique identifier for the course.
+- `studentClass` (VARCHAR): Target class for the course.
+- `active` (BOOLEAN): Status of the course (active/inactive).
+- `batchDescription` (VARCHAR): Description of the course batch.
+- `course_type` (VARCHAR): Categorization of the course (e.g., REGULAR, CRASH).
+
+## 6. course_exam_sets
+**Description:** Join table mapping courses to exam sets.
+- `course_id` (BIGINT): Reference to `course`.
+- `exam_set_id` (BIGINT): Reference to `exam_sets`.
+
+## 7. course_question_types
+**Description:** Collection table storing allowed question types for a specific course.
+- `course_id` (BIGINT): Reference to `course`.
+- `question_type` (VARCHAR): Allowed question type (e.g., MCQ, DESCRIPTIVE).
+
+## 8. course_subjects
+**Description:** Join table mapping courses to their constituent subjects.
+- `course_id` (BIGINT): Reference to `course`.
+- `subject_id` (BIGINT): Reference to `subjects`.
+
+## 9. demoquestionpaper
+**Description:** Stores metadata for practice/demo question papers.
+- `qid` (BIGINT): Primary Key.
+- `coursename` (VARCHAR): Name of the course.
+- `subject` (VARCHAR): Associated subject.
+- `chapter` (VARCHAR): Associated chapter.
+- `duration` (INT): Duration of the demo exam in minutes.
+- `difficulty` (VARCHAR): Difficulty level.
+- `selectset` (VARCHAR): Selected exam set.
+- `questionpaperphotoname` (VARCHAR): Name of the paper image file.
+- `questionpaperimage` (LONGBLOB): Binary data of the paper image.
+- `explanation` (TEXT): Explanation or solutions.
+- `attachmentname` (VARCHAR): Name of any attached file.
+- `attachment` (LONGBLOB): Binary data of the attachment.
+
+## 10. demoquestions
+**Description:** Stores individual questions associated with a demo question paper.
+- `id` (BIGINT): Primary Key.
+- `paper_id` (BIGINT): Reference to `demoquestionpaper`.
+- `questionText` (TEXT): The actual question text.
+- `options` (VARCHAR): Serialized MCQ options.
+- `correctAnswer` (VARCHAR): The correct answer or key.
+- `matchPairs` (VARCHAR): Serialized pairs for match-the-pairs questions.
+- `essay` (TEXT): Template or key for essay questions.
+- `shortAnswer` (VARCHAR): Key for short answer questions.
+- `fillintheblanks` (VARCHAR): Key for fill-in-the-blanks.
+- `questionType` (VARCHAR): Type of the question.
+- `marks` (INT): Marks assigned to the question.
+
+## 11. exam_preparation
+**Description:** Stores documents and resources for exam preparation.
+- `id` (BIGINT): Primary Key.
+- `subjectName` (VARCHAR): Associated subject.
+- `academicYear` (INT): Target academic year.
+- `fileFormat` (VARCHAR): Format or extension of the file.
+- `fileName` (VARCHAR): Name of the preparation file.
+- `fileData` (LONGBLOB): Binary content of the preparation resource.
+
+## 12. exam_rules
+**Description:** Configuration for exam guidelines and restrictions.
+- `examName` (VARCHAR): Target exam name.
+- `examDate` (DATE): Scheduled date.
+- `examDuration` (INT): Duration in minutes.
+- `reportingTime` (TIME): Required arrival time.
+- `behavioralGuidelines` (TEXT): Code of conduct during the exam.
+- `allowedMaterials` (TEXT): List of permitted items.
+- `prohibitedItems` (TEXT): List of forbidden items.
+- `additionalInformation` (TEXT): Miscellaneous notes.
+- `validationRules` (TEXT): Rules for identity and attendance validation.
+- `accommodations` (TEXT): Special arrangements for students.
+
+## 13. exam_sets
+**Description:** Stores available sets for examination papers (e.g., Set A, Set B).
+- `id` (BIGINT): Primary Key.
+- `setName` (VARCHAR): Human-readable set name.
+- `setId` (VARCHAR): Unique code for the set.
+
+## 14. exams
+**Description:** Primary table for managing scheduled examinations.
+- `id` (BIGINT): Primary Key.
+- `examCode` (VARCHAR): Unique examination code.
+- `title` (VARCHAR): Title of the exam.
+- `courseName` (VARCHAR): Name of the associated course.
+- `batch` (VARCHAR): Targeted batch.
+- `section` (VARCHAR): Targeted section.
+- `examType` (VARCHAR): Categorization of the exam.
+- `examDate` (DATE): Date of the exam.
+- `examVenueType` (VARCHAR): Location or venue details.
+- `additionalInformation` (VARCHAR(1000)): Extra details.
+- `examSet` (VARCHAR): Associated paper set.
+- `status` (VARCHAR): Current status (e.g., PENDING, COMPLETED).
+- `startTime` (TIME): Scheduled start time.
+- `endTime` (TIME): Scheduled end time.
+- `enabled` (BOOLEAN): Activation status for student access.
+- `duration` (INT): Duration in minutes.
+- `totalMarks` (INT): Maximum possible marks.
+- `professorName` (VARCHAR): Name of the managing professor.
+
+## 15. faculty
+**Description:** Stores details of teaching staff/professors.
+- `facid` (BIGINT): Primary Key.
+- `fullName` (VARCHAR): Full name of the faculty member.
+- `email` (VARCHAR): Unique email address.
+- `username` (VARCHAR): Unique login username.
+- `password` (VARCHAR): Encrypted password.
+- `first_login` (BOOLEAN): Flag for the first-time login experience.
+- `mustResetPassword` (BOOLEAN): Security flag for password reset.
+- `department` (VARCHAR): Associated department.
+- `mobileNo` (VARCHAR): Contact mobile number.
+- `altMobileNo` (VARCHAR): Alternative contact number.
+- `officeAddress` (VARCHAR): Work location.
+- `qualification` (VARCHAR): Educational qualifications.
+- `subject` (VARCHAR): Subject expertise.
+- `photofilename` (VARCHAR): Name of the profile photo file.
+- `photo` (LONGBLOB): Binary data of the profile photo.
+- `signatureFilename` (VARCHAR): Name of the signature image file.
+- `signature` (LONGBLOB): Binary data of the signature image.
+- `termsAccepted` (BOOLEAN): Status of terms and conditions acceptance.
+- `activity` (VARCHAR): Current activity status (e.g., ACTIVE, INACTIVE).
+
+## 16. manage_exam_type
+**Description:** Configuration for various examination formats.
+- `id` (BIGINT): Primary Key.
+- `examTypeId` (VARCHAR): Unique ID for the exam type.
+- `examName` (VARCHAR): Name of the exam type.
+- `examDescription` (VARCHAR): Description of the format.
+- `course_id` (BIGINT): Reference to the associated `course`.
+
+## 17. payments
+**Description:** Stores transaction records for student registrations.
+- `id` (BIGINT): Primary Key.
+- `amount` (BIGINT): Transaction amount (in subunit like paise).
+- `currency` (VARCHAR(3)): Currency code (e.g., INR).
+- `status` (VARCHAR(20)): Payment status (e.g., CREATED, CAPTURED).
+- `razorpayOrderId` (VARCHAR): Razorpay order identification.
+- `razorpayPaymentId` (VARCHAR): Razorpay payment identification.
+- `createdAt` (DATETIME): Timestamp of payment creation.
+- `updatedAt` (DATETIME): Timestamp of last update.
+- `studentName` (VARCHAR): Name of the student making the payment.
+- `studentUid` (VARCHAR): Reference to student's UID.
+- `studentEmail` (VARCHAR): Email for post-payment communication.
+
+## 18. question_bank
+**Description:** A centralized repository of questions for auto-generating papers.
+- `id` (BIGINT): Primary Key.
+- `course` (VARCHAR): Associated course.
+- `className` (VARCHAR): Associated class level.
+- `division` (VARCHAR): Associated division/section.
+- `subject` (VARCHAR): Associated subject.
+- `difficultySet` (VARCHAR): Difficulty categorization.
+- `questionType` (VARCHAR): Type of question (MCQ, etc.).
+- `questionText` (TEXT): The question content.
+- `marks` (INT): Marks assigned.
+- `optionA/B/C/D` (VARCHAR): Options for MCQs.
+- `correctAnswer` (VARCHAR): The validated correct answer.
+- `matchPairs` (TEXT): Serialized data for match-the-pairs.
+- `fillInTheBlanks` (TEXT): Serialized data for blanks.
+
+## 19. questionpaper
+**Description:** Stores actual examination papers associated with specific exams.
+- `qid` (BIGINT): Primary Key.
+- `coursename/subject/chapter` (VARCHAR): Paper context.
+- `duration` (INT): Paper-specific duration.
+- `difficulty/selectset` (VARCHAR): Difficulty and set.
+- `questionpaperimage` (LONGBLOB): Scanned or uploaded paper image.
+- `explanation` (TEXT): Official explanation or answer key.
+- `attachment` (LONGBLOB): Supplementary resources.
+- `exam_id` (BIGINT): Reference to the scheduled `exams`.
+
+## 20. questions
+**Description:** Individual questions belonging to an active examination paper.
+- `id` (BIGINT): Primary Key.
+- `paper_id` (BIGINT): Reference to `questionpaper`.
+- `questionText` (TEXT): Question content.
+- `options` (VARCHAR): Serialized options.
+- `correctAnswer` (VARCHAR): Validated answer.
+- `matchPairs/essay/shortAnswer/fillintheblanks` (TEXT/VARCHAR): Type-specific content.
+- `questionType` (VARCHAR): Question format.
+- `marks` (INT): Weightage.
+
+## 21. section
+**Description:** Manages school/college sections within a course.
+- `id` (BIGINT): Primary Key.
+- `class_id` (BIGINT): Reference to `student_class`.
+- `course_id` (BIGINT): Reference to `course`.
+- `sectionName` (VARCHAR): Name of the section.
+- `sectionDescription` (VARCHAR): Description of the section.
+- `sectionId` (VARCHAR): Unique code for the section.
+
+## 22. student
+**Description:** Detailed repository of student information and academic records.
+- `id` (BIGINT): Primary Key.
+- `uid` (VARCHAR): Unique User ID for the student.
+- `fullName` (VARCHAR): Student's full name.
+- `dob` (VARCHAR): Date of birth.
+- `gender/address/state/city` (VARCHAR): Demographic details.
+- `email/contactNumber` (VARCHAR): Contact information.
+- `parentName/parentContact` (VARCHAR): Guardian details.
+- `schoolCollegeName` (VARCHAR): Institutional origin.
+- `studentClass/registrationId` (VARCHAR): Academic classification.
+- `photo` (LONGBLOB): Profile photo binary.
+- `activityStudent` (VARCHAR): Student status (ACTIVE, INACTIVE, etc.).
+- `password` (VARCHAR): Encrypted login password.
+- `resetToken/resetTokenExpiry` (VARCHAR/DATETIME): Security tokens for password recovery.
+
+## 23. student_class
+**Description:** Defines various class levels available in the system.
+- `id` (BIGINT): Primary Key.
+- `className` (VARCHAR): Title of the class (e.g., 10th Standard).
+- `classDescription` (VARCHAR): Description of the class.
+- `classId` (VARCHAR): Unique identifier for the class level.
+
+## 24. study_material
+**Description:** Repository for educational resources like notes and videos.
+- `id` (BIGINT): Primary Key.
+- `title/subject/category` (VARCHAR): Resource classification.
+- `course` (VARCHAR): Associated course name.
+- `facultyId` (VARCHAR): UID of the uploading professor.
+- `fileName/fileType/filePath` (VARCHAR): File system details.
+- `fileSize` (BIGINT): Size of the resource in bytes.
+- `uploadDate` (DATETIME): Timestamp of upload.
+
+## 25. subjects
+**Description:** List of all subjects offered across various courses.
+- `id` (BIGINT): Primary Key.
+- `subjectName` (VARCHAR): Official name of the subject.
+- `subjectCode` (VARCHAR): Unique standardized subject code.
+
+## 26. support_ticket
+**Description:** Manages student queries and technical support requests.
+- `ticketId` (BIGINT): Primary Key.
+- `ticketType` (VARCHAR): Category (e.g., TECHNICAL, ACADEMIC).
+- `subject/description` (VARCHAR/TEXT): Ticket details.
+- `screenshotPath` (VARCHAR): Path to uploaded evidence.
+- `status` (VARCHAR): Ticket status (e.g., OPEN, RESOLVED).
+- `adminResponse` (TEXT): Resolution notes from admin.
+- `student_id` (BIGINT): Reference to the `student` who raised the ticket.
+- `createdDate/updatedDate` (DATETIME): Audit timestamps.
+
+---
+*End of Document*

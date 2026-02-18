@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/student-sidebar-fragment :: Head}">
+</head>
+
+<body>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside
+            th:replace="~{fragments/student-sidebar-fragment :: Sidebar(activeItem='current-exam', expandItem='exam')}">
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto geometric-bg">
+            <!-- Top Navigation Bar -->
+            <header th:replace="~{fragments/student-sidebar-fragment :: Header}"></header>
+
+            <div class="p-8 max-w-[1200px] mx-auto w-full flex flex-col gap-8">
+                <!-- Page Header -->
+                <div
+                    class="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="flex gap-2 text-xs text-slate-500 mb-2">
+                                <li><a th:href="@{/student/manage-exam}"
+                                        class="hover:text-primary transition-all">Exams</a></li>
+                                <li class="text-slate-300">/</li>
+                                <li class="text-teal-600 font-bold uppercase tracking-wider">Live Portal</li>
+                            </ol>
+                        </nav>
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="h-10 w-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-teal-600">
+                                <span class="material-symbols-outlined animate-pulse">bolt</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Live & Upcoming Today</h2>
+                        </div>
+                    </div>
+                    <a th:href="@{/student/manage-exam}"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Overview
+                    </a>
+                </div>
+
+                <!-- Exams Table Card -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                    <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                        Exam Details</th>
+                                    <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                        Schedule Info</th>
+                                    <th
+                                        class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest text-center">
+                                        Status / Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tr th:each="e : ${exams}"
+                                    class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all">
+                                    <td class="px-8 py-6">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors"
+                                                th:text="${e.title}">Advanced Physics 101</span>
+                                            <div class="flex items-center gap-2 text-xs text-slate-500 mt-2">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-slate-400">room</span>
+                                                <span>Online Examination Terminal</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                                            <div
+                                                class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-teal-500">calendar_today</span>
+                                                <span th:text="${e.examDate}">2026-02-06</span>
+                                            </div>
+                                            <div
+                                                class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-teal-500">schedule</span>
+                                                <span th:text="${e.startTime}">09:00</span>
+                                            </div>
+                                            <div
+                                                class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-teal-500">timer</span>
+                                                <span th:text="${e.duration}">60</span> mins
+                                            </div>
+                                            <div
+                                                class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                                <span
+                                                    class="material-symbols-outlined text-sm text-teal-500">event_repeat</span>
+                                                <span th:text="${e.endTime}">10:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="countdown inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-4 py-2 rounded-xl font-mono text-sm font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+                                                th:attr="data-date=${e.examDate}, data-time=${e.startTime}">
+                                                <span class="material-symbols-outlined text-sm">hourglass_empty</span>
+                                                <span>Calculating...</span>
+                                            </div>
+                                            <a th:href="@{/student/exams/start/{id}(id=${e.id})}"
+                                                class="btn-start hidden inline-flex items-center gap-3 px-8 py-2.5 rounded-xl bg-teal-600 text-white font-bold text-sm shadow-lg shadow-teal-500/20 hover:bg-teal-700 hover:shadow-teal-500/30 transition-all active:scale-95 group/btn">
+                                                <span>Start Exam</span>
+                                                <span
+                                                    class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(exams)}">
+                                    <td colspan="3" class="px-8 py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div
+                                                class="h-16 w-16 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center">
+                                                <span
+                                                    class="material-symbols-outlined text-3xl text-slate-300">filter_none</span>
+                                            </div>
+                                            <div class="max-w-xs mx-auto">
+                                                <p class="font-bold text-slate-900 dark:text-white">No active exams
+                                                    found</p>
+                                                <p class="text-sm text-slate-500 mt-1">There are no live exams currently
+                                                    available for your profile. Please check back later.</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        function initCountdowns() {
+            document.querySelectorAll("tbody tr").forEach(row => {
+                const countdown = row.querySelector(".countdown");
+                const btn = row.querySelector(".btn-start");
+
+                if (!countdown || !btn) return;
+
+                const dateStr = countdown.dataset.date;
+                const timeStr = countdown.dataset.time;
+
+                const examStart = new Date(dateStr + "T" + timeStr);
+                // Allow starting 5 minutes before the actual start time
+                const unlockTime = new Date(examStart.getTime() - 5 * 60 * 1000);
+
+                function update() {
+                    const now = new Date();
+
+                    if (now >= unlockTime) {
+                        countdown.classList.add("hidden");
+                        btn.classList.remove("hidden");
+                    } else {
+                        const diff = unlockTime - now;
+                        const h = Math.floor(diff / (1000 * 60 * 60));
+                        const m = Math.floor((diff / (1000 * 60)) % 60);
+                        const s = Math.floor((diff / 1000) % 60);
+
+                        countdown.innerHTML = `
+                            <span class="material-symbols-outlined text-sm">lock</span>
+                            <span>Unlocks in ${h}h ${m}m ${s}s</span>
+                        `;
+                    }
+                }
+
+                update();
+                setInterval(update, 1000);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initCountdowns);
+    </script>
+    <div th:replace="~{fragments/student-sidebar-fragment :: Scripts}"></div>
+</body>
+
+</html>
